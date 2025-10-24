@@ -1,0 +1,12 @@
+# environment.yml
+name: environment_nnpdf_full
+channels:
+  - conda-forge
+
+dependencies:
+  - nnpdf=4.0.10
+  - python=3.12
+  - pip
+
+  - pip:
+      - -r requirements.txt

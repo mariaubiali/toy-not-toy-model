@@ -1,0 +1,92 @@
+definitions:
+  stat:
+    description: statistical uncertainty
+    treatment: ADD
+    type: UNCORR
+  Model_1:
+    description: MC model uncertainty
+    treatment: ADD
+    type: UNCORR
+  Model_2:
+    description: MC model uncertainty
+    treatment: MULT
+    type: CORR
+  JES_1:
+    description: jet energy scale uncertainty
+    treatment: ADD
+    type: UNCORR
+  JES_2:
+    description: jet energy scale uncertainty
+    treatment: MULT
+    type: CORR
+  RCES:
+    description: remaining cluster energy scale uncertainty
+    treatment: MULT
+    type: CORR
+  $E_{e^\prime}$:
+    description: electron energy
+    treatment: MULT
+    type: CORR
+  "$\theta_{e^\\prime}$":
+    description: electron theta
+    treatment: MULT
+    type: CORR
+  LArNoise:
+    description: lar noice
+    treatment: MULT
+    type: CORR
+bins:
+- stat: 0.162155
+  RCES: 1.40611919e-03
+  $E_{e^\prime}$: 6.93199399e-03
+  $\theta_{e^\prime}$: 2.07890620e-03
+  LArNoise: 1.02500000e-03
+  Model_1: 2.11637060e-02
+  Model_2: 2.11637060e-02
+  JES_1: 1.54409710e-03
+  JES_2: 1.54409710e-03
+- stat: 0.179557
+  RCES: 1.55701979e-03
+  $E_{e^\prime}$: 7.67591530e-03
+  $\theta_{e^\prime}$: 2.30200833e-03
+  LArNoise: 1.13500000e-03
+  Model_1: 2.34349329e-02
+  Model_2: 2.34349329e-02
+  JES_1: 1.70980508e-03
+  JES_2: 1.70980508e-03
+- stat: 0.189049
+  RCES: 1.63932921e-03
+  $E_{e^\prime}$: 8.08169056e-03
+  $\theta_{e^\prime}$: 2.42370040e-03
+  LArNoise: 1.19500000e-03
+  Model_1: 2.46737840e-02
+  Model_2: 2.46737840e-02
+  JES_1: 1.80019125e-03
+  JES_2: 1.80019125e-03
+- stat: 1.69274000e-01
+  RCES: 1.46785126e-03
+  $E_{e^\prime}$: 7.23632543e-03
+  $\theta_{e^\prime}$: 2.17017526e-03
+  LArNoise: 0.00107
+  Model_1: 2.20928443e-02
+  Model_2: 2.20928443e-02
+  JES_1: 1.61188673e-03
+  JES_2: 1.61188673e-03
+- stat: 0.177975
+  RCES: 1.54330155e-03
+  $E_{e^\prime}$: 7.60828609e-03
+  $\theta_{e^\prime}$: 2.28172632e-03
+  LArNoise: 1.12500000e-03
+  Model_1: 2.32284578e-02
+  Model_2: 2.32284578e-02
+  JES_1: 1.69474072e-03
+  JES_2: 1.69474072e-03
+- stat: 8.46370000e-02
+  RCES: 7.33925628e-04
+  $E_{e^\prime}$: 3.61816272e-03
+  $\theta_{e^\prime}$: 1.08508763e-03
+  LArNoise: 0.000535
+  Model_1: 1.10464221e-02
+  Model_2: 1.10464221e-02
+  JES_1: 8.05943363e-04
+  JES_2: 8.05943363e-04

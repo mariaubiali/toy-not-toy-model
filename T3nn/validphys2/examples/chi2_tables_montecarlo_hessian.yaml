@@ -1,0 +1,34 @@
+meta:
+  title: Chi2 with Monte Carlo and Hessian sets
+  author: Lazy Person
+  keywords: [chi2]
+
+dataset_inputs:
+- {dataset: SLAC_NC_NOTFIXED_P_EM-F2, variant: legacy_dw}
+- {dataset: HERA_NC_318GEV_EM-SIGMARED, variant: legacy}
+- {dataset: HERA_NC_225GEV_EP-SIGMARED, variant: legacy}
+- {dataset: DYE605_Z0_38P8GEV_DW_PXSEC, variant: legacy}
+
+# used to add the PDF covariance matrix to the experimental one
+use_pdferr: True
+
+theoryid: 200
+
+use_cuts: internal
+
+pdfs:
+  - NNPDF40_nnlo_as_01180_hessian
+  - NNPDF40_nnlo_as_01180
+  - MMHT2014nnlo68cl
+  - MSHT20nnlo_as118
+  - CT18NNLO
+  - ABMP16_5_nnlo
+
+template_text: |
+
+  Chi2 Report
+  -----------
+  {@plot_datasets_pdfs_chi2@}
+
+actions_:
+  - report(main=True)

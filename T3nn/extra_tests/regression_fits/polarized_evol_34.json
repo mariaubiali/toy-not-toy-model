@@ -1,0 +1,69 @@
+{
+  "preprocessing": [
+    {
+      "fl": "sng",
+      "smallx": 1.1170960664749146,
+      "largex": 2.212820053100586,
+      "trainable": false
+    },
+    {
+      "fl": "g",
+      "smallx": 1.1055147647857666,
+      "largex": 3.78946852684021,
+      "trainable": false
+    },
+    {
+      "fl": "t3",
+      "smallx": -0.2786402702331543,
+      "largex": 3.328169822692871,
+      "trainable": false
+    },
+    {
+      "fl": "t8",
+      "smallx": 0.7509292364120483,
+      "largex": 3.1066815853118896,
+      "trainable": false
+    }
+  ],
+  "stop_epoch": 846,
+  "best_epoch": 734,
+  "erf_tr": 1.3318217992782593,
+  "erf_vl": 3.184948205947876,
+  "chi2": 1.5204899311065674,
+  "pos_state": "POS_PASS",
+  "arc_lengths": [
+    1.0379813570689551,
+    0.9985836376041014,
+    0.9899487587939698,
+    0.9899487587939698,
+    0.9899487587939698
+  ],
+  "integrability": [
+    1.249000902703301e-16,
+    3.122502256758253e-17,
+    3.8163916471489756e-17,
+    0.011257131816819282,
+    1.249000902703301e-16
+  ],
+  "timing": {
+    "walltime": {
+      "Total": 10.77069616317749,
+      "start": 0.0,
+      "replica_set": 0.2908756732940674,
+      "replica_fitted": 10.770582914352417,
+      "replica_set_to_replica_fitted": 10.47970724105835
+    },
+    "cputime": {
+      "Total": 11.91936567,
+      "start": 0.0,
+      "replica_set": 0.287185096,
+      "replica_fitted": 11.919250114999999,
+      "replica_set_to_replica_fitted": 11.632065018999999
+    }
+  },
+  "version": {
+    "numpy": "1.26.4",
+    "nnpdf": "4.0.10.post47.dev0+c3a29a9bf",
+    "validphys": "4.0.10.post47.dev0+c3a29a9bf"
+  }
+}

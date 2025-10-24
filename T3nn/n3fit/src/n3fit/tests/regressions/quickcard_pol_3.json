@@ -1,0 +1,70 @@
+{
+  "preprocessing": [
+    {
+      "fl": "sng",
+      "smallx": 1.104804515838623,
+      "largex": 1.8659257888793945,
+      "trainable": false
+    },
+    {
+      "fl": "g",
+      "smallx": 1.160773754119873,
+      "largex": 4.485008239746094,
+      "trainable": false
+    },
+    {
+      "fl": "t3",
+      "smallx": 0.6826222538948059,
+      "largex": 1.825988531112671,
+      "trainable": false
+    },
+    {
+      "fl": "t8",
+      "smallx": 0.853481650352478,
+      "largex": 2.523850202560425,
+      "trainable": false
+    }
+  ],
+  "stop_epoch": 62,
+  "best_epoch": 0,
+  "erf_tr": 1.7494748237680298,
+  "erf_vl": 2.569751168324924,
+  "chi2": 1.3848582707143415,
+  "pos_state": "POS_PASS",
+  "arc_lengths": [
+    1.0232184744756858,
+    0.9935004226127403,
+    0.9899487587939698,
+    0.9899487587939698,
+    0.9899487587939698
+  ],
+  "integrability": [
+    3.712308238590367e-16,
+    1.6653345369377348e-16,
+    1.6653345369377348e-16,
+    0.020493688985168013,
+    3.3306690738754696e-16
+  ],
+  "timing": {
+    "walltime": {
+      "Total": 9.35969853401184,
+      "start": 0.0,
+      "replica_set": 0.23132753372192383,
+      "replica_fitted": 9.359616994857788,
+      "replica_set_to_replica_fitted": 9.128289461135864
+    },
+    "cputime": {
+      "Total": 14.490381283000001,
+      "start": 0.0,
+      "replica_set": 5.183726517,
+      "replica_fitted": 14.490274503000002,
+      "replica_set_to_replica_fitted": 9.306547986000002
+    }
+  },
+  "version": {
+    "tensorflow": "2.15.0, mkl=??",
+    "numpy": "1.26.4",
+    "nnpdf": "4.0.9.post993.dev0+a77ead0a5.dirty",
+    "validphys": "4.0.9.post993.dev0+a77ead0a5.dirty"
+  }
+}

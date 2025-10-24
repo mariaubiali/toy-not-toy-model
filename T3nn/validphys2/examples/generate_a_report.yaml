@@ -1,0 +1,24 @@
+meta:
+  title: Distribution plots per replica across experiments
+  author: Lazy Person
+  keywords: [chi2, replica, distribution, DISonly]
+
+fit: NNPDF40_nnlo_low_precision_240916
+
+pdf:
+  from_: "fit"
+
+dataset_inputs:
+  from_: "fit"
+
+theoryid: 399
+
+use_cuts: "fromfit"
+
+template_text: |
+  # Histograms of χ2
+  ## DIS only distributions
+  {@ plot_chi2dist_experiments  @}
+
+actions_:
+  - report(main=True)

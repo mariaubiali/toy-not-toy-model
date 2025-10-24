@@ -1,0 +1,428 @@
+- dataset: CMS_TTBAR_8TEV_2L_DIF_MTTBAR-YT-NORM
+  reason: |
+   We remove one bin from the normalised distribution because it is
+   linearly dependent on the others
+  rule: "idat != 8"
+
+- dataset: ATLAS_TTBAR_8TEV_LJ_DIF_PTT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "pT_t<450"
+
+- dataset: ATLAS_TTBAR_8TEV_LJ_DIF_YT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_t<2.05"
+
+- dataset: ATLAS_TTBAR_8TEV_LJ_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<1.90"
+
+- dataset: ATLAS_TTBAR_8TEV_LJ_DIF_MTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<1350"
+
+- dataset: ATLAS_TTBAR_8TEV_2L_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<2.00"
+
+- dataset: ATLAS_TTBAR_8TEV_2L_DIF_MTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<1000"
+
+- dataset: CMS_TTBAR_8TEV_LJ_DIF_YT-NORM
+  reason: |
+   We remove the last bin of the LHCB_DY_8TEV_MUON_Ynormalised distribution because it is
+   linearly dependent on the others
+  rule: "y_t<2.01"
+
+- dataset: CMS_TTBAR_8TEV_LJ_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<1.82"
+
+- dataset: ATLAS_TTBAR_13TEV_HADR_DIF_MTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<2130.625"
+
+- dataset: ATLAS_TTBAR_13TEV_HADR_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<1.995"
+
+- dataset: ATLAS_TTBAR_13TEV_HADR_DIF_MTTBAR-YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<1985 or y_ttBar<1.645"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_MTTBAR-PTT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "pT_t<640 or m_ttBar<1500"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_PTT-YT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "pT_t<650 or y_t<2.0"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_MTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<1750"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_PTT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "pT_t<737.5"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_YT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_t<2.1"
+
+- dataset: ATLAS_TTBAR_13TEV_LJ_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<2.15"
+
+- dataset: CMS_TTBAR_13TEV_LJ_DIF_MTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<2900"
+
+- dataset: CMS_TTBAR_13TEV_LJ_DIF_YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_ttBar<2.1"
+
+- dataset: CMS_TTBAR_13TEV_LJ_DIF_MTTBAR-YTTBAR-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "m_ttBar<2250 or y_ttBar<1.7"
+
+- dataset: CMS_TTBAR_13TEV_LJ_DIF_PTT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "pT_t<1250"
+
+- dataset: CMS_TTBAR_13TEV_LJ_DIF_YT-NORM
+  reason: |
+   We remove the last bin of the normalised distribution because it is
+   linearly dependent on the others
+  rule: "y_t<2.25"
+
+- dataset: CMS_1JET_8TEV_PTY
+  reason: |
+    We keep only the bins with pTjet>74 GeV because fixed-order theory does
+    not provide a good description of the data for smalle values of the	jet
+    transverse momentum.
+  rule: "pT >= 74"
+
+- dataset: LHCB_DY_8TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  # Only evaluate rule if PTO matches
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_WPWM_8TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  # Only evaluate rule if PTO matches
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_Z0_8TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  # Only evaluate rule if PTO matches
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_DY_7TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_WPWM_7TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_Z0_7TEV_MUON_Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  PTO: NNLO+
+  rule: "y >= 2.25"
+
+- dataset: LHCB_Z0_13TEV_DIELECTRON-Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  PTO: NNLO+
+  rule: "y >= 2.20"
+
+- dataset: LHCB_Z0_13TEV_DIMUON-Y
+  reason: |
+    The first two bins in rapidity have unnaturally large K-factors which we
+    don't understand, and theory calculations are unstable here, so we remove
+    these points at NNLO.
+  PTO: NNLO+
+  rule: "y >= 2.20"
+
+- dataset: D0_WPWM_1P96TEV_ASY
+  reason: |
+    Calculation of the NNLO K-factor at the precision required for data points
+    for which the asymmetry is small is unfeasible. So we can only fit points
+    at NNLO for which the value of the asymmetry is not too small.
+  PTO: NNLO+
+  rule: "fabs(central_value) >= 0.03"
+
+- dataset: H1_1JET_319GEV_290PB-1_DIF_PTQ2
+  reason: |
+    2112.01120, page 7, paragraph 2
+  rule: '(pT**2 + Q2) > 100'
+
+- dataset: H1_2JET_319GEV_290PB-1_DIF_PTQ2
+  reason: |
+    2112.01120, page 7, paragraph 2
+  rule: '(pT**2 + Q2) > 100'
+
+- dataset: ATLAS_WJ_8TEV_WP-PT
+  reason: Avoid the region where small-pT resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: ATLAS_WJ_8TEV_WM-PT
+  reason: Avoid the region where small-pT resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: ATLAS_Z0J_8TEV_PT-M
+  reason: Avoid the region where resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: ATLAS_Z0J_8TEV_PT-Y
+  reason: Avoid the region where resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: ATLAS_Z0J_8TEV_PT-Y
+  reason: Avoid the region where EWK corrections are important.
+  rule: "pT <= 150"
+
+- dataset: ATLAS_Z0J_13TEV_PT_LL
+  reason: Avoid the region where resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: ATLAS_Z0J_13TEV_PT_LL
+  reason: Avoid the large pT region where the statistics are not very good.
+  rule: "pT <= 600"
+
+- dataset: CMS_Z0J_8TEV_PT-Y
+  reason: Avoid the region where resummation effects become important.
+  rule: "pT >= 30"
+
+- dataset: CMS_Z0J_8TEV_PT-Y
+  reason: Avoid the region where EWK corrections are important.
+  rule: "pT <= 170"
+
+- dataset: CMS_Z0J_8TEV_PT-Y
+  reason: |
+    removes the last rapidity bin, where we cannot provide a decent
+    description due to unknown reasons.
+  rule: "abs_y <= 1.6"
+
+- dataset: ATLAS_Z0_8TEV_LOWMASS_M-Y
+  reason: Avoid overlap with the high mass ATLAS2DDY8TEV dataset.
+  local_variables:
+    M: sqrt(m_Z2)
+    max_M: 116.0
+  rule: M <= max_M
+
+- dataset: CMS_Z0_7TEV_DIMUON_2D
+  reason: |
+    Removes data points for which the NNLO K-factors are very large and
+    thus the NLO calculation is unreliable.
+  PTO: NNLO-
+  local_variables:
+    M: sqrt(m_Z2)
+    max_M: 200.0
+  rule: M <= max_M
+
+- dataset: CMS_Z0_7TEV_DIMUON_2D
+  reason: Remove data points for which electroweak corrections are large.
+  PTO: NNLO-
+  local_variables:
+    M: sqrt(m_Z2)
+    min_M: 30.0
+    max_rapidity: 2.2
+  rule: M >= min_M and y <= max_rapidity
+
+- dataset: CMS_Z0_7TEV_DIMUON_2D
+  reason: Remove data points for which electroweak corrections are large.
+  PTO: NNLO+
+  local_variables:
+    M: sqrt(m_Z2)
+    max_rapidity: 2.2
+    max_M: 200.0
+  rule: M <= max_M and y <= max_rapidity
+
+
+
+- dataset: ATLAS_Z0_7TEV_49FB_HIMASS
+  reason: Avoid the region where resummation effects become important.
+  local_variables:
+    max_M: 200.0
+  rule: m_ll <= max_M
+
+
+- dataset: ATLAS_Z0_7TEV_LOMASS_M
+  reason: Removes data points for which NNLO K-factors are large.
+  PTO: NNLO-
+  rule: "idat >= 2"
+
+- dataset: DYE866_Z0_800GEV_PXSEC
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    y0: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/y0) <= maxY"
+
+- dataset: DYE605
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    ymax: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/ymax) <= maxY"
+
+- dataset: DYE605_dw
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    ymax: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/ymax) <= maxY"
+
+- dataset: DYE605_sh
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    ymax: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/ymax) <= maxY"
+
+- dataset: DYE605_Z0_38P8GEV_DW_PXSEC
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    ymax: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/ymax) <= maxY"
+
+- dataset: DYE605_sh_ite
+  reason: |
+    Remove data points for which the fixed-order perturbative expansion is not
+    reliable since resummation effects are large. A justification of these cuts
+    can be found in arXiv:1507.01006.
+  process_type: DYP
+  local_variables:
+    tau: M2 / sqrts**2
+    ymax: -0.5 * log(tau)
+    maxY: 0.663
+  rule: "tau <= maxTau and fabs(y/ymax) <= maxY"
+
+- process_type: DIS_ALL
+  reason: Generalised cut for all DIS processes
+  local_variables:
+    w2: Q2 * (1 - x) / x
+  rule: "Q2 > q2min and w2 > w2min"
+
+
+- process_type: DIS_NC_CHARM
+  reason: |
+    Heavy quark corrections are large in the FONLL-A calculation, and
+    points at small-x and small Q2 need to be removed.
+  FNS: FONLL-A
+  local_variables:
+    Q2cut1_f2c: 4
+    Q2cut2_f2c: 10
+    xcut_f2c: 1e-3
+  rule: >-
+    Q2 > Q2cut1_f2c and
+    (Q2 > Q2cut2_f2c or x > xcut_f2c)
+
+- process_type: DIS_NC_CHARM
+  reason: |
+    Missing higher order corrections to Delta F_IC, the piece that needs
+    to be added to the FONLL-C calculation in the case of fitted charm.
+  FNS: FONLL-C
+  IC: True
+  rule: "Q2 > 8"
+
+- process_type: DIS_NC_CHARM
+  reason: |
+    Missing higher order corrections to Delta F_IC, the piece that needs
+    to be added to the FONLL-E calculation in the case of fitted charm.
+  FNS: FONLL-E
+  IC: True
+  rule: "Q2 > 8"

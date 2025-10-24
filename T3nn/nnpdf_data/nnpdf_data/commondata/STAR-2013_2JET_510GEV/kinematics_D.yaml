@@ -1,0 +1,145 @@
+bins:
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 1.93500000e+01
+    mid: 18.2
+    min: 17.05
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 22.71
+    mid: 21.67
+    min: 2.06300000e+01
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 27.16
+    mid: 26.12
+    min: 2.50800000e+01
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 3.24400000e+01
+    mid: 31.42
+    min: 3.04000000e+01
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 38.58
+    mid: 37.33
+    min: 36.08
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 46.11
+    mid: 44.6
+    min: 43.09
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 55.3
+    mid: 53.61
+    min: 51.92
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 65.31
+    mid: 63.38
+    min: 61.45
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 7.77900000e+01
+    mid: 75.52
+    min: 73.25
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 92.3
+    mid: 89.6
+    min: 8.69000000e+01
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 109.83
+    mid: 106.63
+    min: 1.03430000e+02
+- abs_eta_1:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  abs_eta_2:
+    max: 0.9
+    mid: 0.6
+    min: 0.3
+  m_jj:
+    max: 130.99
+    mid: 127.17
+    min: 1.23350000e+02

@@ -1,0 +1,26 @@
+meta:
+    title: Data specification example
+    author: Lazy Person
+    keywords: [example]
+
+metadata_group: nnpdf31_process
+
+dataset_inputs:
+    - { dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED, variant: legacy}
+    - { dataset: ATLAS_TTBAR_7TEV_TOT_X-SEC, variant: legacy}
+    - { dataset: CMS_Z0J_8TEV_PT-Y, cfac: [NRM], variant: legacy}
+
+theoryid: 162
+
+dataspecs:
+ - pdf: NNPDF40_nnlo_as_01180
+   speclabel: "3.1 NNLO DISonly"
+
+use_cuts: internal
+
+template_text: |
+ # chi2 grouped by {processed_metadata_group}
+ {@dataspecs_groups_chi2_table@}
+
+actions_:
+ - report(main=True)

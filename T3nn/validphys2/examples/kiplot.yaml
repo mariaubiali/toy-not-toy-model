@@ -1,0 +1,37 @@
+meta:
+    title: Kinematic plot
+    keywords: [example, kinematic plot]
+    author: Lazy Person
+
+fit: NNPDF40_nlo_as_01180
+
+Markers:
+    - marker_by: process type
+    - marker_by: experiment
+
+use_cuts: "fromfit"
+display_cuts: False
+
+dataset_inputs:
+  - { dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED, variant: legacy}
+  - { dataset: NMC_NC_NOTFIXED_EM-F2, variant: legacy_dw}
+  - { dataset: LHCB_DY_7TEV_MUON_Y, cfac: [NRM]}
+  - { dataset: LHCB_DY_8TEV_MUON_Y, cfac: [NRM]}
+  - { dataset: ATLAS_DY_7TEV_36PB_ETA, variant: legacy}
+
+template_text: |
+    % Kinematic coverage
+
+    {@fit@}
+    =======
+
+    {@with Markers@}
+    Marker by {@marker_by@}
+    -----------------------
+
+    {@plot_xq2@}
+
+    {@endwith@}
+
+actions_:
+  - report(main=true)

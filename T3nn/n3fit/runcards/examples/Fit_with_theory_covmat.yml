@@ -1,0 +1,92 @@
+#
+# Configuration file for n3fit
+#
+##########################################################################################
+description: "NNPDF4.0 methodology fit with theory covariance matrix (9pt prescription) like NNPDF31_nlo_as_0118_scalecov_9pt"
+
+##########################################################################################
+# frac: training fraction
+# ewk: apply ewk k-factors
+# sys: systematics treatment (see systypes)
+dataset_inputs:
+- {dataset: NMC_NC_NOTFIXED_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: SLAC_NC_NOTFIXED_D_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: ATLAS_Z0J_8TEV_PT-M, frac: 0.75, cfac: [], variant: legacy_10}
+
+############################################################
+datacuts:
+  t0pdfset: 190310-tg-nlo-global     # PDF set to generate t0 covmat
+  q2min: 13.96                       # Q2 minimum
+  w2min: 12.5                        # W2 minimum
+  use_cuts: fromintersection
+  cuts_intersection_spec:
+  - theoryid: 708
+  - theoryid: 701
+
+############################################################
+theory:
+  theoryid: 708        # database id
+theorycovmatconfig:
+  point_prescriptions: ["9 point", "3 point"]
+  pdf: NNPDF31_nlo_as_0118
+  use_thcovmat_in_fitting: true
+  use_thcovmat_in_sampling: true
+
+
+############################################################
+trvlseed: 376191634
+nnseed: 2080989803
+mcseed: 75955222
+save: false
+genrep: true      # true = generate MC replicas, false = use real data
+
+parameters: # This defines the parameter dictionary that is passed to the Model Trainer
+  nodes_per_layer: [25, 20, 8]
+  activation_per_layer: [tanh, tanh, linear]
+  initializer: glorot_normal
+  optimizer:
+    clipnorm: 6.073e-6
+    learning_rate: 2.621e-3
+    optimizer_name: Nadam
+  epochs: 17000
+  positivity:
+    initial: 184.8
+    multiplier:
+  stopping_patience: 0.1
+  layer_type: dense
+  dropout: 0.0
+  threshold_chi2: 3.5
+
+############################################################
+fitting:
+  fitbasis: EVOL  # EVOL (7), EVOLQED (8), etc.
+  basis:
+  - {fl: sng, trainable: false, smallx: [1.046, 1.188], largex: [1.437, 2.716]}
+  - {fl: g, trainable: false, smallx: [0.9604, 1.23], largex: [0.08459, 6.137]}
+  - {fl: v, trainable: false, smallx: [0.5656, 0.7242], largex: [1.153, 2.838]}
+  - {fl: v3, trainable: false, smallx: [0.1521, 0.5611], largex: [1.236, 2.976]}
+  - {fl: v8, trainable: false, smallx: [0.5264, 0.7246], largex: [0.6919, 3.198]}
+  - {fl: t3, trainable: false, smallx: [-0.3687, 1.459], largex: [1.664, 3.373]}
+  - {fl: t8, trainable: false, smallx: [0.5357, 1.267], largex: [1.433, 2.866]}
+  - {fl: t15, trainable: false, smallx: [1.073, 1.164], largex: [1.503, 3.636]}
+
+############################################################
+positivity:
+  posdatasets:
+  - {dataset: NNPDF_POS_2P24GEV_F2U, maxlambda: 1e6}        # Positivity Lagrange Multiplier
+  - {dataset: NNPDF_POS_2P24GEV_F2D, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_F2S, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_FLL-19PTS, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_DYU, maxlambda: 1e10}
+  - {dataset: NNPDF_POS_2P24GEV_DYD, maxlambda: 1e10}
+  - {dataset: NNPDF_POS_2P24GEV_DYS, maxlambda: 1e10}
+
+############################################################
+integrability:
+  integdatasets:
+  - {dataset: NNPDF_INTEG_3GEV_XT8, maxlambda: 1e2}
+  - {dataset: NNPDF_INTEG_3GEV_XT3, maxlambda: 1e2}
+
+############################################################
+debug: False
+maxcores: 4

@@ -1,0 +1,974 @@
+definitions:
+  ArtUnc_1:
+    definition: artificial uncertainty 1
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc1
+  ArtUnc_2:
+    definition: artificial uncertainty 2
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc2
+  ArtUnc_3:
+    definition: artificial uncertainty 3
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc3
+  ArtUnc_4:
+    definition: artificial uncertainty 4
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc4
+  ArtUnc_5:
+    definition: artificial uncertainty 5
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc5
+  ArtUnc_6:
+    definition: artificial uncertainty 6
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc6
+  ArtUnc_7:
+    definition: artificial uncertainty 7
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc7
+  ArtUnc_8:
+    definition: artificial uncertainty 8
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc8
+  ArtUnc_9:
+    definition: artificial uncertainty 9
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc9
+  ArtUnc_10:
+    definition: artificial uncertainty 10
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc10
+  ArtUnc_11:
+    definition: artificial uncertainty 11
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc11
+  ArtUnc_12:
+    definition: artificial uncertainty 12
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc12
+  ArtUnc_13:
+    definition: artificial uncertainty 13
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc13
+  ArtUnc_14:
+    definition: artificial uncertainty 14
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc14
+  ArtUnc_15:
+    definition: artificial uncertainty 15
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc15
+  ArtUnc_16:
+    definition: artificial uncertainty 16
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc16
+  ArtUnc_17:
+    definition: artificial uncertainty 17
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc17
+  ArtUnc_18:
+    definition: artificial uncertainty 18
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc18
+  ArtUnc_19:
+    definition: artificial uncertainty 19
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc19
+  ArtUnc_20:
+    definition: artificial uncertainty 20
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc20
+  ArtUnc_21:
+    definition: artificial uncertainty 21
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc21
+  ArtUnc_22:
+    definition: artificial uncertainty 22
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc22
+  ArtUnc_23:
+    definition: artificial uncertainty 23
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc23
+  ArtUnc_24:
+    definition: artificial uncertainty 24
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc24
+  ArtUnc_25:
+    definition: artificial uncertainty 25
+    treatment: ADD
+    type: ATLAS8TEVTTB151104716unc25
+  syst_singletop-xsec:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_wjet-scale:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltrealcr-mujet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_eta-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_statNP3-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltrealcr-ejet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_pileoffmu-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_lstat-ejet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_lstat-mujet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_etmsoft-scale:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_hardscat-model:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_statNP2-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_elen-scale:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_punch-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_pileoffnpv-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_lrec-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_pileoffpt-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_jeten-res:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_lighttag-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltfakecr-ejet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltpar-mujet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_jetrec-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_c/tautag-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_dibos-xsec:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_elen-res:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_flavcomp-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_detNP2-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_detNP3-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_jetvxfrac:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_ltrig-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_btag-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mup-scale:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_singlephpt-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_etmsoft-res:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_detNP1-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltpar-ejet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_statNP1-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_muid-res:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_pdf:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_isr-fsr:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_zjet-xsec:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_ps-model:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_flavres-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_laltfakecr-mujet-fake:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mums-res:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mod-NP2-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_lid-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mixNP2-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mixNP1-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_btag-eff:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_pileoffrho-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_modNP4-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mcstat:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_modNP3-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  syst_mod-NP1-jes:
+    definition: ''
+    treatment: MULT
+    type: CORR
+  lumi:
+    definition: luminosity uncertainty
+    treatment: MULT
+    type: ATLASLUMI12
+bins:
+- ArtUnc_1: -1.39896466e-03
+  ArtUnc_2: 2.03987640e-03
+  ArtUnc_3: 1.40454848e-03
+  ArtUnc_4: -1.69221557e-04
+  ArtUnc_5: 5.81031968e-04
+  ArtUnc_6: 4.03229193e-04
+  ArtUnc_7: -4.96924821e-05
+  ArtUnc_8: 7.41859051e-04
+  ArtUnc_9: 2.78876634e-04
+  ArtUnc_10: -4.46315545e-03
+  ArtUnc_11: -3.07127401e-03
+  ArtUnc_12: 2.06445824e-03
+  ArtUnc_13: 3.04364679e-03
+  ArtUnc_14: -7.27415405e-04
+  ArtUnc_15: 9.04166485e-04
+  ArtUnc_16: 4.41621283e-05
+  ArtUnc_17: 3.54151637e-04
+  ArtUnc_18: -2.58382190e-06
+  ArtUnc_19: -1.56649774e-04
+  ArtUnc_20: 1.68320590e-05
+  ArtUnc_21: 4.94109041e-05
+  ArtUnc_22: 2.64964272e-06
+  ArtUnc_23: 1.49534713e-05
+  ArtUnc_24: -6.12402074e-06
+  ArtUnc_25: -5.60853374e-07
+  syst_singletop-xsec: 2.72082780e-03
+  syst_wjet-scale: 5.86278400e-03
+  syst_laltrealcr-mujet-fake: 5.21600000e-04
+  syst_eta-jes: 1.81291833e-03
+  syst_statNP3-jes: 4.03844737e-03
+  syst_laltrealcr-ejet-fake: 1.66912000e-04
+  syst_pileoffmu-jes: 1.76695416e-03
+  syst_lstat-ejet-fake: 2.61096101e-03
+  syst_lstat-mujet-fake: 3.70409458e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 3.29859840e-02
+  syst_statNP2-jes: 1.64107662e-03
+  syst_elen-scale: 1.85539359e-03
+  syst_punch-jes: 1.65849116e-04
+  syst_pileoffnpv-jes: 5.70752443e-03
+  syst_lrec-eff: 2.31590400e-03
+  syst_pileoffpt-jes: 4.02241200e-04
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 5.99318854e-03
+  syst_laltfakecr-ejet-fake: 3.67206400e-03
+  syst_laltpar-mujet-fake: 1.35616000e-03
+  syst_jetrec-eff: 9.18016000e-04
+  syst_c/tautag-eff: 1.16264663e-02
+  syst_dibos-xsec: 1.47091200e-03
+  syst_elen-res: 5.00736000e-04
+  syst_flavcomp-jes: 2.01918650e-02
+  syst_detNP2-jes: 2.34886853e-03
+  syst_detNP3-jes: 4.31763832e-04
+  syst_jetvxfrac: 1.07643733e-02
+  syst_ltrig-eff: 1.36241920e-02
+  syst_btag-jes: 6.26180746e-04
+  syst_mup-scale: 2.68560692e-04
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 4.92842172e-03
+  syst_laltpar-ejet-fake: 1.41875200e-03
+  syst_statNP1-jes: 1.14723866e-02
+  syst_muid-res: 0.0
+  syst_pdf: 2.33676800e-03
+  syst_isr-fsr: 5.53009508e-02
+  syst_zjet-xsec: 1.55645440e-02
+  syst_ps-model: 2.04675840e-02
+  syst_flavres-jes: 9.24364091e-03
+  syst_laltfakecr-mujet-fake: 3.64076800e-03
+  syst_mums-res: 4.17280000e-05
+  syst_mod-NP2-jes: 1.21803373e-03
+  syst_lid-eff: 1.32590720e-02
+  syst_mixNP2-jes: 4.62488046e-03
+  syst_mixNP1-jes: 2.23723841e-03
+  syst_btag-eff: 4.18097079e-02
+  syst_pileoffrho-jes: 1.52066386e-02
+  syst_modNP4-jes: 7.68488700e-04
+  syst_mcstat: 1.77344000e-03
+  syst_modNP3-jes: 5.77323082e-03
+  syst_mod-NP1-jes: 1.76196542e-02
+  lumi: 2.92096000e-02
+- ArtUnc_1: -2.31965005e-03
+  ArtUnc_2: 3.25111635e-03
+  ArtUnc_3: 2.36346927e-03
+  ArtUnc_4: -3.25640115e-04
+  ArtUnc_5: 9.15297591e-04
+  ArtUnc_6: 6.62974244e-04
+  ArtUnc_7: -6.63885287e-05
+  ArtUnc_8: 1.18384645e-03
+  ArtUnc_9: 5.89771260e-04
+  ArtUnc_10: -5.98129206e-03
+  ArtUnc_11: -2.16694577e-03
+  ArtUnc_12: -3.42952440e-03
+  ArtUnc_13: -2.10527219e-03
+  ArtUnc_14: 1.06227808e-03
+  ArtUnc_15: 6.70412807e-04
+  ArtUnc_16: -2.79352436e-05
+  ArtUnc_17: 2.16009393e-04
+  ArtUnc_18: -6.75879688e-06
+  ArtUnc_19: -1.20093143e-04
+  ArtUnc_20: 1.70684306e-05
+  ArtUnc_21: 3.83724905e-05
+  ArtUnc_22: 2.02391937e-06
+  ArtUnc_23: 1.16709119e-05
+  ArtUnc_24: -3.77600241e-06
+  ArtUnc_25: -3.93716541e-07
+  syst_singletop-xsec: 4.53040730e-03
+  syst_wjet-scale: 8.19304320e-03
+  syst_laltrealcr-mujet-fake: 1.25770400e-03
+  syst_eta-jes: 4.34813664e-03
+  syst_statNP3-jes: 4.27649556e-03
+  syst_laltrealcr-ejet-fake: 3.41376800e-04
+  syst_pileoffmu-jes: 2.99609458e-03
+  syst_lstat-ejet-fake: 5.31072107e-03
+  syst_lstat-mujet-fake: 6.53522169e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 1.14990080e-01
+  syst_statNP2-jes: 2.36478659e-03
+  syst_elen-scale: 2.63683581e-03
+  syst_punch-jes: 2.33573600e-04
+  syst_pileoffnpv-jes: 1.01790610e-02
+  syst_lrec-eff: 4.09652160e-03
+  syst_pileoffpt-jes: 3.67669676e-04
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 9.92688613e-03
+  syst_laltfakecr-ejet-fake: 6.66583120e-03
+  syst_laltpar-mujet-fake: 2.67711280e-03
+  syst_jetrec-eff: 1.34754000e-03
+  syst_c/tautag-eff: 1.97729077e-02
+  syst_dibos-xsec: 2.31776880e-03
+  syst_elen-res: 6.73889771e-04
+  syst_flavcomp-jes: 3.42281196e-02
+  syst_detNP2-jes: 4.04549373e-03
+  syst_detNP3-jes: 4.49090155e-04
+  syst_jetvxfrac: 1.67529375e-02
+  syst_ltrig-eff: 2.31237864e-02
+  syst_btag-jes: 3.27003040e-03
+  syst_mup-scale: 4.23945974e-04
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 6.00755035e-03
+  syst_laltpar-ejet-fake: 4.22229200e-03
+  syst_statNP1-jes: 1.92530663e-02
+  syst_muid-res: 0.0
+  syst_pdf: 6.45022480e-03
+  syst_isr-fsr: 1.09606840e-01
+  syst_zjet-xsec: 2.42736872e-02
+  syst_ps-model: 1.10013166e-01
+  syst_flavres-jes: 1.69086817e-02
+  syst_laltfakecr-mujet-fake: 5.83934000e-03
+  syst_mums-res: 0.0
+  syst_mod-NP2-jes: 2.16144744e-03
+  syst_lid-eff: 2.31058192e-02
+  syst_mixNP2-jes: 7.64530751e-03
+  syst_mixNP1-jes: 1.55504533e-03
+  syst_btag-eff: 7.15512378e-02
+  syst_pileoffrho-jes: 2.81219857e-02
+  syst_modNP4-jes: 1.06280203e-03
+  syst_mcstat: 2.29980160e-03
+  syst_modNP3-jes: 7.42154112e-03
+  syst_mod-NP1-jes: 3.49136065e-02
+  lumi: 5.03081600e-02
+- ArtUnc_1: -1.79552493e-03
+  ArtUnc_2: 2.56351661e-03
+  ArtUnc_3: 1.75718135e-03
+  ArtUnc_4: -2.44508189e-04
+  ArtUnc_5: 6.99172184e-04
+  ArtUnc_6: 5.32569134e-04
+  ArtUnc_7: -9.06109951e-05
+  ArtUnc_8: 9.28238256e-04
+  ArtUnc_9: 4.96784823e-04
+  ArtUnc_10: 9.18123902e-04
+  ArtUnc_11: 3.27887391e-03
+  ArtUnc_12: -4.53846843e-03
+  ArtUnc_13: 1.84374202e-03
+  ArtUnc_14: -1.39895576e-03
+  ArtUnc_15: 4.57008368e-04
+  ArtUnc_16: 7.71857839e-05
+  ArtUnc_17: 4.30899570e-04
+  ArtUnc_18: -2.76189625e-05
+  ArtUnc_19: -1.74493346e-04
+  ArtUnc_20: 2.99756599e-05
+  ArtUnc_21: 5.69721462e-05
+  ArtUnc_22: 2.88952125e-06
+  ArtUnc_23: 1.71023942e-05
+  ArtUnc_24: -3.73892101e-06
+  ArtUnc_25: -6.17731441e-07
+  syst_singletop-xsec: 3.48140896e-03
+  syst_wjet-scale: 4.88176620e-03
+  syst_laltrealcr-mujet-fake: 4.02676760e-03
+  syst_eta-jes: 6.04724310e-03
+  syst_statNP3-jes: 1.07582018e-03
+  syst_laltrealcr-ejet-fake: 1.10322400e-03
+  syst_pileoffmu-jes: 2.68138013e-03
+  syst_lstat-ejet-fake: 5.67280631e-03
+  syst_lstat-mujet-fake: 1.19427501e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 8.72236475e-02
+  syst_statNP2-jes: 1.19618433e-03
+  syst_elen-scale: 1.46001443e-03
+  syst_punch-jes: 1.03885910e-04
+  syst_pileoffnpv-jes: 9.01656807e-03
+  syst_lrec-eff: 3.32346230e-03
+  syst_pileoffpt-jes: 1.96360507e-04
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 7.11579480e-03
+  syst_laltfakecr-ejet-fake: 5.52991030e-03
+  syst_laltpar-mujet-fake: 3.13039810e-03
+  syst_jetrec-eff: 6.89515000e-04
+  syst_c/tautag-eff: 1.36730859e-02
+  syst_dibos-xsec: 9.92901600e-04
+  syst_elen-res: 3.86620597e-04
+  syst_flavcomp-jes: 2.78155889e-02
+  syst_detNP2-jes: 3.03821936e-03
+  syst_detNP3-jes: 3.05572636e-04
+  syst_jetvxfrac: 9.65424175e-03
+  syst_ltrig-eff: 1.74033586e-02
+  syst_btag-jes: 8.95744210e-03
+  syst_mup-scale: 2.41527174e-04
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 9.45012946e-04
+  syst_laltpar-ejet-fake: 5.73676480e-03
+  syst_statNP1-jes: 1.37356372e-02
+  syst_muid-res: 2.75806000e-05
+  syst_pdf: 6.20563500e-03
+  syst_isr-fsr: 1.00888934e-01
+  syst_zjet-xsec: 1.34317522e-02
+  syst_ps-model: 8.54860697e-02
+  syst_flavres-jes: 1.66388227e-02
+  syst_laltfakecr-mujet-fake: 3.11660780e-03
+  syst_mums-res: 5.51612000e-05
+  syst_mod-NP2-jes: 1.62531133e-03
+  syst_lid-eff: 1.81066639e-02
+  syst_mixNP2-jes: 5.81621740e-03
+  syst_mixNP1-jes: 3.50074717e-03
+  syst_btag-eff: 5.52278440e-02
+  syst_pileoffrho-jes: 2.62407587e-02
+  syst_modNP4-jes: 1.62585239e-04
+  syst_mcstat: 1.75136810e-03
+  syst_modNP3-jes: 1.55053512e-03
+  syst_mod-NP1-jes: 3.60616556e-02
+  lumi: 3.86128400e-02
+- ArtUnc_1: -9.37302779e-04
+  ArtUnc_2: 1.30542033e-03
+  ArtUnc_3: 9.90205096e-04
+  ArtUnc_4: -1.20354754e-04
+  ArtUnc_5: 3.75635062e-04
+  ArtUnc_6: 3.45302202e-04
+  ArtUnc_7: -7.75178613e-05
+  ArtUnc_8: 4.92846525e-04
+  ArtUnc_9: 2.80738628e-04
+  ArtUnc_10: 3.08389391e-03
+  ArtUnc_11: 1.45866756e-03
+  ArtUnc_12: 1.14993176e-03
+  ArtUnc_13: 5.01818414e-05
+  ArtUnc_14: 2.39192065e-03
+  ArtUnc_15: 2.33381797e-03
+  ArtUnc_16: -2.41570771e-04
+  ArtUnc_17: 3.01243709e-04
+  ArtUnc_18: 1.53335438e-06
+  ArtUnc_19: -2.44742648e-04
+  ArtUnc_20: 4.30689776e-05
+  ArtUnc_21: 7.32030143e-05
+  ArtUnc_22: 3.69305929e-06
+  ArtUnc_23: 2.22443908e-05
+  ArtUnc_24: -3.87177504e-06
+  ArtUnc_25: -8.09619277e-07
+  syst_singletop-xsec: 1.93986229e-03
+  syst_wjet-scale: 2.23594736e-03
+  syst_laltrealcr-mujet-fake: 3.12591325e-03
+  syst_eta-jes: 4.72912269e-03
+  syst_statNP3-jes: 2.62296112e-03
+  syst_laltrealcr-ejet-fake: 6.25182650e-04
+  syst_pileoffmu-jes: 1.56752740e-03
+  syst_lstat-ejet-fake: 3.48422305e-03
+  syst_lstat-mujet-fake: 2.10199928e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 2.59781779e-02
+  syst_statNP2-jes: 2.13265905e-04
+  syst_elen-scale: 5.48484601e-04
+  syst_punch-jes: 4.82305505e-05
+  syst_pileoffnpv-jes: 5.31919478e-03
+  syst_lrec-eff: 1.90496831e-03
+  syst_pileoffpt-jes: 3.05745350e-04
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 3.58928392e-03
+  syst_laltfakecr-ejet-fake: 3.05971744e-03
+  syst_laltpar-mujet-fake: 2.59634677e-03
+  syst_jetrec-eff: 2.35362880e-04
+  syst_c/tautag-eff: 6.10104937e-03
+  syst_dibos-xsec: 3.01558690e-04
+  syst_elen-res: 1.54456890e-04
+  syst_flavcomp-jes: 1.44123786e-02
+  syst_detNP2-jes: 1.33722636e-03
+  syst_detNP3-jes: 5.84104832e-04
+  syst_jetvxfrac: 3.13850188e-03
+  syst_ltrig-eff: 9.14973196e-03
+  syst_btag-jes: 6.97393639e-03
+  syst_mup-scale: 8.09059900e-05
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 4.15348386e-03
+  syst_laltpar-ejet-fake: 2.97145636e-03
+  syst_statNP1-jes: 6.05681279e-03
+  syst_muid-res: 1.47101800e-05
+  syst_pdf: 3.36127613e-03
+  syst_isr-fsr: 5.47661424e-02
+  syst_zjet-xsec: 4.89113485e-03
+  syst_ps-model: 3.61649775e-02
+  syst_flavres-jes: 1.04486315e-02
+  syst_laltfakecr-mujet-fake: 9.78226970e-04
+  syst_mums-res: 7.35509000e-06
+  syst_mod-NP2-jes: 5.18625124e-04
+  syst_lid-eff: 9.91466132e-03
+  syst_mixNP2-jes: 2.74394149e-03
+  syst_mixNP1-jes: 4.74384917e-03
+  syst_btag-eff: 3.08279900e-02
+  syst_pileoffrho-jes: 1.45820456e-02
+  syst_modNP4-jes: 5.42322562e-04
+  syst_mcstat: 1.31656111e-03
+  syst_modNP3-jes: 1.40670783e-03
+  syst_mod-NP1-jes: 2.08995044e-02
+  lumi: 2.05942520e-02
+- ArtUnc_1: -4.33068095e-04
+  ArtUnc_2: 6.09160101e-04
+  ArtUnc_3: 4.30836000e-04
+  ArtUnc_4: -4.78363562e-05
+  ArtUnc_5: 1.77795532e-04
+  ArtUnc_6: 1.44014801e-04
+  ArtUnc_7: -1.92908097e-05
+  ArtUnc_8: 1.87495908e-04
+  ArtUnc_9: 1.11423934e-04
+  ArtUnc_10: 1.14631315e-03
+  ArtUnc_11: -2.20965063e-04
+  ArtUnc_12: 1.29308787e-03
+  ArtUnc_13: -1.06614557e-03
+  ArtUnc_14: -1.16544701e-04
+  ArtUnc_15: -1.41640341e-03
+  ArtUnc_16: 9.62202852e-04
+  ArtUnc_17: 1.35200808e-03
+  ArtUnc_18: -1.15187700e-04
+  ArtUnc_19: -2.82168509e-04
+  ArtUnc_20: 4.85374102e-05
+  ArtUnc_21: 1.16297363e-04
+  ArtUnc_22: 5.36413630e-06
+  ArtUnc_23: 3.30866983e-05
+  ArtUnc_24: -3.04235464e-06
+  ArtUnc_25: -1.23001549e-06
+  syst_singletop-xsec: 9.25318423e-04
+  syst_wjet-scale: 8.71833150e-04
+  syst_laltrealcr-mujet-fake: 1.54055105e-03
+  syst_eta-jes: 1.96107928e-03
+  syst_statNP3-jes: 1.29526729e-03
+  syst_laltrealcr-ejet-fake: 1.37493400e-04
+  syst_pileoffmu-jes: 5.71281638e-04
+  syst_lstat-ejet-fake: 1.22049597e-03
+  syst_lstat-mujet-fake: 3.46393534e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 8.90269765e-03
+  syst_statNP2-jes: 7.30673860e-05
+  syst_elen-scale: 1.83563328e-04
+  syst_punch-jes: 6.27114655e-05
+  syst_pileoffnpv-jes: 1.94625921e-03
+  syst_lrec-eff: 8.62458600e-04
+  syst_pileoffpt-jes: 2.05076837e-04
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 1.42493160e-03
+  syst_laltfakecr-ejet-fake: 1.01870110e-03
+  syst_laltpar-mujet-fake: 1.16556905e-03
+  syst_jetrec-eff: 3.74982000e-05
+  syst_c/tautag-eff: 2.11865291e-03
+  syst_dibos-xsec: 1.18744300e-04
+  syst_elen-res: 4.96792187e-05
+  syst_flavcomp-jes: 5.37615958e-03
+  syst_detNP2-jes: 3.18899325e-04
+  syst_detNP3-jes: 3.45472625e-04
+  syst_jetvxfrac: 7.24013314e-04
+  syst_ltrig-eff: 3.86231460e-03
+  syst_btag-jes: 2.83986249e-03
+  syst_mup-scale: 3.97728473e-05
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 2.98506929e-03
+  syst_laltpar-ejet-fake: 8.71833150e-04
+  syst_statNP1-jes: 1.67347534e-03
+  syst_muid-res: 1.24994000e-05
+  syst_pdf: 1.23744060e-03
+  syst_isr-fsr: 2.33598171e-02
+  syst_zjet-xsec: 1.44680555e-03
+  syst_ps-model: 1.66960736e-02
+  syst_flavres-jes: 4.59286702e-03
+  syst_laltfakecr-mujet-fake: 4.12480200e-04
+  syst_mums-res: 6.24970000e-06
+  syst_mod-NP2-jes: 5.65934405e-05
+  syst_lid-eff: 4.30916815e-03
+  syst_mixNP2-jes: 8.42497750e-04
+  syst_mixNP1-jes: 2.67109429e-03
+  syst_btag-eff: 1.44618979e-02
+  syst_pileoffrho-jes: 5.39664490e-03
+  syst_modNP4-jes: 4.91672582e-04
+  syst_mcstat: 7.56213700e-04
+  syst_modNP3-jes: 9.44366688e-04
+  syst_mod-NP1-jes: 7.88245921e-03
+  lumi: 8.74958000e-03
+- ArtUnc_1: -1.68568187e-04
+  ArtUnc_2: 2.28115525e-04
+  ArtUnc_3: 1.53636135e-04
+  ArtUnc_4: -2.64869451e-05
+  ArtUnc_5: 6.02029266e-05
+  ArtUnc_6: 3.76433529e-05
+  ArtUnc_7: -2.23636820e-05
+  ArtUnc_8: 7.25377336e-05
+  ArtUnc_9: 3.30705431e-05
+  ArtUnc_10: 2.47719942e-04
+  ArtUnc_11: -1.74060963e-04
+  ArtUnc_12: 3.33599366e-04
+  ArtUnc_13: -3.44406855e-04
+  ArtUnc_14: -4.68283369e-04
+  ArtUnc_15: -6.95881070e-04
+  ArtUnc_16: -3.22184133e-04
+  ArtUnc_17: -1.12152706e-03
+  ArtUnc_18: 4.10571895e-04
+  ArtUnc_19: -7.50067953e-04
+  ArtUnc_20: 1.26383778e-04
+  ArtUnc_21: 1.08325221e-04
+  ArtUnc_22: 6.01867870e-06
+  ArtUnc_23: 3.87959967e-05
+  ArtUnc_24: -2.26548018e-06
+  ArtUnc_25: -1.48177645e-06
+  syst_singletop-xsec: 3.82994828e-04
+  syst_wjet-scale: 4.27788840e-04
+  syst_laltrealcr-mujet-fake: 3.67990400e-04
+  syst_eta-jes: 6.62831775e-04
+  syst_statNP3-jes: 4.19138430e-04
+  syst_laltrealcr-ejet-fake: 2.18494300e-05
+  syst_pileoffmu-jes: 1.43202435e-04
+  syst_lstat-ejet-fake: 3.07734099e-04
+  syst_lstat-mujet-fake: 1.28471517e-04
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 1.81695260e-03
+  syst_statNP2-jes: 7.53274241e-05
+  syst_elen-scale: 5.73920292e-05
+  syst_punch-jes: 3.95487707e-05
+  syst_pileoffnpv-jes: 6.31318867e-04
+  syst_lrec-eff: 3.32341330e-04
+  syst_pileoffpt-jes: 4.58115487e-05
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 4.85290065e-04
+  syst_laltfakecr-ejet-fake: 1.58695860e-04
+  syst_laltpar-mujet-fake: 4.00189560e-04
+  syst_jetrec-eff: 3.44991000e-06
+  syst_c/tautag-eff: 6.39385388e-04
+  syst_dibos-xsec: 2.41493700e-05
+  syst_elen-res: 1.52018031e-05
+  syst_flavcomp-jes: 1.57801823e-03
+  syst_detNP2-jes: 9.39533232e-06
+  syst_detNP3-jes: 1.90842190e-04
+  syst_jetvxfrac: 1.15597728e-04
+  syst_ltrig-eff: 1.42021295e-03
+  syst_btag-jes: 9.83005092e-04
+  syst_mup-scale: 1.19508388e-05
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 1.51598882e-03
+  syst_laltpar-ejet-fake: 2.15044390e-04
+  syst_statNP1-jes: 3.68960755e-04
+  syst_muid-res: 2.29994000e-06
+  syst_pdf: 1.72495500e-04
+  syst_isr-fsr: 8.44080745e-03
+  syst_zjet-xsec: 4.23188960e-04
+  syst_ps-model: 4.98856986e-03
+  syst_flavres-jes: 1.58927185e-03
+  syst_laltfakecr-mujet-fake: 1.33396520e-04
+  syst_mums-res: 8.04979000e-06
+  syst_mod-NP2-jes: 1.54844005e-04
+  syst_lid-eff: 1.60420815e-03
+  syst_mixNP2-jes: 2.42070051e-04
+  syst_mixNP1-jes: 1.15569224e-03
+  syst_btag-eff: 6.13030854e-03
+  syst_pileoffrho-jes: 1.65181812e-03
+  syst_modNP4-jes: 3.05993598e-04
+  syst_mcstat: 4.30088780e-04
+  syst_modNP3-jes: 3.19354351e-04
+  syst_mod-NP1-jes: 2.41539824e-03
+  lumi: 3.21991600e-03
+- ArtUnc_1: -5.70482539e-05
+  ArtUnc_2: 8.44704345e-05
+  ArtUnc_3: 5.35969391e-05
+  ArtUnc_4: -6.18999817e-07
+  ArtUnc_5: 1.66101105e-05
+  ArtUnc_6: 1.18997889e-05
+  ArtUnc_7: 5.60246327e-07
+  ArtUnc_8: 2.50197378e-05
+  ArtUnc_9: 1.83615659e-05
+  ArtUnc_10: 7.30732432e-05
+  ArtUnc_11: -4.61473330e-05
+  ArtUnc_12: 7.37894403e-05
+  ArtUnc_13: -7.12691610e-05
+  ArtUnc_14: -1.29368845e-04
+  ArtUnc_15: -1.09130883e-04
+  ArtUnc_16: -2.28089625e-04
+  ArtUnc_17: -3.78172912e-04
+  ArtUnc_18: -1.23041618e-04
+  ArtUnc_19: 7.09643968e-04
+  ArtUnc_20: -1.94073171e-04
+  ArtUnc_21: 3.27626476e-04
+  ArtUnc_22: 8.03446711e-06
+  ArtUnc_23: 5.46528425e-05
+  ArtUnc_24: 6.81875582e-06
+  ArtUnc_25: -2.21409351e-06
+  syst_singletop-xsec: 1.49936746e-04
+  syst_wjet-scale: 1.98005512e-04
+  syst_laltrealcr-mujet-fake: 6.12680990e-05
+  syst_eta-jes: 2.24781559e-04
+  syst_statNP3-jes: 1.18399999e-04
+  syst_laltrealcr-ejet-fake: 2.02874500e-05
+  syst_pileoffmu-jes: 3.78125633e-05
+  syst_lstat-ejet-fake: 8.43333460e-05
+  syst_lstat-mujet-fake: 5.55194528e-05
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 5.15301230e-05
+  syst_statNP2-jes: 3.67214053e-05
+  syst_elen-scale: 1.88607830e-05
+  syst_punch-jes: 3.89534889e-05
+  syst_pileoffnpv-jes: 1.90714547e-04
+  syst_lrec-eff: 1.20101704e-04
+  syst_pileoffpt-jes: 7.73055671e-06
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 1.79951740e-04
+  syst_laltfakecr-ejet-fake: 1.74472070e-05
+  syst_laltpar-mujet-fake: 9.08877760e-05
+  syst_jetrec-eff: 8.11498000e-06
+  syst_c/tautag-eff: 1.90905120e-04
+  syst_dibos-xsec: 1.37954660e-05
+  syst_elen-res: 7.34842693e-06
+  syst_flavcomp-jes: 5.36743819e-04
+  syst_detNP2-jes: 3.34853566e-05
+  syst_detNP3-jes: 8.73470735e-05
+  syst_jetvxfrac: 6.50465130e-06
+  syst_ltrig-eff: 5.01911513e-04
+  syst_btag-jes: 3.62132005e-04
+  syst_mup-scale: 2.81111153e-06
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 7.62741967e-04
+  syst_laltpar-ejet-fake: 4.54438880e-05
+  syst_statNP1-jes: 1.15725988e-04
+  syst_muid-res: 1.62299600e-06
+  syst_pdf: 3.77346570e-05
+  syst_isr-fsr: 2.85703522e-03
+  syst_zjet-xsec: 2.50752882e-04
+  syst_ps-model: 1.69968256e-03
+  syst_flavres-jes: 6.20165413e-04
+  syst_laltfakecr-mujet-fake: 3.28656690e-05
+  syst_mums-res: 4.05749000e-07
+  syst_mod-NP2-jes: 9.60560948e-05
+  syst_lid-eff: 5.66831353e-04
+  syst_mixNP2-jes: 5.49857266e-05
+  syst_mixNP1-jes: 5.48169602e-04
+  syst_btag-eff: 2.46931390e-03
+  syst_pileoffrho-jes: 5.90513377e-04
+  syst_modNP4-jes: 1.45468797e-04
+  syst_mcstat: 2.25190695e-04
+  syst_modNP3-jes: 1.06736476e-04
+  syst_mod-NP1-jes: 8.54631725e-04
+  lumi: 1.13609720e-03
+- ArtUnc_1: -1.96864563e-05
+  ArtUnc_2: 2.92575372e-05
+  ArtUnc_3: 1.82063626e-05
+  ArtUnc_4: 6.69900387e-07
+  ArtUnc_5: 3.03924184e-06
+  ArtUnc_6: 3.00713849e-06
+  ArtUnc_7: -4.84316018e-07
+  ArtUnc_8: 4.26318220e-06
+  ArtUnc_9: 5.83475744e-06
+  ArtUnc_10: 2.09545754e-05
+  ArtUnc_11: -8.51114473e-06
+  ArtUnc_12: 2.51771898e-05
+  ArtUnc_13: -2.08559444e-05
+  ArtUnc_14: -2.75779675e-05
+  ArtUnc_15: -2.38683566e-05
+  ArtUnc_16: -4.92024478e-05
+  ArtUnc_17: -4.23183993e-05
+  ArtUnc_18: -7.28407225e-05
+  ArtUnc_19: 1.90847602e-04
+  ArtUnc_20: 2.56922167e-05
+  ArtUnc_21: -4.77569172e-04
+  ArtUnc_22: 7.82984470e-06
+  ArtUnc_23: 6.26534487e-05
+  ArtUnc_24: -1.24644557e-05
+  ArtUnc_25: -3.21890037e-06
+  syst_singletop-xsec: 5.62883000e-05
+  syst_wjet-scale: 3.18881220e-05
+  syst_laltrealcr-mujet-fake: 1.51848200e-05
+  syst_eta-jes: 5.27057364e-05
+  syst_statNP3-jes: 3.48689146e-05
+  syst_laltrealcr-ejet-fake: 6.07392800e-06
+  syst_pileoffmu-jes: 7.42060536e-06
+  syst_lstat-ejet-fake: 6.38735651e-05
+  syst_lstat-mujet-fake: 2.44222455e-05
+  syst_etmsoft-scale: 0.0
+  syst_hardscat-model: 4.59015416e-04
+  syst_statNP2-jes: 1.39098247e-05
+  syst_elen-scale: 4.86393372e-06
+  syst_punch-jes: 8.02681162e-06
+  syst_pileoffnpv-jes: 5.49679526e-05
+  syst_lrec-eff: 3.26473630e-05
+  syst_pileoffpt-jes: 2.06900102e-05
+  syst_jeten-res: 0.0
+  syst_lighttag-eff: 5.68893088e-05
+  syst_laltfakecr-ejet-fake: 2.01741180e-05
+  syst_laltpar-mujet-fake: 2.02825810e-05
+  syst_jetrec-eff: 3.25389000e-06
+  syst_c/tautag-eff: 5.13572878e-05
+  syst_dibos-xsec: 9.11089200e-06
+  syst_elen-res: 1.30155600e-06
+  syst_flavcomp-jes: 9.56473172e-05
+  syst_detNP2-jes: 1.78284767e-05
+  syst_detNP3-jes: 2.72591925e-05
+  syst_jetvxfrac: 1.24250509e-05
+  syst_ltrig-eff: 1.34602583e-04
+  syst_btag-jes: 1.02161711e-04
+  syst_mup-scale: 1.22111227e-06
+  syst_singlephpt-jes: 0.0
+  syst_etmsoft-res: 0.0
+  syst_detNP1-jes: 3.18788363e-04
+  syst_laltpar-ejet-fake: 2.82003800e-05
+  syst_statNP1-jes: 1.25868496e-05
+  syst_muid-res: 1.08463000e-06
+  syst_pdf: 6.50778000e-06
+  syst_isr-fsr: 7.52363314e-04
+  syst_zjet-xsec: 4.86998870e-05
+  syst_ps-model: 4.90144297e-04
+  syst_flavres-jes: 1.56916575e-04
+  syst_laltfakecr-mujet-fake: 2.13672110e-05
+  syst_mums-res: 1.84387100e-06
+  syst_mod-NP2-jes: 7.44535887e-05
+  syst_lid-eff: 1.51522811e-04
+  syst_mixNP2-jes: 7.89026392e-06
+  syst_mixNP1-jes: 2.08703162e-04
+  syst_btag-eff: 7.39430963e-04
+  syst_pileoffrho-jes: 1.08196436e-04
+  syst_modNP4-jes: 4.90581398e-05
+  syst_mcstat: 1.19092374e-04
+  syst_modNP3-jes: 1.65664584e-05
+  syst_mod-NP1-jes: 2.01720791e-04
+  lumi: 3.03696400e-04

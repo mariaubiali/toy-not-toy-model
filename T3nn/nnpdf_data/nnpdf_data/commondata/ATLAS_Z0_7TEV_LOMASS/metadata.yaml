@@ -1,0 +1,55 @@
+setname: ATLAS_Z0_7TEV_LOMASS
+version: 1
+version_comment: "First implementation"
+nnpdf_metadata:
+  nnpdf31_process: DY NC
+  experiment: ATLAS
+arXiv:
+  url: https://arxiv.org/abs/1404.1212
+  journal: JHEP 06 (2014) 112
+iNSPIRE:
+  url: 'https://inspirehep.net/literature/1288706'
+hepdata:
+  url: 'https://www.hepdata.net/record/ins1288706'
+  version: 1
+implemented_observables:
+- observable_name: M
+  observable:
+    description: Drell-Yan Mass Distribution
+    label: ATLAS low-mass DY 2011
+    units: ''
+  process_type: DY_MLL
+  tables: [6]
+  npoints: [6]
+  ndata: 6
+  plotting:
+    dataset_label: ATLAS low-mass DY 2011
+    y_label: $d\sigma_{Z/\gamma^{*}}/dM_{ll}$ (fb)
+    plot_x: m_ll
+  kinematic_coverage:
+  - m_ll
+  - sqrts
+  kinematics:
+    variables:
+      m_ll:
+        description: dilepton mass
+        label: '$m_{ll}$'
+        units: 'GeV'
+      sqrts:
+        description: center of mass energy
+        label: sqrts
+        units: 'GeV'
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1000.0
+    operation: 'null'
+    FK_tables:
+    - - ATLAS_DY_7TEV_LOMASS_EXT
+  data_uncertainties:
+    - uncertainties.yaml
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_legacy_M.yaml
+  data_central: data.yaml
+  ported_from: ATLASLOMASSDY11EXT

@@ -1,0 +1,169 @@
+bins:
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 8.65
+    mid: 7.79
+    min: 6.93
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 1.02100000e+01
+    mid: 9.62
+    min: 9.03
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 12.14
+    mid: 11.67
+    min: 11.2
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 14.1
+    mid: 13.59
+    min: 13.08
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 16.3
+    mid: 15.76
+    min: 1.52200000e+01
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 20.62
+    mid: 19.89
+    min: 19.16
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 23.49
+    mid: 22.68
+    min: 21.87
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 2.68300000e+01
+    mid: 25.94
+    min: 25.05
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 30.75
+    mid: 29.75
+    min: 28.75
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 35.5
+    mid: 34.29
+    min: 33.08
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 40.99
+    mid: 39.59
+    min: 3.81900000e+01
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 47.28
+    mid: 45.76
+    min: 4.42400000e+01
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 54.9
+    mid: 53.17
+    min: 5.14400000e+01
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null
+- eta:
+    max: 0.9
+    mid: 0.0
+    min: -0.9
+  pT:
+    max: 63.32
+    mid: 61.37
+    min: 5.94200000e+01
+  sqrts:
+    max: null
+    mid: 510.0
+    min: null

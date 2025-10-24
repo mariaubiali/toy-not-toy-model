@@ -1,0 +1,225 @@
+meta:
+  title: Future test example
+  author: Lazy Person
+  keywords: [future_test, preHera, preLHC, pdferr]
+  my_description: "The PDF errors are included in all cases"
+
+use_pdferr: True
+disable_pdferr:
+  use_pdferr: False
+
+my_description:
+  from_: meta
+
+future:
+  pdf: {id: 240516-jcm-nnpdf40-like, label: "NNPDF4.0"}
+  fit: {id: 240516-jcm-nnpdf40-like, label: "NNPDF4.0"}
+
+  speclabel: "NNPDF4.0 fit"
+  description:
+    from_: fit
+
+  theory:
+    from_: fit
+  theoryid:
+    from_: theory
+
+present:
+  pdf: {id: 210219-n3fit-FD04, label: "PreLHC"}
+  fit: {id: 210219-n3fit-FD04, label: "PreLHC"}
+
+  speclabel: "PreLHC fit"
+  description:
+    from_: fit
+
+past:
+  pdf: {id: 210219-n3fit-FD17, label: "PreHera"}
+  fit: {id: 210219-n3fit-FD17, label: "PreHera"}
+
+  speclabel: "PreHera fit"
+  description:
+    from_: fit
+
+dataset_inputs:
+  - {dataset: NMC_NC_NOTFIXED_EM-F2, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED, custom_group: datasets pre HERA, variant: legacy}
+  - {dataset: SLAC_NC_NOTFIXED_P_EM-F2, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: SLAC_NC_NOTFIXED_D_EM-F2, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: BCDMS_NC_NOTFIXED_P_EM-F2, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: BCDMS_NC_NOTFIXED_D_EM-F2, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: CHORUS_CC_NOTFIXED_PB_NU-SIGMARED, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: CHORUS_CC_NOTFIXED_PB_NB-SIGMARED, custom_group: datasets pre HERA, variant: legacy_dw}
+  - {dataset: NUTEV_CC_NOTFIXED_FE_NU-SIGMARED, custom_group: datasets pre HERA, cfac: [MAS], variant: legacy_dw}
+  - {dataset: NUTEV_CC_NOTFIXED_FE_NB-SIGMARED, custom_group: datasets pre HERA, cfac: [MAS], variant: legacy_dw}
+  - {dataset: HERA_NC_318GEV_EM-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_225GEV_EP-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_251GEV_EP-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_300GEV_EP-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_318GEV_EP-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_CC_318GEV_EM-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_CC_318GEV_EP-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_318GEV_EAVG_CHARM-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: HERA_NC_318GEV_EAVG_BOTTOM-SIGMARED, custom_group: datasets pre LHC, variant: legacy}
+  - {dataset: DYE866_Z0_800GEV_DW_RATIO_PDXSECRATIO, custom_group: datasets pre HERA, variant: legacy}
+  - {dataset: DYE866_Z0_800GEV_PXSEC, custom_group: datasets pre HERA, cfac: [QCD], variant: legacy}
+  - {dataset: DYE605_Z0_38P8GEV_DW_PXSEC, custom_group: datasets pre HERA, cfac: [QCD], variant: legacy}
+  - {dataset: CDF_Z0_1P96TEV_ZRAP, custom_group: datasets pre LHC, cfac: [QCD], variant: legacy}
+  - {dataset: D0_Z0_1P96TEV_ZRAP, custom_group: datasets pre LHC, cfac: [QCD], variant: legacy}
+  - {dataset: D0_WPWM_1P96TEV_ASY, custom_group: datasets pre LHC, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_DY_7TEV_36PB_ETA, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_Z0_7TEV_49FB_HIMASS, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_Z0_7TEV_LOMASS_M, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_DY_7TEV_46FB_CC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_Z0_7TEV_46FB_CF-Y, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_Z0_8TEV_HIMASS_M-Y, custom_group: NNPDF40 datasets, cfac: [QCDEWK], variant: legacy}
+  - {dataset: ATLAS_DY_13TEV_TOT, custom_group: NNPDF40 datasets, cfac: [NRM, QCD], variant: legacy}
+  - {dataset: ATLAS_WJ_8TEV_WP-PT, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_WJ_8TEV_WM-PT, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_Z0J_8TEV_PT-M, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy_10}
+  - {dataset: ATLAS_Z0J_8TEV_PT-Y, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy_10}
+  - {dataset: ATLAS_TTBAR_7TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_TTBAR_8TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_TTBAR_13TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_TTBAR_8TEV_LJ_DIF_YT-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_TTBAR_8TEV_LJ_DIF_YTTBAR-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_TTBAR_8TEV_2L_DIF_YTTBAR-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_1JET_8TEV_R06_PTY, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy_decorrelated}
+  - {dataset: ATLAS_2JET_7TEV_R06_M12Y, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_PH_13TEV_XSEC, custom_group: "NNPDF40 datasets", cfac: [QCD, EWK], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_7TEV_TCHANNEL-XSEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_13TEV_TCHANNEL-XSEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_7TEV_T-Y-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_7TEV_TBAR-Y-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_8TEV_T-RAP-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: ATLAS_SINGLETOP_8TEV_TBAR-RAP-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_WPWM_7TEV_ELECTRON_ASY, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: CMS_WPWM_7TEV_MUON_ASY, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_Z0_7TEV_DIMUON_2D, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: CMS_WPWM_8TEV_MUON_Y, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_Z0J_8TEV_PT-Y, custom_group: NNPDF40 datasets, cfac: [QCD, NRM], variant: legacy_10}
+  - {dataset: CMS_2JET_7TEV_M12Y, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: CMS_TTBAR_7TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_8TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_13TEV_TOT_X-SEC, custom_group: "NNPDF40 datasets", cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_8TEV_LJ_DIF_YTTBAR-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_5TEV_TOT_X-SEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_8TEV_2L_DIF_MTTBAR-YT-NORM, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_13TEV_2L_DIF_YT, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_TTBAR_13TEV_LJ_2016_DIF_YT, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_SINGLETOP_7TEV_TCHANNEL-XSEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_SINGLETOP_8TEV_TCHANNEL-XSEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: CMS_SINGLETOP_13TEV_TCHANNEL-XSEC, custom_group: NNPDF40 datasets, cfac: [QCD], variant: legacy}
+  - {dataset: LHCB_Z0_7TEV_DIELECTRON_Y, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: LHCB_Z0_8TEV_DIELECTRON_Y, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: LHCB_DY_7TEV_MUON_Y, custom_group: NNPDF40 datasets, cfac: [NRM, QCD]}
+  - {dataset: LHCB_DY_8TEV_MUON_Y, custom_group: NNPDF40 datasets, cfac: [NRM, QCD]}
+  - {dataset: LHCB_Z0_13TEV_DIMUON-Y, custom_group: NNPDF40 datasets, cfac: [QCD]}
+  - {dataset: LHCB_Z0_13TEV_DIELECTRON-Y, custom_group: NNPDF40 datasets, cfac: [QCD]}
+
+groups:
+  - metadata_group: custom_group
+  - metadata_group: experiment
+
+theoryid:
+  from_: future
+
+dataspecs:
+  - pdf:
+      from_: past
+    speclabel:
+      from_: past
+    description:
+      from_: past
+  - pdf:
+      from_: present
+    speclabel:
+      from_: present
+    description:
+      from_: present
+  - pdf:
+      from_: future
+    speclabel:
+      from_: future
+    description:
+      from_: future
+
+# Dataset options
+use_cuts: "fromfit"
+fit:
+  from_: future
+
+display_cuts: False
+marker_by: group
+
+# PDF options
+basis: flavour
+Q: 1.651
+pdfs:
+  - from_: past
+  - from_: present
+  - from_: future
+
+datanorm:
+  normalize_to: data
+
+dataset_report:
+  meta: Null
+  template_text: |
+   Data-theory comparison for {@dataset@}
+   --------------------------------------
+
+    {@with disable_pdferr@}
+
+      # Absolute
+      {@plot_fancy_dataspecs@}
+
+      # Normalized
+      {@datanorm plot_fancy_dataspecs@}
+
+    {@endwith@}
+
+coverage_report:
+  meta: Null
+  template_text: |
+   $\chi^2$ by {@metadata_group@}
+   -----------------------------
+
+   {@dataspecs_groups_chi2_table@}
+
+   Kinematic coverage
+   ------------------
+   {@plot_xq2@}
+
+template_text: |
+ Future Tests with PDF errors.
+ -----------------------------
+
+ The fits are in strict chronological order, this means
+ that "{@ future speclabel @}" contains all datasets from both "{@ present speclabel @}" and "{@ past speclabel @}".
+ The groups of datasets are, instead, exclusive, so that "NNPDF4.0 datasets" doesn't include any "preLHC" or "preHERA" dataset.
+
+ {@ my_description @}
+
+
+ Includes
+ --------
+ {@ with dataspecs @}
+  - {@ speclabel @} ({@ pdf_id @}): {@ description @} (pdferr={@ use_pdferr @})
+ {@ endwith @}
+
+ Chi2 and coverage
+ -----------------
+ {@with groups@}
+ [By {@metadata_group@}]({@coverage_report report@})
+ {@endwith@}
+
+ ## Dataset comparison
+ {@ with dataset_inputs @}
+ [Detailed plots for dataset ' {@dataset@} ']({@dataset_report report@})
+ {@ endwith @}
+
+ ## PDF comparison
+ {@plot_pdfs@}
+
+actions_:
+ - report(main=True)

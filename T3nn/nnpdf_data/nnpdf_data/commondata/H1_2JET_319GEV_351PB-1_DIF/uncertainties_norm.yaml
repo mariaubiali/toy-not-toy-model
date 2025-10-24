@@ -1,0 +1,58 @@
+definitions:
+  stat:
+    description: total statistical uncertainty
+    treatment: ADD
+    type: UNCORR
+  sys:
+    description: total systematic uncertainty
+    treatment: MULT
+    type: CORR
+bins:
+- stat: 1.95120000e-03
+  sys: 9.75600000e-04
+- stat: 1.81540000e-03
+  sys: 9.70300000e-04
+- stat: 5.47800000e-04
+  sys: 0.000415
+- stat: 1.64000000e-04
+  sys: 8.7e-05
+- stat: 0.002284
+  sys: 1.02780000e-03
+- stat: 0.002156
+  sys: 1.01920000e-03
+- stat: 6.88200000e-04
+  sys: 4.09200000e-04
+- stat: 2.17200000e-04
+  sys: 0.00015
+- stat: 2.59740000e-03
+  sys: 9.32400000e-04
+- stat: 2.50710000e-03
+  sys: 1.39740000e-03
+- stat: 8.14200000e-04
+  sys: 4.27800000e-04
+- stat: 2.66500000e-04
+  sys: 1.23500000e-04
+- stat: 3.12010000e-03
+  sys: 9.89300000e-04
+- stat: 3.11850000e-03
+  sys: 1.48500000e-03
+- stat: 1.03540000e-03
+  sys: 5.17700000e-04
+- stat: 3.46800000e-04
+  sys: 1.12200000e-04
+- stat: 3.63880000e-03
+  sys: 1.48860000e-03
+- stat: 3.75870000e-03
+  sys: 1.17920000e-03
+- stat: 1.43640000e-03
+  sys: 1.03740000e-03
+- stat: 5.45900000e-04
+  sys: 2.27900000e-04
+- stat: 1.95337000e-02
+  sys: 4.35030000e-03
+- stat: 0.01976
+  sys: 7.11360000e-03
+- stat: 7.83360000e-03
+  sys: 2.85600000e-03
+- stat: 4.59240000e-03
+  sys: 1.68560000e-03

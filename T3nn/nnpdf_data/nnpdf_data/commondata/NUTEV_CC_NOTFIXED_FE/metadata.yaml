@@ -1,0 +1,142 @@
+setname: NUTEV_CC_NOTFIXED_FE
+version: 2
+version_comment: Port of old commondata. This version refers to D.A. Mason thesis, appendix D. Data data_legacy_N* use an older BR.
+nnpdf_metadata:
+  nnpdf31_process: DIS CC
+  experiment:
+arXiv:
+  url: ''
+iNSPIRE:
+  url: https://inspirehep.net/literature/712244
+hepdata:
+  url: ''
+  version: -1
+implemented_observables:
+- observable_name: NB-SIGMARED
+  observable:
+    description: Deep Inelastic Scattering
+    label: NuTeV $\sigma_{c}^{\bar{\nu}}$
+    units: ''
+  process_type: DIS_CC
+  tables: []
+  npoints: []
+  ndata: 45
+  plotting:
+    dataset_label: NuTeV $\sigma_{c}^{\bar{\nu}}$
+    y_label: $10^{i}\sigma_{\bar{\nu}}^{cc}(x,Q^2)$
+    result_transform: qbindis
+    data_reference: Mason:2006qa
+    y_scale: symlog
+    line_by:
+    - x
+    normalize:
+      y_scale: linear
+      line_by: []
+      figure_by:
+      - x
+    plot_x: Q2
+  kinematic_coverage:
+  - x
+  - Q2
+  - y
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Momentum transfer
+        label: '$Q^2$'
+        units: '$GeV^2$'
+      y:
+        description: inelasticity
+        label: $y$
+        units: ''
+    file: kinematics_NB.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'NULL'
+    FK_tables:
+    - - NUTEV_CC_NB_FE_SIGMARED
+  data_uncertainties: []
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_legacy_NB-SIGMARED.yaml
+      experiment: NTVDMN
+      data_central: data_legacy_NB-SIGMARED.yaml
+    hepdata:
+      data_uncertainties:
+      - uncertainties_NB_hepdata.yaml
+      experiment: NTVDM
+    legacy_dw:
+      data_uncertainties:
+      - uncertainties_legacy_dw_NB-SIGMARED.yaml
+      experiment: NUCLEAR
+  data_central: data_NB.yaml
+  ported_from: NTVNBDMN
+- observable_name: NU-SIGMARED
+  observable:
+    description: Deep Inelastic Scattering
+    label: NuTeV $\sigma_{c}^{\nu}$
+    units: ''
+  process_type: DIS_CC
+  tables: []
+  npoints: []
+  ndata: 45
+  plotting:
+    dataset_label: NuTeV $\sigma_{c}^{\nu}$
+    y_label: $10^{i}\sigma_{\nu}^{cc}(x,Q^2)$
+    result_transform: qbindis
+    data_reference: Mason:2006qa
+    y_scale: symlog
+    line_by:
+    - x
+    normalize:
+      y_scale: linear
+      line_by: []
+      figure_by:
+      - x
+    plot_x: Q2
+  kinematic_coverage:
+  - x
+  - Q2
+  - y
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Momentum transfer
+        label: '$Q^2$'
+        units: '$GeV^2$'
+      y:
+        description: inelasticity
+        label: $y$
+        units: ''
+    file: kinematics_NU.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'NULL'
+    FK_tables:
+    - - NUTEV_CC_NU_FE_SIGMARED
+  data_uncertainties: []
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_legacy_NU-SIGMARED.yaml
+      experiment: NTVDMN
+      data_central: data_legacy_NU-SIGMARED.yaml
+    hepdata:
+      data_uncertainties:
+      - uncertainties_NU_hepdata.yaml
+      experiment: NTVDMN
+    legacy_dw:
+      data_uncertainties:
+      - uncertainties_legacy_dw_NU-SIGMARED.yaml
+      experiment: NUCLEAR
+  data_central: data_NU.yaml
+  ported_from: NTVNUDMN

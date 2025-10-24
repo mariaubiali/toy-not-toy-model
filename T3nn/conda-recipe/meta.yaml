@@ -1,0 +1,63 @@
+package:
+    name: nnpdf
+    version: "{{ GIT_DESCRIBE_TAG }}.{{ GIT_DESCRIBE_NUMBER }}+{{ GIT_DESCRIBE_HASH }}"
+
+source:
+    git_url: ../
+
+build:
+    noarch: python
+    script: {{ PYTHON }} -m pip install . -vv
+    number: 0
+    detect_binary_files_with_prefix: True
+
+requirements:
+    host:
+        - python >=3.9,<3.13
+        - poetry-core >=1.0.0
+        - poetry-dynamic-versioning >=1.2.0
+        - pip
+    run:
+        - python >=3.9,<3.13
+        - tensorflow >=2.17
+        - keras >=3.1
+        - psutil # to ensure n3fit affinity is with the right processors
+        - hyperopt
+        - mongodb
+        - pymongo <4
+        - pyopenssl >=23.2
+        - seaborn
+        - lhapdf
+        - numpy
+        - pkg-config
+        - reportengine
+        - matplotlib >=3.9
+        - blessings >=1.7
+        - scipy >=0.19.1
+        - pandas
+        - requests
+        - prompt_toolkit
+        - validobj
+        - pineappl >=0.8.2
+        - eko >=0.15.1,<0.16
+        - fiatlux
+        - sphinx >=5.0.2
+        - joblib
+        - sphinx_rtd_theme >0.5
+        - sphinxcontrib-bibtex
+        - ruamel.yaml >=0.15
+
+test:
+    requires:
+        - hypothesis
+        - pytest >=7
+        - coverage
+        - pytest-mpl
+
+    source_files:
+        - "*"
+
+about:
+    home: https://nnpdf.mi.infn.it/
+    license: GPLv3.0
+    summary: "NNPDF analysis framework"

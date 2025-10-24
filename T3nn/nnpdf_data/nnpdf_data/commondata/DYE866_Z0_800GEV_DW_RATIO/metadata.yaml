@@ -1,0 +1,76 @@
+setname: DYE866_Z0_800GEV_DW_RATIO
+version: 2
+version_comment: Reimplementation in new commondata format.
+nnpdf_metadata:
+  nnpdf31_process: DY NC
+  experiment: DEUTERON
+arXiv:
+  url: "https://arxiv.org/abs/hep-ex/0103030"
+  journal: "Phys. Rev. D64 (2001) 052002"
+iNSPIRE:
+  url: "https://inspirehep.net/literature/554316"
+hepdata:
+  url: "https://www.hepdata.net/record/ins554316"
+  version: 1
+implemented_observables:
+- observable_name: PDXSECRATIO
+  observable:
+    description: Fixed-Target Drell-Yan
+    label: DYE 866 $\sigma^d_{\rm DY}/\sigma^p_{\rm DY}$
+    units: ''
+  process_type: DYP_FT
+  tables: [4] # Corresponds to Table 11 of the Paper
+  npoints: []
+  ndata: 15
+  plotting:
+    dataset_label: DYE 866 $\sigma^d_{\rm DY}/\sigma^p_{\rm DY}$
+    y_label: $\sigma_{pd}/\sigma_{pp}$
+    extra_labels:
+      $x_2$:
+      - 0.026
+      - 0.038
+      - 0.053
+      - 0.067
+      - 0.082
+      - 0.097
+      - 0.112
+      - 0.127
+      - 0.141
+      - 0.162
+      - 0.186
+      - 0.212
+      - 0.237
+      - 0.269
+      - 0.315
+    plot_x: $x_2$
+  kinematic_coverage:
+  - y
+  - M2
+  - sqrts
+  kinematics:
+    variables:
+      y:
+        description: Rapidity of the lepton pair.
+        label: y
+        units: ''
+      M2:
+        description: Invariant mass-squared.
+        label: '$M^2$'
+        units: '$GeV^2$'
+      sqrts:
+        description: Center of mass energy
+        label: '$\sqrt{s}$'
+        units: '$GeV$'
+    file: kinematics.yaml
+  theory:
+    operation: ratio
+    FK_tables:
+    - - DYE866R_D
+    - - DYE866R_P
+  data_uncertainties: [uncertainties.yaml]
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties.yaml
+  data_central: data.yaml
+  ported_from: DYE886R_dw_ite

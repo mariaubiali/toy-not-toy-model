@@ -1,0 +1,186 @@
+setname: HERA_NC_300GEV
+version: 1
+version_comment: Reimplementation of HERA dataset in new commondata format.
+nnpdf_metadata:
+  nnpdf31_process: DIS NC
+  experiment: HERACOMB
+arXiv:
+  url: https://arxiv.org/abs/1506.06042
+  journal: Eur. Phys. J. C75 (2015) 580
+iNSPIRE:
+  url: ''
+hepdata:
+  url: 10.17182/hepdata.68951.v1/t2
+  version: -1
+implemented_observables:
+- observable_name: EP-SIGMARED
+  observable:
+    description: Deep Inelastic Scattering
+    label: HERA I+II inclusive NC $e^+p$ 820 GeV
+    units: ''
+  process_type: DIS_NC
+  tables: []
+  npoints: []
+  ndata: 112
+  plotting:
+    dataset_label: HERA I+II inclusive NC $e^+p$ 820 GeV
+    y_label: $10^{qbin} F_2(x,Q^2)$
+    result_transform: qbinEMC
+    x_scale: log
+    y_scale: log
+    line_by:
+    - Q2
+    figure_by:
+    - k2bins10
+    normalize:
+      y_scale: linear
+      line_by: []
+      figure_by:
+      - k2bins10
+      - Q2
+    extra_labels:
+      qplot:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+      - 1
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  - y
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: "$x$"
+        units: ''
+      Q2:
+        description: Square of momentum transfer
+        label: "$Q2$"
+        units: '$GeV^2$'
+      y:
+        description: Inelasticity y
+        label: "$y$"
+        units: ''
+    file: kinematics_EP-SIGMARED.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - HERA_NC_300GEV_EP_SIGMARED
+  data_uncertainties: [uncertainties_EP-SIGMARED.yaml]
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_EP-SIGMARED.yaml
+  data_central: data_EP-SIGMARED.yaml
+  ported_from: HERACOMBNCEP820

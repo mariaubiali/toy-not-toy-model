@@ -1,0 +1,121 @@
+#
+# Configuration file for n3fit regression tests
+# This runcard includes two DIS datasets, one Hadronic dataset
+# and two positivity datasets
+#
+
+############################################################
+description: n3fit regression test
+
+############################################################
+# frac: training fraction
+# ewk: apply ewk k-factors
+# sys: systematics treatment (see systypes)
+dataset_inputs:
+- { dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED, frac: 0.5, variant: legacy }
+- { dataset: SLAC_NC_NOTFIXED_P_EM-F2, frac: 0.5, variant: legacy }
+- { dataset: CMS_WPWM_7TEV_ELECTRON_ASY, frac: 0.5}
+
+############################################################
+datacuts:
+  t0pdfset: NNPDF40_nnlo_as_01180     # PDF set to generate t0 covmat
+  q2min        : 3.49                # Q2 minimum
+  w2min        : 12.5                # W2 minimum
+
+############################################################
+theory:
+  theoryid: 399        # database id
+
+hyperscan_config:
+    stopping:
+        min_epochs: 2e1
+        max_epochs: 5e1
+        min_patience: 0.10
+        max_patience: 0.40
+    positivity:
+        min_multiplier: 1.01
+        max_multiplier: 1.10
+    optimizer:
+      - optimizer_name: 'Adadelta'
+        learning_rate:
+          min: 0.008
+          max: 0.07
+        clipnorm:
+          min: 0.1
+          max: 2.0
+      - optimizer_name: 'RMSprop'
+        learning_rate:
+          sampling: log
+          min: 0.01
+          max: 1.5
+    architecture:
+        initializers: ['glorot_normal', 'glorot_uniform']
+        max_drop: 0.15
+        n_layers: [2,3,4,5]
+        min_units: 10
+        max_units: 50
+        activations: ['sigmoid', 'tanh']
+
+kfold:
+    target: average
+    penalties:
+      - saturation
+      - patience
+      - integrability
+    threshold: 1e3
+    partitions:
+        - datasets:
+            - NMC_NC_NOTFIXED_P_EM-SIGMARED
+        - datasets:
+            - SLAC_NC_NOTFIXED_P_EM-F2
+            - CMS_WPWM_7TEV_ELECTRON_ASY
+
+############################################################
+genrep: False    # on = generate MC replicas, False = use real data
+trvlseed: 3
+nnseed: 2
+mcseed: 1
+
+parameters: # This defines the parameter dictionary that is passed to the Model Trainer
+  nodes_per_layer: [15, 10, 8]
+  activation_per_layer: ['sigmoid', 'sigmoid', 'linear']
+  initializer: 'glorot_normal'
+  optimizer:
+    optimizer_name: 'RMSprop'
+    learning_rate: 0.00001
+  epochs: 10
+  positivity:
+    multiplier: 1.05
+    initial: 1.5
+  stopping_patience: 0.30 # percentage of the number of epochs
+  layer_type: 'dense'
+  dropout: 0.0
+
+fitting:
+  fitbasis: NN31IC # EVOL (7), EVOLQED (8), etc.
+  basis:
+      - { fl: sng, smallx: [1.05,1.19], largex: [1.47,2.70] }
+      - { fl: g,   smallx: [0.94,1.25], largex: [0.11,5.87] }
+      - { fl: v,   smallx: [0.54,0.75], largex: [1.15,2.76] }
+      - { fl: v3,  smallx: [0.21,0.57], largex: [1.35,3.08] }
+      - { fl: v8,  smallx: [0.52,0.76], largex: [0.77,3.56] }
+      - { fl: t3,  smallx: [-0.37,1.52], largex: [1.74,3.39] }
+      - { fl: t8,  smallx: [0.56,1.29], largex: [1.45,3.03] }
+      - { fl: cp,  smallx: [0.12,1.19], largex: [1.83,6.70] }
+
+############################################################
+positivity:
+  posdatasets:
+    - {dataset: NNPDF_POS_2P24GEV_F2U, maxlambda: 1e6}        # Positivity Lagrange Multiplier
+    - {dataset: NNPDF_POS_2P24GEV_DYS, maxlambda: 1e5}
+
+integrability:
+  integdatasets:
+    - {dataset: NNPDF_INTEG_3GEV_XT8, maxlambda: 1e2}
+
+############################################################
+closuretest:
+  fakedata: False
+
+############################################################
+debug: true

@@ -1,0 +1,100 @@
+#
+# Configuration file for n3fit
+#
+############################################################
+description: NNLO DIS only in basis which diagonalises experimental covmat with l2 regularizer
+
+############################################################
+# frac: training fraction
+# ewk: apply ewk k-factors
+# sys: systematics treatment (see systypes)
+dataset_inputs:
+- {dataset: NMC_NC_NOTFIXED_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: SLAC_NC_NOTFIXED_P_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: SLAC_NC_NOTFIXED_D_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: BCDMS_NC_NOTFIXED_P_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: BCDMS_NC_NOTFIXED_D_EM-F2, frac: 0.75, variant: legacy_dw}
+- {dataset: CHORUS_CC_NOTFIXED_PB_NU-SIGMARED, frac: 0.75, variant: legacy_dw}
+- {dataset: CHORUS_CC_NOTFIXED_PB_NB-SIGMARED, frac: 0.75, variant: legacy_dw}
+- {dataset: NUTEV_CC_NOTFIXED_FE_NU-SIGMARED, cfac: [MAS], frac: 0.75, variant: legacy_dw}
+- {dataset: NUTEV_CC_NOTFIXED_FE_NB-SIGMARED, cfac: [MAS], frac: 0.75, variant: legacy_dw}
+- {dataset: HERA_NC_318GEV_EM-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_225GEV_EP-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_251GEV_EP-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_300GEV_EP-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_318GEV_EP-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_CC_318GEV_EM-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_CC_318GEV_EP-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_318GEV_EAVG_CHARM-SIGMARED, frac: 0.75, variant: legacy}
+- {dataset: HERA_NC_318GEV_EAVG_BOTTOM-SIGMARED, frac: 0.75, variant: legacy}
+
+############################################################
+datacuts:
+  t0pdfset     : NNPDF40_nnlo_as_01180 # PDF set to generate t0 covmat
+  q2min        : 3.49                # Q2 minimum
+  w2min        : 12.5                # W2 minimum
+
+############################################################
+theory:
+  theoryid: 708        # database id
+
+separate_multiplicative: True
+############################################################
+trvlseed: 1
+nnseed: 2
+mcseed: 3
+save: False
+load: False
+
+genrep   : True     # true = generate MC replicas, false = use real data
+diagonal_basis: True
+
+parameters: # This defines the parameter dictionary that is passed to the Model Trainer
+  nodes_per_layer: [35, 25, 8]
+  activation_per_layer: ['tanh', 'tanh', 'linear']
+  initializer: 'glorot_normal'
+  optimizer:
+    learning_rate: 1.0
+    optimizer_name: 'Adadelta'
+  epochs: 4000
+  positivity:
+    multiplier: 1.09
+    initial: 10.0
+  stopping_patience: 0.30 # percentage of the number of epochs
+  layer_type: 'dense'
+  dropout: 0.0
+  regularizer: l1_l2
+  regularizer_args: {l1: 0.0, l2: 1.0}
+
+fitting:
+  # NN23(QED) = sng=0,g=1,v=2,t3=3,ds=4,sp=5,sm=6,(pht=7)
+  # EVOL(QED) = sng=0,g=1,v=2,v3=3,v8=4,t3=5,t8=6,(pht=7)
+  # EVOLS(QED)= sng=0,g=1,v=2,v8=4,t3=4,t8=5,ds=6,(pht=7)
+  # FLVR(QED) = g=0, u=1, ubar=2, d=3, dbar=4, s=5, sbar=6, (pht=7)
+  fitbasis: NN31IC # EVOL (7), EVOLQED (8), etc.
+  basis:
+      # remeber to change the name of PDF accordingly with fitbasis
+      # smallx, largex: preprocessing ranges
+      - { fl: sng,  smallx: [1.04,1.20], largex: [1.45,2.64] }
+      - { fl: g,    smallx: [0.82,1.31], largex: [0.20,6.17] }
+      - { fl: v,    smallx: [0.51,0.71], largex: [1.24,2.80] }
+      - { fl: v3,   smallx: [0.23,0.63], largex: [1.02,3.14] }
+      - { fl: v8,   smallx: [0.53,0.75], largex: [0.70,3.31] }
+      - { fl: t3,   smallx: [-0.45,1.41], largex: [1.78,3.21] }
+      - { fl: t8,   smallx: [0.49,1.32], largex: [1.42,3.13] }
+      - { fl: cp,   smallx: [-0.07,1.13], largex: [1.73,7.37] }
+
+############################################################
+positivity:
+  posdatasets:
+  - {dataset: NNPDF_POS_2P24GEV_F2U, maxlambda: 1e6}        # Positivity Lagrange Multiplier
+  - {dataset: NNPDF_POS_2P24GEV_F2D, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_F2S, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_FLL-19PTS, maxlambda: 1e6}
+  - {dataset: NNPDF_POS_2P24GEV_DYU, maxlambda: 1e10}
+  - {dataset: NNPDF_POS_2P24GEV_DYD, maxlambda: 1e10}
+  - {dataset: NNPDF_POS_2P24GEV_DYS, maxlambda: 1e10}
+
+############################################################
+debug: False

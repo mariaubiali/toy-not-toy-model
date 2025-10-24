@@ -1,0 +1,78 @@
+setname: ATLAS_Z0_8TEV_LOWMASS
+version: 3
+version_comment: "New implementation differs slightly from the old one."
+nnpdf_metadata:
+  nnpdf31_process: DY NC
+  experiment: ATLAS
+arXiv:
+  url: https://arxiv.org/abs/1710.05167
+  journal: JHEP 12 (2017) 059
+iNSPIRE:
+  url: 'https://inspirehep.net/literature/1630886'
+hepdata:
+  url: 'https://www.hepdata.net/record/117854'
+  version: 3
+implemented_observables:
+- observable_name: M-Y
+  observable:
+    description: Drell-Yan Rapidity Distribution
+    label: ATLAS DY 2D 8 TeV low mass
+    units: ''
+  process_type: DY_Z_Y
+  tables: [5]
+  npoints: [84]
+  ndata: 84
+  plotting:
+    dataset_label: ATLAS DY 2D 8 TeV low mass
+    y_label: $d^2\sigma/dm_{\ell\ell}d|y_{\ell\ell}|$ [fb]
+    figure_by:
+    - m_Z2
+    x_label: $|y_{\ell\ell}|$
+    plot_x: abs_y
+  kinematic_coverage:
+  - abs_y
+  - m_Z2
+  - sqrts
+  kinematics:
+    variables:
+      abs_y:
+        description: Absolute rapidity
+        label: "$|y|$"
+        units: ''
+      m_Z2:
+        description: lepton pair mass
+        label: '$m_{ll}^2$'
+        units: '$GeV^2$'
+      sqrts:
+        description: Center of mass energy
+        label: sqrts
+        units: 'GeV'
+    file: kinematics.yaml
+  theory:
+    normalization:
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN1_rapidity: 0.025
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN2_rapidity: 0.035714286
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN3_rapidity: 0.045454545
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN4_rapidity: 0.045454545
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN5_rapidity: 0.035714286
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN6_rapidity: 0.014705882
+      ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN7_rapidity: 0.01
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN1_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN2_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN3_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN4_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN5_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN6_rapidity
+      - ATLAS_DY_2D_8TEV_LOWMASS-ATLAS_DY_2D_8TEV-BIN7_rapidity
+  data_uncertainties:
+    - uncertainties.yaml
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_legacy_M-Y.yaml
+
+  data_central: data.yaml
+  ported_from: ATLAS_DY_2D_8TEV_LOWMASS

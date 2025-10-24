@@ -1,0 +1,115 @@
+setname: NMC_NC_NOTFIXED_P
+version: 2
+version_comment: Hepdata implementation of F2 proton averaged over different $\sqrt{s}$ and port of old commondata
+nnpdf_metadata:
+  nnpdf31_process: DIS NC
+  experiment: NMC
+arXiv:
+  url: https://arxiv.org/abs/hep-ph/9610231
+  journal: Nucl. Phys. B483 (1997) 3
+iNSPIRE:
+  url: https://inspirehep.net/literature/424154
+hepdata:
+  url: https://www.hepdata.net/record/ins424154
+  version: -1
+implemented_observables:
+- observable_name: EM-SIGMARED
+  observable:
+    description: Deep Inelastic Scattering
+    label: NMC $p$
+    units: ''
+  process_type: DIS_NC
+  tables: []
+  npoints: []
+  ndata: 292
+  plotting:
+    dataset_label: NMC $p$
+    y_label: $10^{i}F_2(x,Q^2)$
+    result_transform: qbindis
+    data_reference: Arneodo:1996kd
+    y_scale: linear
+    figure_by:
+    - sqrts
+    line_by:
+    - x
+    normalize:
+      line_by: []
+      figure_by:
+      - sqrts
+      - x
+    plot_x: Q2
+  kinematic_coverage:
+  - x
+  - Q2
+  - sqrts
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: '$x$'
+        units: ''
+      Q2:
+        description: Momentum transfer
+        label: '$Q^2$'
+        units: 'GeV^2'
+      sqrts:
+        description: Partonic center of mass energy
+        label: '$\sqrt{\hat{s}}$'
+        units: 'GeV'
+    file: kinematics_EM-SIGMARED.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - NMC_NC_EM_P_SIGMARED
+  data_uncertainties: []
+  variants:
+    legacy:
+      data_uncertainties:
+      - uncertainties_legacy_EM-SIGMARED.yaml
+  data_central: data_legacy_EM-SIGMARED.yaml
+  ported_from: NMC
+- observable_name: EM-F2-HEPDATA
+  observable:
+    description: Deep Inelastic Scattering F2 on proton target.
+    label: NMC $p$
+    units: ''
+  process_type: DIS_NC
+  tables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+  npoints: []
+  ndata: 158
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Momentum transfer
+        label: '$Q^2$'
+        units: '$GeV^2$'
+    file: kinematics_EM-F2-HEPDATA.yaml
+  plotting:
+    dataset_label: NMC $p$
+    y_label: $F_2(x,Q^2)$
+    result_transform: qbindis
+    y_scale: symlog
+    line_by:
+    - x
+    normalize:
+      y_scale: linear
+      line_by: []
+      figure_by:
+      - x
+    plot_x: Q2
+  theory:
+    conversion_factor: 1.0
+    operation: 'NULL'
+    FK_tables:
+    - - NMC_NC_P_EM_F2_HEPDATA
+  data_uncertainties:
+  - uncertainties_EM-F2-HEPDATA.yaml
+  data_central: data_EM-F2-HEPDATA.yaml

@@ -1,0 +1,41 @@
+bins:
+- abs_eta:
+    min: 0.0
+    mid: 0.175
+    max: 0.35
+  m_W2:
+    min: null
+    mid: 6.46174823e+03
+    max: null
+- abs_eta:
+    min: 0.35
+    mid: 5.25000000e-01
+    max: 0.7
+  m_W2:
+    min: null
+    mid: 6.46174823e+03
+    max: null
+- abs_eta:
+    min: 0.7
+    mid: 0.9
+    max: 1.1
+  m_W2:
+    min: null
+    mid: 6.46174823e+03
+    max: null
+- abs_eta:
+    min: 1.1
+    mid: 1.35
+    max: 1.6
+  m_W2:
+    min: null
+    mid: 6.46174823e+03
+    max: null
+- abs_eta:
+    min: 1.6
+    mid: 1.85
+    max: 2.1
+  m_W2:
+    min: null
+    mid: 6.46174823e+03
+    max: null

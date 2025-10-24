@@ -1,0 +1,179 @@
+setname: NNPDF_INTEG_3GEV
+version: 1
+version_comment: Port of old commondata
+nnpdf_metadata:
+  nnpdf31_process: INTEGRABILITY
+  experiment: NNPDF
+arXiv:
+  url: https://arxiv.org/abs/
+iNSPIRE:
+  url: ''
+hepdata:
+  url: ''
+  version: -1
+implemented_observables:
+- observable_name: XT3
+  observable:
+    description: The value of the T3 PDF at Q=Q0, used to ensure integrability
+    label: 'integrability dataset: $xT_3$ PDF, Q=Q_0'
+    units: ''
+  process_type: INTEG
+  tables: []
+  npoints: []
+  ndata: 1
+  plotting:
+    dataset_label: 'integrability dataset: $xT_3$ PDF, Q=Q_0'
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Factorization scale [GeV2]
+        label: Q2
+        units: ''
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - INTEGXT3
+  data_uncertainties: []
+  ported_from: INTEGXT3
+- observable_name: XT8
+  observable:
+    description: The value of the T8 PDF at Q=Q0, used to ensure integrability
+    label: 'integrability dataset: $xT_8$ PDF, Q=Q_0'
+    units: ''
+  process_type: INTEG
+  tables: []
+  npoints: []
+  ndata: 1
+  plotting:
+    dataset_label: 'integrability dataset: $xT_8$ PDF, Q=Q_0'
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Factorization scale [GeV2]
+        label: Q2
+        units: ''
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - INTEGXT8
+  data_uncertainties: []
+  ported_from: INTEGXT8
+- observable_name: XV
+  observable:
+    description: The value of the V PDF at Q=Q0, used to ensure integrability
+    label: 'integrability dataset: $xV$ PDF, Q=Q_0'
+    units: ''
+  process_type: INTEG
+  tables: []
+  npoints: []
+  ndata: 1
+  plotting:
+    dataset_label: 'integrability dataset: $xV$ PDF, Q=Q_0'
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Factorization scale [GeV2]
+        label: Q2
+        units: ''
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - NNPDF_INTEG_XV_40
+  data_uncertainties: []
+  ported_from: NNPDF_INTEG_XV_40
+- observable_name: XV3
+  observable:
+    description: The value of the V3 PDF at Q=Q0, used to ensure integrability
+    label: 'integrability dataset: $xV_3$ PDF, Q=Q_0'
+    units: ''
+  process_type: INTEG
+  tables: []
+  npoints: []
+  ndata: 1
+  plotting:
+    dataset_label: 'integrability dataset: $xV_3$ PDF, Q=Q_0'
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Factorization scale [GeV2]
+        label: Q2
+        units: ''
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - NNPDF_INTEG_XV3_40
+  data_uncertainties: []
+  ported_from: NNPDF_INTEG_XV3_40
+- observable_name: XV8
+  observable:
+    description: The value of the V8 PDF at Q=Q0, used to ensure integrability
+    label: 'integrability dataset: $xV_8$ PDF, Q=Q_0'
+    units: ''
+  process_type: INTEG
+  tables: []
+  npoints: []
+  ndata: 1
+  plotting:
+    dataset_label: 'integrability dataset: $xV_8$ PDF, Q=Q_0'
+    plot_x: x
+  kinematic_coverage:
+  - x
+  - Q2
+  kinematics:
+    variables:
+      x:
+        description: Bjorken x
+        label: $x$
+        units: ''
+      Q2:
+        description: Factorization scale [GeV2]
+        label: Q2
+        units: ''
+    file: kinematics.yaml
+  theory:
+    conversion_factor: 1.0
+    operation: 'null'
+    FK_tables:
+    - - NNPDF_INTEG_XV8_40
+  data_uncertainties: []
+  ported_from: NNPDF_INTEG_XV8_40
