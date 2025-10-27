@@ -1,0 +1,24 @@
+% -------------------------------
+% Packages for graphics, math, tables, formatting
+% -------------------------------
+\usepackage{jheppub}  % JHEP-style title/author/abstract formatting
+\usepackage{multirow, float, graphicx, url, cancel, slashed, placeins, soul}
+\usepackage{bm, amsmath, amssymb, listings, color, booktabs, pgf, empheq}
+\usepackage[toc,page]{appendix}
+\usepackage{lipsum, tabularx, subfigure, braket, enumitem, pifont, array, amsthm, hyperref, tensor}
+
+% Hyperlink settings
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=black,      
+	urlcolor=blue,
+}
+
+% Table and caption formatting
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\setlength{\unitlength}{1mm}
+
+% Column types
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
