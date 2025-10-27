@@ -23,8 +23,58 @@
 	\flushbottom
 	
 	\section{Introduction}
-	Add references like Colibri~\cite{Costantini:2025agd}.
+	Add references like Colibri~\cite{Costantini:2025agd}.\\
+	In Section 3 of Ref.~\cite{Candido:2024hjt} the $T_3$ dataset is discussed, which we want to use for our toy model.\\
+	Ref.~\cite{Lee_2020} is the paper from Google explaining infinite-width scaling behaviour for GP using a NTK-kernel.\\
+	The other references are supplementary material at the moment~\cite{Medrano:2025cmg,Halverson:2020trp,DelDebbio:2024qfh}.
 	
+	% add references here
+    
+    \section{Notes on the toy notebook}
+    
+    We started with a first, simple toy example to investigate the behaviour and function of Gaussian processes (GPs) to estimate two convoluted functions $f_1 \circ f_2$. In this simple case we define $f_2$ as
+    %
+    \begin{align}
+    	f_2(x) = \sin(2\pi \cdot x) + 0.5 \cdot x
+    \end{align} 
+    %
+    and $f_1$ as
+    %
+    \begin{align}
+    	f_1(z) = \exp(z) \; .
+    \end{align}
+	%
+	With this the convluted function $f_1 \circ f_2$ is expressed via
+	%
+	\begin{align}
+		f_1 \circ f_2 (x) = \exp(\sin(2\pi \cdot x) + 0.5 \cdot x) + \epsilon_i \qquad \epsilon_i \sim \mathcal{N}(0, \sigma_y^2) \; 
+	\end{align}
+	%
+	where we add small random fluctuations $\epsilon_i$ to simulate noise on the input parameter with variance $\sigma_y^2$.
+	To make the process easier for the GP, we standardize the data and then start by fitting a GP 
+	%
+	\begin{align}
+		y_\mathrm{std} = GP(0, k(x, x')) \quad \text{with} \quad k(x, x') = C \cdot \exp(- \frac{(x-x')^2}{2\alpha^2}) \; .
+	\end{align}
+	%
+	$k(x, x')$ describes a RBF kernel, using $C$ as constant to control the overall variance and $\alpha = \sigma_y^2$, to mimic the same noise as added to $f_1 \circ f_2$.
+	Based on this setup the GP predicts the values for $100$ random input values $X_\star$ and their variance. 
+	As next step we apply two GPs in a sequencce to first model only $f_2$ and then the convolution of $f_1 \circ f_2$. 
+	The second GP maps the output from the latent space onto the final output, while learning $z \rightarrow f_1(z)$. This approach only makes sense if the outer function $f_1(z)$ is unknown.  Additionally in this approach we neglect an error propagation from the first GP learning $f_2(x)$ onto the second GP learning $f_1(z)$.
+	To extend this approach even further, we can replace the second GP by a neural network (NN) to approximate $f_1$, where we use the means of the GP learning $f_2$ as input for the NN. In this setup the NN is only added for test purposes and consists of one hidden layer with dimension 10 and a simple tanh activation function.
+	In the cases described above, we can see in the notebook, that the GP has problems to learn the latent distribution for $f_2$. Currently I have no idea why there are these problems and tried to use different kernel setups, however the mismatch remained. It might be the case, that there is something wrong with transforming the output after standardising it. I need to have a closer look into it.
+	
+	\subsection{Unknown inner function and known outer function}
+	
+	The first part focuses on a known inner function $f_2$ and an unknown outer function $f_1$. However, turning the set-up around by having a known outer function $f_1$ and an unknown innder function $f_2$ is also a reasonable case in physics.
+	Thus we start by assuming a known outer function $f_1$ and an unknown function $f_2$ by reverting the relationship and introduce pseudoobservations $f_2^{ps} = f_1^{-1} = log(z)$ as data input for the GP to learn $f_2$. With this we achieve a latent GP regression istead of a stacked GP architecture. 
+	
+	Next, we use a GP to learn $f_2$ and a $f_1$ to approximate $f_1$: $z \approx NN(f_2, GP(x))$. This is also known as a simplified Deep Gaussian Process (DGP), where the first layer is a probabilistic GP and the second one a deterministic NN. We approximate $f_2(x) = \log(z)$ and then fit $f_{2,GP}(x) \sim GP(0, k(x, x'))$ returning a mean and variance as output variables.
+	in the 5th cell of the notebook we neglected teh variance and only put the mean as input into the NN, while in the 6th cell we add some uncertainty propagation by drawing $n$ independent samples of $f_2$ from the GP posterior, a simple MC uncertainty propagation. 
+	In the second part, approximating an unknown $f_2$, the GP-NN combination can precisely reproduce the latent distribution $f_2$. 
+	
+	TBC with more investigations on the first part, add plots from the notebook
+		
 	\section*{Acknowledgments}
 	We are very grateful to ...
 	
