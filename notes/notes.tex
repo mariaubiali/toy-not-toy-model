@@ -26,10 +26,18 @@
 	Add references like Colibri~\cite{Costantini:2025agd}.\\
 	In Section 3 of Ref.~\cite{Candido:2024hjt} the $T_3$ dataset is discussed, which we want to use for our toy model.\\
 	Ref.~\cite{Lee_2020} is the paper from Google explaining infinite-width scaling behaviour for GP using a NTK-kernel.\\
-	The other references are supplementary material at the moment~\cite{Medrano:2025cmg,Halverson:2020trp,DelDebbio:2024qfh}.
+	The other references are supplementary material at the moment~\cite{Medrano:2025cmg,Halverson:2020trp,DelDebbio:2024qfh,DelDebbio:2007ee}.
 	
 	% add references here
     
+	\section{Overall information}
+
+	The overall problem we want to address in this project is to understand how the predictions of a Gaussian process (GP) depend on the choice of kernel and their ability of uncertainty estimation.
+	Thus, we need a simple, but physical relevant toy model. These criterias are fulfilled for the $T_3$ data set of NNPDF. It consists of a convolution of two functions, the Wilson coefficient $C_3$ and the PDF $T_3$.
+	Additionally, the $T_3$ dataset was used in the first NNPDF paper proving that a NN can be used to parameterize a single PDF and was also used in Ref.~\cite{DelDebbio:2024qfh} as first model showing that GP's can be used for single PDF fits.
+
+	We want to improve the fit quality and uncertainty estimation compared to previous work and perform some benchmarking not only against previous NNPDF fitting techniques but also against Bayesian Neural Networks (BNNs) in terms of accuracy and uncertainty estimation.
+
     \section{Notes on the toy notebook}
     
     We started with a first, simple toy example to investigate the behaviour and function of Gaussian processes (GPs) to estimate two convoluted functions $f_1 \circ f_2$. In this simple case we define $f_2$ as
@@ -47,34 +55,102 @@
 	With this the convluted function $f_1 \circ f_2$ is expressed via
 	%
 	\begin{align}
-		f_1 \circ f_2 (x) = \exp(\sin(2\pi \cdot x) + 0.5 \cdot x) + \epsilon_i \qquad \epsilon_i \sim \mathcal{N}(0, \sigma_y^2) \; 
+		y = f_1 \circ f_2 (x) = \exp(\sin(2\pi \cdot x) + 0.5 \cdot x) + \epsilon_i \qquad \epsilon_i \sim \mathcal{N}(0, \sigma^2) \; 
 	\end{align}
 	%
-	where we add small random fluctuations $\epsilon_i$ to simulate noise on the input parameter with variance $\sigma_y^2$.
-	To make the process easier for the GP, we standardize the data and then start by fitting a GP 
+	where we add small random fluctuations $\epsilon_i$ to simulate noise on the input parameter with variance $\sigma^2$.
+	To make the process easier for the GP, we standardize the data and then start by fitting a GP:
 	%
 	\begin{align}
 		y_\mathrm{std} = GP(0, k(x, x')) \quad \text{with} \quad k(x, x') = C \cdot \exp(- \frac{(x-x')^2}{2\alpha^2}) \; .
 	\end{align}
 	%
-	$k(x, x')$ describes a RBF kernel, using $C$ as constant to control the overall variance and $\alpha = \sigma_y^2$, to mimic the same noise as added to $f_1 \circ f_2$.
+	$k(x, x')$ describes a radial basis function (RBF) kernel, using $C$ as constant to control the overall variance and $\alpha = \sigma^2$, to mimic the same noise as added to $f_1 \circ f_2$.
 	Based on this setup the GP predicts the values for $100$ random input values $X_\star$ and their variance. 
-	As next step we apply two GPs in a sequencce to first model only $f_2$ and then the convolution of $f_1 \circ f_2$. 
-	The second GP maps the output from the latent space onto the final output, while learning $z \rightarrow f_1(z)$. This approach only makes sense if the outer function $f_1(z)$ is unknown.  Additionally in this approach we neglect an error propagation from the first GP learning $f_2(x)$ onto the second GP learning $f_1(z)$.
-	To extend this approach even further, we can replace the second GP by a neural network (NN) to approximate $f_1$, where we use the means of the GP learning $f_2$ as input for the NN. In this setup the NN is only added for test purposes and consists of one hidden layer with dimension 10 and a simple tanh activation function.
-	In the cases described above, we can see in the notebook, that the GP has problems to learn the latent distribution for $f_2$. Currently I have no idea why there are these problems and tried to use different kernel setups, however the mismatch remained. It might be the case, that there is something wrong with transforming the output after standardising it. I need to have a closer look into it.
 	
 	\subsection{Unknown inner function and known outer function}
 	
-	The first part focuses on a known inner function $f_2$ and an unknown outer function $f_1$. However, turning the set-up around by having a known outer function $f_1$ and an unknown innder function $f_2$ is also a reasonable case in physics.
-	Thus we start by assuming a known outer function $f_1$ and an unknown function $f_2$ by reverting the relationship and introduce pseudoobservations $f_2^{ps} = f_1^{-1} = log(z)$ as data input for the GP to learn $f_2$. With this we achieve a latent GP regression istead of a stacked GP architecture. 
-	
-	Next, we use a GP to learn $f_2$ and a $f_1$ to approximate $f_1$: $z \approx NN(f_2, GP(x))$. This is also known as a simplified Deep Gaussian Process (DGP), where the first layer is a probabilistic GP and the second one a deterministic NN. We approximate $f_2(x) = \log(z)$ and then fit $f_{2,GP}(x) \sim GP(0, k(x, x'))$ returning a mean and variance as output variables.
-	in the 5th cell of the notebook we neglected teh variance and only put the mean as input into the NN, while in the 6th cell we add some uncertainty propagation by drawing $n$ independent samples of $f_2$ from the GP posterior, a simple MC uncertainty propagation. 
-	In the second part, approximating an unknown $f_2$, the GP-NN combination can precisely reproduce the latent distribution $f_2$. 
-	
-	TBC with more investigations on the first part, add plots from the notebook
-		
+	In this simple toy model we assume, that we know the outer function $f_1$ and need to approximate the inner function $f_2$. The only assumptions we can make about $f_2$ are smoothness and piecewise invertability.
+	Therefore, we can introduce a pseudofunction $f_2^\mathrm{pseudo} = \log(y)$ and use one GP with a multiplicative kernel of a constant kernel function and a RBF kernel to learn the inverse latent representation $f_2^mathrm{pseudo} = \log(y)$.
+	With the explicit knowledge of $f_1$, we can use it to predict the results of the convolution $f_1(f_2)$.\\
+
+	The GP learns $GP(X, \log(y))$, with $X$ generated points and $y=f_1(f_2(X))$. Then we predict the values of $f_2$ for 200 randomly drawn points $X^*$ where we get the mean and std values for the prediction and finally this prediction is inserted into $f_1$ to get the overall prediction.
+	The results for this setup are shown in Fig.~\ref{fig:toy_RBF_kernel}.
+
+	As a next step we combine a Neural Tangent kernel (NTK) with a RBF kernel for the GP. The results are shown in Fig.~\ref{fig:toy_NTKRBF_kernel}. We choose this combination of these two kernel functions, because a single, one-layered ReLU NTK produced almost flat predictions.
+	A reason for these flat predictions could be the small difference between the entering $x$ and $x'$, leading to the constant bias term dominating the NTK.
+	Resulting in a mean collapse of the posterior and an almost flat prediction. Thus adding the RBF part to the kernel function helps to express the fluctuations on a short-scale in $f_2$.
+	Empiriacally, with the RBF kernel, the optimizer is able to choose a length scale close to the sin-function. With this the posterior uses the RBF for the osillations and the NTK part for any low-frequency structure, like the linear part of $0.5x$.
+	To achieve an NTK only solution, we can either rescale the input, to increase the fluctuations while simultaneously reduce the bias $\sigma_b$, or using a deeper NTK structure.
+	Lastly, one could also remove the log-transformation before fitting the GP, to not force the NTK into a nearly constant regieme.
+
+	\NEc{These are all steps I could test. Next: Reproduce Fig 2 of arxiv:1902.06720v4.}
+
+	\begin{figure}[hptb]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figs/toy_kernel/RBF_kernel.pdf}
+    	\caption{Results for a GP with a RBF kernel. Upper plot: GP prediction for $f_2$, Center: Overall prediction for convolution $f_1(f_2)$, Lower: Residuals for the overall prediction on y and GP mean.}
+    	\label{fig:toy_RBF_kernel}
+	\end{figure} 
+
+	\begin{figure}[hptb]
+		\centering
+		\includegraphics[width=0.9\textwidth]{figs/toy_kernel/NTK_RBF_kernel.pdf}
+    	\caption{Results for a GP with a NTK+RBF kernel. Upper plot: GP prediction for $f_2$, Center: Overall prediction for convolution $f_1(f_2)$, Lower: Residuals for the overall prediction on y and GP mean.}
+    	\label{fig:toy_NTKRBF_kernel}
+	\end{figure} 
+
+	\subsection{More notes on different kernels}
+
+	\subsubsection*{Constant kernel}
+	A constant kernel $k_C$ is defined as
+	\begin{align}
+		k_C (x, x') = \mathrm{const.}
+	\end{align}
+	and implemented as ConstantKernel=(1.0, (1e-3, 1e3)), where the initial constant value is set to $1.0$, but is allowed to vary between $0.001$ and $1000$ during the optimization process.
+
+	\subsubsection*{RBF kernel}
+	Also known as squared exponential or Gaussian kernel:
+	\begin{align}
+		k(x, x') = \exp(- \frac{(x-x')^2}{2l^2}) \; ,
+	\end{align}
+	where $l$ denotes the kernel length-scale. This length-scale controls the smoothness of the kernel.
+	Thus, the RBF kernel provides a good estimate for a variety of smooth functions, ideal for cases where we have a limited prior knowledge.
+	The RBF kernel is implemented as RBF(1.0, (1e-2, 1e2)), where the kernel length $l=1.0$ and can vary between $0.01$ and $100$ during optimization.
+
+	\subsubsection*{NTK}
+
+	Neural Tangent kernels (NTKs) also known as infinite-width kernel:
+	\begin{align}
+		k_{\text{NTK}}(x, x'; \theta) = \nabla_{\theta} f(x; \theta) \cdot \nabla_{\theta} f(x' ; \theta) \; ,
+	\end{align}
+	with $f_{\theta}(x)$ denoting the output of a neural network parameterized by $\theta$.
+	It was first introduced to describe the evolution of a deep NN during gradient descent. Opposite to other kernels, NTKs are specifically derived for their use with neural networks.
+	Thus with a NN parameter $\theta$ change during training, the kernel evolves as well, letting us capture the training dynamics.
+	In the infinite width limit of the NN the NTK has some nice properties:
+	\begin{itemize}
+		\item NTK is deterministic (independent of random parameter intialization)
+		\item NTK constant during training
+		\item Each parameter itself changes negligibly during training, but collectively the provide a finite change in variables
+		\item During training network is linearized: Use first order Taylor expansion for parameter dependence 
+			  $f(x;\theta_0 + \Delta \theta) = f(x; \theta_0) + \Delta \theta \cdot \nabla_\theta f(x; \theta_0)$, $\theta_0$ initial parameters
+		\item Training dynamics are equivalent to a kernel gradient descent using the NTK as kernetl. If the loss is an MSE loss, the final distribution $f(x; \theta)$ remains a GP but with new mean and variance.   
+	\end{itemize}
+
+	\subsubsection*{Gibbs kernel}
+	The study in Ref~\cite{Candido:2024hjt} for the $T_3$ dataset approximated by a GP used a Gibbs kernel in their model.
+	This Gibbs kernel is similar to the RBF kernel but as a more advanced function. It can be expressed in the following way
+	\begin{align}
+		k_\mathrm{Gibbs} (x, x') = \sigma^2 \sqrt{\frac{2l(x) 2l(x')}{l^2(x)+l^2(x')}} \exp \left[ - \frac{(x-x')^2}{l^2(x)+l^2(x')} \right] \; ,
+	\end{align}
+	with 
+	\begin{align}
+		l(x) = l_0 \times (x+\delta) \; .
+	\end{align}
+
+	The GP hyperparameters are denoted as $l_0$, the kernel length and $\sigma^2$, some constant prefactor to adjust the width.
+	$\delta$ is implemented as small fixed number to regularize $k_\mathrm{Gibbs}$ when $x, x' \rightarrow 0$. 
+
 	\section*{Acknowledgments}
 	We are very grateful to ...
 	
