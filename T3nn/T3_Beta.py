@@ -109,6 +109,28 @@ merged_df = df_p.merge(df_d, on=["x", "q2"], suffixes=("_p", "_d")).assign(
 # Extract q2_vals and y_real for later use
 q2_vals = merged_df["q2"].to_numpy()
 y_real = merged_df["y_val"].to_numpy()
+
+# Ninas test TODO remove again
+x_valsnin = merged_df["x"].to_numpy()
+plt.figure()
+plt.scatter(q2_vals, y_real, color="C0",label=r"$y_{real}$",)
+plt.xlabel(r"$Q2$")
+plt.ylabel(r"$F_p - F_d$")
+plt.legend(loc="upper right", frameon=True, edgecolor="k")
+plt.grid(alpha=0.2)
+plt.savefig(image_dir / "Nina1.png", bbox_inches="tight")
+plt.show()
+
+plt.figure()
+plt.scatter(x_valsnin, y_real, color="C0",label=r"$y_{real}$",)
+plt.xlabel(r"$x$")
+plt.ylabel(r"$F_p - F_d$")
+plt.legend(loc="upper right", frameon=True, edgecolor="k")
+plt.grid(alpha=0.2)
+plt.savefig(image_dir / "Nina2.png", bbox_inches="tight")
+plt.show()
+print("Finished Ninas plots!")
+
 # %% [markdown]
 # ## Data Loading & Preprocessing — Part 2
 #
@@ -217,7 +239,7 @@ for i, x in enumerate(xgrid):
 
 t3 = xt3_true / xgrid
 
-t3_ref_int = np.trapz(xt3_true / xgrid, xgrid)  # noqa: NPY201
+t3_ref_int = np.trapezoid(xt3_true / xgrid, xgrid)  # noqa: NPY201
 
 
 y_theory = W @ (xt3_true)  # shape (N,)
@@ -710,7 +732,7 @@ for cfg_key, cfg in config.items():
             loss_sumrule = torch.tensor(0.0, device=device)
             if lambda_sr > 0.0:
                 t3_unc = f_raw / x_torch.squeeze()
-                I_mid = torch.trapz(t3_unc, x_torch.squeeze())
+                I_mid = torch.trapezoid(t3_unc, x_torch.squeeze())
                 loss_sumrule = lambda_sr * (I_mid - float(t3_ref_int)) ** 2
 
             loss_total = loss_chi2 + loss_sumrule
