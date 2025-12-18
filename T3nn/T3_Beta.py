@@ -110,6 +110,7 @@ merged_df = df_p.merge(df_d, on=["x", "q2"], suffixes=("_p", "_d")).assign(
 q2_vals = merged_df["q2"].to_numpy()
 y_real = merged_df["y_val"].to_numpy()
 
+print(len(y_real))
 # Ninas test TODO remove again
 x_valsnin = merged_df["x"].to_numpy()
 plt.figure()
@@ -119,7 +120,7 @@ plt.ylabel(r"$F_p - F_d$")
 plt.legend(loc="upper right", frameon=True, edgecolor="k")
 plt.grid(alpha=0.2)
 plt.savefig(image_dir / "Nina1.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 plt.figure()
 plt.scatter(x_valsnin, y_real, color="C0",label=r"$y_{real}$",)
@@ -128,7 +129,7 @@ plt.ylabel(r"$F_p - F_d$")
 plt.legend(loc="upper right", frameon=True, edgecolor="k")
 plt.grid(alpha=0.2)
 plt.savefig(image_dir / "Nina2.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 print("Finished Ninas plots!")
 
 # %% [markdown]
@@ -239,7 +240,7 @@ for i, x in enumerate(xgrid):
 
 t3 = xt3_true / xgrid
 
-t3_ref_int = np.trapezoid(xt3_true / xgrid, xgrid)  # noqa: NPY201
+t3_ref_int = np.trapz(xt3_true / xgrid, xgrid)  # noqa: NPY201
 
 
 y_theory = W @ (xt3_true)  # shape (N,)
@@ -248,6 +249,7 @@ rng = np.random.default_rng(seed=451)  # you can set seed if you want reproducib
 noise = rng.multivariate_normal(mean=np.zeros(len(y_theory)), cov=c_yy)
 
 y_pseudo = y_theory + noise
+print(len(y_pseudo))
 # %% [markdown]
 # ## Preliminary Data Plots
 #
@@ -308,7 +310,7 @@ plt.title(
 plt.legend(loc="upper right", frameon=True, edgecolor="k")
 plt.grid(alpha=0.2)
 plt.savefig(image_dir / "real_vs_theory.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 
 # %%
@@ -353,7 +355,7 @@ ax.set_xlabel(r"$x$")
 ax.set_ylabel(r"$Q^2\,[\mathrm{GeV}^2]$")
 
 plt.savefig(image_dir / "mean_difference_theory.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %%
 # ? Theory Comparison
@@ -391,7 +393,7 @@ plt.title(r"Comparison of $y_{theory}$ vs.\ $y_{data}$ (with relative errors)")
 plt.legend(loc="upper right")
 plt.grid(alpha=0.3)
 plt.savefig(image_dir / "data_theory_error_comp.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %%
 # Kinematic Plot
@@ -433,7 +435,7 @@ ax_d.grid(which="both", alpha=0.3)
 
 plt.suptitle("Kinematic Coverage of BCDMS $F_2^p$ and $F_2^d$", y=1.02)
 plt.savefig(image_dir / "kineamtic_coverage.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %% [markdown]
 # ## Neural Network Definitions
@@ -614,9 +616,9 @@ for ansatz_name in ["ansatz1", "ansatz2"]:
             "weight_decay": 1e-4,
             "patience": 500,
             "num_epochs": 5000,
-            "n_replicas": 100,
+            "n_replicas": 50, #100,
             "lambda_sr": 10000.0,
-            "bsm": True,
+            "bsm": False, #True,
             "ansatz": ansatz_name,
             "C_true": C_true,
         }
@@ -885,7 +887,7 @@ for cfg_key, ax in comparison_map.items():
 
 plt.tight_layout()
 plt.savefig(image_dir / "realvspseudofit.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 # %%
 # Sensitivtiy Scan plots
 
@@ -970,7 +972,7 @@ global_title = "Closure test: Wilson-coefficient reconstruction"
 plt.suptitle(global_title, y=0.93, fontsize=16)
 plt.tight_layout(rect=[0, 0, 1, 0.89])
 plt.savefig(image_dir / "sensitivity_scan.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 
 # %%
@@ -1057,8 +1059,7 @@ plt.suptitle(
 )
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.savefig(image_dir / "comparison_nonbsm_vs_bsm.png", bbox_inches="tight")
-plt.show()
-
+# plt.show()
 
 # %%
 # alpha vs. beta — SINGLE PLOT WITH UNCERTAINTY ELLIPSES
@@ -1192,7 +1193,7 @@ ax.grid(alpha=0.2)
 
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.savefig(image_dir / "alpha_beta_comp.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %%
 # alpha & beta distributions by ansatz and C_true (updated)
@@ -1246,7 +1247,7 @@ fig.legend(
 
 # Adjust layout to make room for the legend at the bottom
 plt.savefig(image_dir / "alpha_beta_histograms_with_ct_legend.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %%
 #  Raw C_fit Histograms
@@ -1335,7 +1336,7 @@ plt.suptitle(
 
 plt.tight_layout(rect=[0, 0.05, 1, 1])
 plt.savefig(image_dir / "histograms.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 # %%
 # C-distribution, PDF-fixed vs. Joint-fit for both ansatz1 and ansatz2
@@ -1432,7 +1433,7 @@ fig.suptitle(
 )
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.savefig(image_dir / "moneyplot2_C_distribution_fixed.png", bbox_inches="tight")
-plt.show()
+# plt.show()
 
 
 # %%
