@@ -1,0 +1,41 @@
+seed: 123
+output_dir: results/gp/test_T3Beta_xgrid_test
+
+data:
+  path: data/Dataset/data_208.npz
+  target: y_pseudo
+
+  rescale:
+    enabled: true
+    eps: 1e-12
+
+model:
+  type: gp   # gp | nn
+
+kernel:
+  name: matern     #gibbs, rbf, matern
+  delta: 1e-5
+  x_floor: 1e-12
+  jitter: 1e-10
+  nu: 1.5        # only for matern kernel, 0.5, 1.5, 2.5 supported
+
+priors:
+  alpha:  { dist: uniform, low: -1.0, high: 0.0 }
+  l0:     { dist: uniform, low: 1e-6, high: 10.0 } 
+  #l0 dep on nu, 0.5: 10, 1.5: 5.8, 2.5: 4.5
+  sigma:  { dist: uniform, low: 1e-6, high: 10.0 }
+
+nuts:
+  draws: 500 #4000
+  tune: 100 #500
+  chains: 2
+  cores: 1
+  target_accept: 0.97
+  init: jitter+adapt_diag
+
+eval:
+  x_star_n: 400
+  make_fig1: true
+  make_fig2: true
+  fstar_kernel: matern         # optional: gibbs|rbf|matern
+  save_fstar_replicas: true 

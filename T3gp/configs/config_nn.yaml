@@ -1,0 +1,45 @@
+seed: 123
+output_dir: results/nn/test_chi2_sumrule_0
+data:
+  path: data/Dataset/data_208.npz
+  target: y_pseudo
+
+  rescale:
+    enabled: true
+    eps: 1e-12
+
+model:
+  type: nn   # gp | nn
+
+nn:
+  hidden: [32, 32, 32]
+  activation: tanh
+  out_dim: 1
+  dropout: 0.2
+  epochs: 5000
+  lr: 1.0e-3
+  weight_decay: 0.0
+  patience: 500
+  min_delta: 0.0
+  grad_clip: null         # or e.g. 1.0
+  device: cpu             # or cpu
+  dtype: float32
+  use_preproc: True
+  init_alpha: 1.0
+  init_beta: 3.0
+
+  ensemble:
+    enabled: true
+    n_members: 100
+    seed_offset: 1000        # member i uses seed = seed + seed_offset + i
+    save_member_preds: false # if true saves each member curve  
+
+loss:
+  name: chi2   # mse | weighted_mse | chi_het | t3_beta or chi2 | mse_het
+  jitter: 1.0e-10             # added to C before Cholesky
+  lambda_sr: 0.0          # set 0.0 to disable sum-rule penalty
+  from: nll
+
+transforms:
+  Logx: {}
+  Softplus: {}
