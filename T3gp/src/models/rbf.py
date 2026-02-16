@@ -6,6 +6,7 @@ import numpy as np
 import pytensor.tensor as pt
 from sklearn.gaussian_process.kernels import Kernel, Hyperparameter
 
+
 class RBFKernel1D(Kernel):
     """
     1D RBF kernel with optional small-x rescaling:
@@ -78,8 +79,8 @@ class RBFKernel1D(Kernel):
         if Y.shape[1] != 1:
             raise ValueError("Only 1D inputs (m,1).")
 
-        x = X[:, 0][:, None]          # (n,1)
-        y = Y[:, 0][None, :]          # (1,m)
+        x = X[:, 0][:, None]  # (n,1)
+        y = Y[:, 0][None, :]  # (1,m)
 
         diff2 = (x - y) ** 2
         ell2 = max(self.ell, 1e-300) ** 2
@@ -92,9 +93,9 @@ class RBFKernel1D(Kernel):
         # small-x rescaling
         x_safe = np.maximum(x, self.x_floor)
         y_safe = np.maximum(y, self.x_floor)
-        scale = (x_safe ** self.alpha) * (y_safe ** self.alpha)
+        scale = (x_safe**self.alpha) * (y_safe**self.alpha)
 
-        K = scale * K0
+        K = K0
 
         if not eval_gradient:
             return K
@@ -115,7 +116,7 @@ class RBFKernel1D(Kernel):
         # ell (raw)
         ell_safe = max(self.ell, eps)
         ell2 = ell_safe * ell_safe
-        dK_dell = K * diff2 / (ell2 * ell_safe)   # = K * diff2 / ell^3
+        dK_dell = K * diff2 / (ell2 * ell_safe)  # = K * diff2 / ell^3
 
         grad = np.stack([dK_dalpha, dK_dell, dK_dsigma2], axis=2)
         return K, grad
@@ -131,13 +132,14 @@ class RBFKernel1D(Kernel):
         return False
 
 
-
 def Kxx_rbf_pytensor(
     xgrid_t: pt.TensorVariable,
     alpha: pt.TensorVariable,
     l0: pt.TensorVariable,
     sigma2: pt.TensorVariable,
     *,
+    amp: str = "legacy",
+    beta: pt.TensorVariable | None = None,
     x_floor: float = 1e-12,
 ):
     """
@@ -148,6 +150,10 @@ def Kxx_rbf_pytensor(
 
     xgrid_t: (Ngrid,)
     returns: (Ngrid, Ngrid)
+    amplitude options:
+      amp="legacy":   (x^alpha)(y^alpha) * K0
+      amp="prefactor":pre(x)pre(y) * K0, pre(x)=x^alpha(1-x)^beta
+      amp="none":     K0
     """
     X = xgrid_t.reshape((-1, 1))
     x = X[:, 0][:, None]
@@ -161,12 +167,30 @@ def Kxx_rbf_pytensor(
 
     K0 = sigma2 * pt.exp(-0.5 * diff2 / ell2)
 
+    if amp == "None":
+        return K0
+
     # small-x rescaling (stable)
     x_safe = pt.maximum(x, x_floor)
     y_safe = pt.maximum(y, x_floor)
-    scale = (x_safe**alpha) * (y_safe**alpha)
 
-    return scale * K0
+    if amp == "legacy":
+        # original GP paper behaviour
+        scale = (x_safe**alpha) * (y_safe**alpha)
+
+        return scale * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe**alpha) * ((1.0 - x_safe) ** beta)
+        pre_y = (y_safe**alpha) * ((1.0 - y_safe) ** beta)
+        scale = pre_x * pre_y
+
+        return scale * K0
+
+    raise ValueError(f"Unknown amplitude option: {amp}")
+
 
 def Kxy_rbf_numpy(
     X: np.ndarray,
@@ -175,6 +199,8 @@ def Kxy_rbf_numpy(
     l0: float,
     sigma2: float,
     *,
+    amp: str = "legacy",
+    beta: pt.TensorVariable | None = None,
     x_floor: float = 1e-12,
 ) -> np.ndarray:
     """
@@ -192,11 +218,29 @@ def Kxy_rbf_numpy(
 
     K0 = float(sigma2) * np.exp(-0.5 * diff2 / ell2)
 
+    if amp == "None":
+        return K0
+
     x_safe = np.maximum(x, x_floor)
     y_safe = np.maximum(y, x_floor)
-    scale = (x_safe ** float(alpha)) * (y_safe ** float(alpha))
 
-    return scale * K0
+    if amp == "legacy":
+        # original GP paper behaviour
+        scale = (x_safe ** float(alpha)) * (y_safe ** float(alpha))
+
+        return scale * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe ** float(alpha)) * ((1.0 - x_safe) ** float(beta))
+        pre_y = (y_safe ** float(alpha)) * ((1.0 - y_safe) ** float(beta))
+        scale = pre_x * pre_y
+
+        return scale * K0
+
+    raise ValueError(f"Unknown amplitude option: {amp}")
+
 
 def build_log_marginal_likelihood_pt(
     xgrid_t: pt.TensorVariable,
@@ -231,13 +275,3 @@ def build_log_marginal_likelihood_pt(
         return -0.5 * quad - 0.5 * logdet - 0.5 * n * pt.log(2 * np.pi)
 
     return lml
-
-
-
-
-
-
-
-
-
-

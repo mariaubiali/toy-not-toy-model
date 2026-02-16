@@ -4,57 +4,38 @@ import os
 import numpy as np
 
 from dataloader import load_dataset
-from plotting import plot_fig2, plot_fig2_unc
-from models.nn_train import train_nn_forward  # single model trainer
+from plotting import plot_fig2, plot_fig2_unc, select_truth_and_band
+from models.nn_train import train_nn_forward, train_nn_ensemble_forward
+from models.ntk import run_ntk
 
 
 def _train_ensemble(ds: dict, cfg: dict):
+    
+    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
+    if model_type == "ntk":
+        out = run_ntk(ds, cfg)
+        x_star = out["xgrid"]
+        mus = out["f_grid_mean"][None, :]
+        vars_ = out.get("f_grid_var", None)
+        vars_ = None if vars_ is None else vars_[None, :]
+        return x_star, mus, vars_
+    
     ens = cfg.get("nn", {}).get("ensemble", {})
-    enabled = bool(ens.get("enabled", True))
-
-    loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
-    want_het = loss_name.startswith("het") or "het" in loss_name
-
-    def _get_member_out(cfg_i: dict):
-        out_i = train_nn_forward(ds, cfg_i)
-        xgrid_i = out_i["xgrid"]
-        mu_i = out_i["f_grid_mean"]
-        var_i = out_i.get("f_grid_var", None)
-        return xgrid_i, mu_i, var_i
+    enabled = bool(ens.get("enabled", False))
 
     if not enabled:
-        x_star, mu, var = _get_member_out(cfg)
-        mus = mu[None, :]  # (1, N*)
-        vars_ = None if var is None else var[None, :]
+        out = train_nn_forward(ds, cfg)
+        x_star = out["xgrid"]
+        mus = out["f_grid_mean"][None, :]
+        vars_ = out.get("f_grid_var", None)
+        vars_ = None if vars_ is None else vars_[None, :]
         return x_star, mus, vars_
 
-    n_members = int(ens.get("n_members", 20))
-    seed_offset = int(ens.get("seed_offset", 1000))
-    base_seed = int(cfg.get("seed", 0))
-
-    mus_list = []
-    vars_list = []
-    xgrid = None
-
-    for i in range(n_members):
-        cfg_i = dict(cfg)
-        cfg_i["seed"] = base_seed + seed_offset + i
-        xgrid_i, mu_i, var_i = _get_member_out(cfg_i)
-
-        xgrid = xgrid_i
-        mus_list.append(mu_i)
-
-        if var_i is not None:
-            vars_list.append(var_i)
-
-    mus = np.stack(mus_list, axis=0)  # (S, N*)
-
-    # Only return vars if we actually collected them for all members
-    vars_ = None
-    if len(vars_list) == len(mus_list) and len(vars_list) > 0:
-        vars_ = np.stack(vars_list, axis=0)  # (S, N*)
-
-    return xgrid, mus, vars_
+    out = train_nn_ensemble_forward(ds, cfg)
+    x_star = out["xgrid"]
+    mus = out["replicas"]
+    vars_ = out.get("vars_replicas", None)
+    return x_star, mus, vars_
 
 
 def run_from_config(cfg: dict):
@@ -62,6 +43,7 @@ def run_from_config(cfg: dict):
     os.makedirs(out, exist_ok=True)
 
     ds = load_dataset(cfg["data"])
+    meta = ds.get("meta", {})
 
     # ----------------------------
     # Train NN ensemble -> replicas
@@ -106,43 +88,55 @@ def run_from_config(cfg: dict):
     # ----------------------------
     # True curve (NNPDF)
     # ----------------------------
-    xt3_true = None
     meta = ds.get("meta", {})
-    if "xt3_true" in meta:
+    xt3_true = None
+
+    # If we trained/evaluated on xgrid_eval, prefer the matching truth
+    if "xgrid_ext" in meta and "xt3_ext" in meta:
+        xt3_true = np.asarray(meta["xt3_ext"], float).ravel()
+        print("Using extended xgrid truth xt3_ext for evaluation.")
+    elif "xt3_true" in meta:
         xt3_true = np.asarray(meta["xt3_true"], float).ravel()
+
+    x_plot, xt3_true_plot, true_sigma = select_truth_and_band(ds, x_model=xgrid, lam=None)
 
     # ----------------------------
     # Save everything needed for later bias/coverage scripts
     # ----------------------------
-    save_members = bool(cfg.get("nn", {}).get("ensemble", {}).get("save_member_preds", True))
+    save_members = bool(
+        cfg.get("nn", {}).get("ensemble", {}).get("save_member_preds", True)
+    )
 
     np.savez(
         os.path.join(out, "nn_uncertainty_summary.npz"),
         xgrid=xgrid,
         mean_curve=mean_curve,
         xt3_true_star=xt3_true if xt3_true is not None else np.array([]),
-
+        true_sigma=true_sigma if true_sigma is not None else np.array([]),
         # variances
         var_ens=var_ens,
         var_het=var_het,
         var_tot=var_tot,
-
         # total bands
-        lo68_tot=lo68_tot, hi68_tot=hi68_tot,
-        lo95_tot=lo95_tot, hi95_tot=hi95_tot,
-
+        lo68_tot=lo68_tot,
+        hi68_tot=hi68_tot,
+        lo95_tot=lo95_tot,
+        hi95_tot=hi95_tot,
         # ens bands (gaussian)
-        lo68_ens=lo68_ens, hi68_ens=hi68_ens,
-        lo95_ens=lo95_ens, hi95_ens=hi95_ens,
-
+        lo68_ens=lo68_ens,
+        hi68_ens=hi68_ens,
+        lo95_ens=lo95_ens,
+        hi95_ens=hi95_ens,
         # het bands (gaussian)
-        lo68_het=lo68_het, hi68_het=hi68_het,
-        lo95_het=lo95_het, hi95_het=hi95_het,
-
+        lo68_het=lo68_het,
+        hi68_het=hi68_het,
+        lo95_het=lo95_het,
+        hi95_het=hi95_het,
         # ensemble-only quantile bands (optional, useful sanity check)
-        lo68_ens_q=lo68_ens_q, hi68_ens_q=hi68_ens_q,
-        lo95_ens_q=lo95_ens_q, hi95_ens_q=hi95_ens_q,
-
+        lo68_ens_q=lo68_ens_q,
+        hi68_ens_q=hi68_ens_q,
+        lo95_ens_q=lo95_ens_q,
+        hi95_ens_q=hi95_ens_q,
         # optional heavy arrays
         mus=mus if save_members else np.array([]),
         vars=vars_ if (save_members and vars_ is not None) else np.array([]),
@@ -152,11 +146,11 @@ def run_from_config(cfg: dict):
     # Plot fig2
     # ----------------------------
     if cfg.get("eval", {}).get("make_fig2", True):
-        # By default: plot TOTAL uncertainty if het is enabled, otherwise plot ensemble-only quantiles.
-        loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
-        het_enabled = (vars_ is not None) and ("het" in loss_name)
+        output_cfg = cfg.get("nn", {}).get("out_dim", {})
+        het_enabled = output_cfg == 2
 
         if het_enabled:
+            print("Plotting NN fig2 with heteroscedastic uncertainty bands.")
             bands_total = (lo68_tot, hi68_tot, lo95_tot, hi95_tot)
 
             # ensemble uncertainty: use quantiles from mus
@@ -172,24 +166,31 @@ def run_from_config(cfg: dict):
                 bands_ens=bands_ens,
                 bands_het=bands_het,
                 xt3_true_star=xt3_true,
+                true_sigma=true_sigma,
                 outpath=os.path.join(out, "fig2_nn_unc.pdf"),
             )
 
             plot_fig2(
                 x_star=xgrid,
                 mean_curve=mean_curve,
-                lo68=lo68_ens_q, hi68=hi68_ens_q,
-                lo95=lo95_ens_q, hi95=hi95_ens_q,
+                lo68=lo68_ens_q,
+                hi68=hi68_ens_q,
+                lo95=lo95_ens_q,
+                hi95=hi95_ens_q,
                 xt3_true_star=xt3_true,
+                true_sigma=true_sigma,
                 outpath=os.path.join(out, "fig2_nn.pdf"),
             )
         else:
             plot_fig2(
                 x_star=xgrid,
                 mean_curve=mean_curve,
-                lo68=lo68_ens_q, hi68=hi68_ens_q,
-                lo95=lo95_ens_q, hi95=hi95_ens_q,
+                lo68=lo68_ens_q,
+                hi68=hi68_ens_q,
+                lo95=lo95_ens_q,
+                hi95=hi95_ens_q,
                 xt3_true_star=xt3_true,
+                true_sigma=true_sigma,
                 outpath=os.path.join(out, "fig2_nn.pdf"),
             )
 
@@ -201,4 +202,5 @@ def run_from_config(cfg: dict):
         "var_het": var_het,
         "var_tot": var_tot,
         "xt3_true": xt3_true,
+        "true_sigma": true_sigma,
     }

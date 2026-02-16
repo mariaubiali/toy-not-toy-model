@@ -27,7 +27,7 @@ theoryid_str = str(theoryid)
 
 # -------------- #
 # 2. Load Both   #
-# -------------- ## 
+# -------------- ##
 # -- Author's processed data --
 y_auth = np.load(auth_data_path + "data.npy")
 Cy_auth = np.load(auth_data_path + "Cy.npy")
@@ -44,15 +44,15 @@ print(y_auth.shape)
 
 data = np.load(f"Dataset/data_{theoryid}.npz")
 
-q2_vals     = data["q2_vals"]
-y_vals      = data["y_vals"]
-y_pseudo    = data["y_pseudo"]
-W           = data["W"]
-xgrid       = data["xgrid"]
-y_theory    = data["y_theory"]
-xt3_true    = data["xt3_true"]
-c_yy        = data["c_yy"]
-kinematics  = data["kinematics"]
+q2_vals = data["q2_vals"]
+y_vals = data["y_vals"]
+y_pseudo = data["y_pseudo"]
+W = data["W"]
+xgrid = data["xgrid"]
+y_theory = data["y_theory"]
+xt3_true = data["xt3_true"]
+c_yy = data["c_yy"]
+kinematics = data["kinematics"]
 
 # ---- Plotting -----
 # ------------- #
@@ -62,11 +62,19 @@ kinematics  = data["kinematics"]
 # == (1) Kinematic coverage ==
 fig, axs = plt.subplots(1, 3, figsize=(14, 4), sharex=True)
 axs[0].scatter(kin_auth[:, 0], kin_auth[:, 1], c=y_auth, cmap="coolwarm", s=15)
-axs[0].set(xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Author: kinematics")
+axs[0].set(
+    xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Author: kinematics"
+)
 axs[1].scatter(kinematics[:, 0], kinematics[:, 1], c=y_vals, cmap="coolwarm", s=15)
-axs[1].set(xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Ours: kinematics")
-sc = axs[2].scatter(kinematics[:, 0], kinematics[:, 1], c=y_pseudo, cmap="coolwarm", s=15)
-axs[2].set(xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Pseudo: kinematics")
+axs[1].set(
+    xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Ours: kinematics"
+)
+sc = axs[2].scatter(
+    kinematics[:, 0], kinematics[:, 1], c=y_pseudo, cmap="coolwarm", s=15
+)
+axs[2].set(
+    xscale="log", yscale="log", xlabel="x", ylabel="Q²", title="Pseudo: kinematics"
+)
 plt.colorbar(sc, ax=axs[2], label="F2p-F2d or pseudo-y")
 plt.tight_layout()
 plt.show()
@@ -153,7 +161,7 @@ plt.figure()
 plt.plot(xgrid_auth, T3_ref_auth, label="Author T3_ref (NNPDF4.0)")
 plt.plot(xgrid, xt3_true, "--", label="Ours T3_ref (LHAPDF)")
 plt.xlabel("x")
-plt.xscale('log')
+plt.xscale("log")
 plt.ylabel("T₃(x)")
 plt.title("NNPDF T₃: Author vs Ours")
 plt.legend()
@@ -184,7 +192,9 @@ plt.show()
 # (c) Pseudo: y_pred = W_our @ T3_ref_our vs y_pseudo
 plt.figure()
 plt.scatter(y_pred_our, y_pseudo, s=18, alpha=0.7, label="Pseudo: y_pred vs y_pseudo")
-plt.plot([y_pseudo.min(), y_pseudo.max()], [y_pseudo.min(), y_pseudo.max()], "k--", alpha=0.5)
+plt.plot(
+    [y_pseudo.min(), y_pseudo.max()], [y_pseudo.min(), y_pseudo.max()], "k--", alpha=0.5
+)
 plt.xlabel("y_pred (W·T3_ref)")
 plt.ylabel("y_pseudo (pseudo-data)")
 plt.title("Pseudo: FK convolution")

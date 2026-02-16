@@ -3,6 +3,7 @@ import os
 import numpy as np
 from typing import Any, Dict
 
+
 def load_dataset(cfg: Dict[str, Any]) -> Dict[str, Any]:
     path = cfg["path"]
     if not os.path.exists(path):

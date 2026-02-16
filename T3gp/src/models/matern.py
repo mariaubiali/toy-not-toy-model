@@ -34,7 +34,7 @@ class MaternKernel1D(Kernel):
     def __init__(
         self,
         *,
-        nu: float = 1.5,            # fixed
+        nu: float = 1.5,  # fixed
         alpha: float = -0.2,
         l: float = 1e-5,
         sigma2: float = 1.0,
@@ -46,9 +46,9 @@ class MaternKernel1D(Kernel):
         if nu <= 0:
             raise ValueError("nu must be > 0.")
 
-        self.nu     = float(nu)  # fixed
-        self.alpha  = float(alpha)
-        self.l      = float(l)
+        self.nu = float(nu)  # fixed
+        self.alpha = float(alpha)
+        self.l = float(l)
         self.sigma2 = float(sigma2)
 
         self.alpha_bounds = alpha_bounds
@@ -83,7 +83,9 @@ class MaternKernel1D(Kernel):
 
     @property
     def bounds(self) -> np.ndarray:
-        return np.array([self.alpha_bounds, self.l_bounds, self.sigma2_bounds], dtype=float)
+        return np.array(
+            [self.alpha_bounds, self.l_bounds, self.sigma2_bounds], dtype=float
+        )
 
     def _scale(self, x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
@@ -119,7 +121,7 @@ class MaternKernel1D(Kernel):
             zm = z[mask]
             # f(z)= z^nu K_nu(z)
             # besselk is modified bessel function of 2nd kind
-            f = (zm ** nu) * besselk(nu, zm) 
+            f = (zm**nu) * besselk(nu, zm)
             base_m = self._matern_c * f
             base[mask] = base_m
 
@@ -137,7 +139,7 @@ class MaternKernel1D(Kernel):
             Knm1 = besselk(nu - 1.0, zm)
             Knp1 = besselk(nu + 1.0, zm)
 
-            fprime = nu * (zm ** (nu - 1.0)) * Kn - 0.5 * (zm ** nu) * (Knm1 + Knp1)
+            fprime = nu * (zm ** (nu - 1.0)) * Kn - 0.5 * (zm**nu) * (Knm1 + Knp1)
             dbase_dz = self._matern_c * fprime
             dz_dl = -zm / l
             dbase_dl[mask] = dbase_dz * dz_dl
@@ -195,7 +197,9 @@ def Kxx_matern_pytensor(
     l: pt.TensorVariable,
     sigma2: pt.TensorVariable,
     *,
-    nu: float = 1.5,          # fixed (restricted)
+    nu: float = 1.5,  # fixed (restricted)
+    amp: str = "legacy",  # "legacy" or "prefactor"
+    beta: pt.TensorVariable | None = None,  # only used if amp=="prefactor"
     x_floor: float = 1e-12,
 ):
     """
@@ -227,12 +231,30 @@ def Kxx_matern_pytensor(
         z = pt.sqrt(5.0) * r / l
         base = (1.0 + z + (z * z) / 3.0) * pt.exp(-z)
 
+    K0 = sigma2 * base
+
+    if amp == "None":
+        return K0
+
     # ---- alpha scaling --------------------------------
     x_safe = pt.maximum(x, x_floor)
     y_safe = pt.maximum(y, x_floor)
-    scale = (x_safe**alpha) * (y_safe**alpha)
 
-    return scale * (sigma2 * base)
+    if amp == "legacy":
+
+        scale = (x_safe**alpha) * (y_safe**alpha)
+        return scale * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe**alpha) * ((1.0 - x_safe) ** beta)
+        pre_y = (y_safe**alpha) * ((1.0 - y_safe) ** beta)
+        scale = pre_x * pre_y
+
+        return scale * K0
+
+    raise ValueError(f"Unknown amp={amp!r}")
 
 
 def Kxy_matern_numpy(
@@ -242,7 +264,9 @@ def Kxy_matern_numpy(
     l: float,
     sigma2: float,
     *,
-    nu: float = 1.5,          # fixed (restricted)
+    nu: float = 1.5,  # fixed (restricted)
+    amp: str = "legacy",  # "legacy" or "prefactor"
+    beta: float | None = None,  # only used if amp=="prefactor"
     x_floor: float = 1e-12,
 ) -> np.ndarray:
     """
@@ -276,10 +300,28 @@ def Kxy_matern_numpy(
         z = np.sqrt(5.0) * r / l
         base = (1.0 + z + (z * z) / 3.0) * np.exp(-z)
 
+    K0 = sigma2 * base
+
+    if amp == "None":
+        return K0
+
     # ---- alpha scaling --------------------------------
     x_safe = np.maximum(x, x_floor)
     y_safe = np.maximum(y, x_floor)
-    log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
-    log_scale = np.clip(log_scale, -700.0, 700.0)
 
-    return np.exp(log_scale) * (sigma2 * base)
+    if amp == "legacy":
+
+        log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
+        log_scale = np.clip(log_scale, -700.0, 700.0)
+
+        return np.exp(log_scale) * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe**alpha) * ((1.0 - x_safe) ** beta)
+        pre_y = (y_safe**alpha) * ((1.0 - y_safe) ** beta)
+        scale = pre_x * pre_y
+        return scale * K0
+
+    raise ValueError(f"Unknown amp={amp!r}")

@@ -6,6 +6,7 @@ import numpy as np
 import pytensor.tensor as pt
 from sklearn.gaussian_process.kernels import Kernel, Hyperparameter
 
+
 class GibbsKernel1D(Kernel):
     """
     1D Gibbs kernel with linear lengthscale:
@@ -60,7 +61,9 @@ class GibbsKernel1D(Kernel):
 
     @property
     def bounds(self) -> np.ndarray:
-        return np.array([self.alpha_bounds, self.l0_bounds, self.sigma2_bounds], dtype=float)
+        return np.array(
+            [self.alpha_bounds, self.l0_bounds, self.sigma2_bounds], dtype=float
+        )
 
     def _ell(self, X: np.ndarray) -> np.ndarray:
         x = X[:, 0]
@@ -97,7 +100,7 @@ class GibbsKernel1D(Kernel):
         log_scale = np.clip(self.alpha * logxy, -700.0, 700.0)
         scale = np.exp(log_scale)
 
-        K = scale * K0
+        K = K0
 
         if not eval_gradient:
             return K
@@ -140,6 +143,8 @@ def Kxx_gibbs_pytensor(
     sigma2: pt.TensorVariable,
     *,
     delta: float = 1e-5,
+    amp: str = "legacy",
+    beta: pt.TensorVariable | None = None,
     x_floor: float = 1e-12,
 ):
     """
@@ -160,11 +165,31 @@ def Kxx_gibbs_pytensor(
     expo = pt.exp(-diff2 / denom)
     K0 = sigma2 * pref * expo
 
+    if amp == "None":
+        return K0
+
     x_safe = pt.maximum(x, x_floor)
     y_safe = pt.maximum(y, x_floor)
-    scale = (x_safe**alpha) * (y_safe**alpha)
+
+    if amp == "legacy":
+        # original GP paper behaviour
+        scale = (x_safe**alpha) * (y_safe**alpha)
+
+        return scale * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe**alpha) * ((1.0 - x_safe) ** beta)
+        pre_y = (y_safe**alpha) * ((1.0 - y_safe) ** beta)
+        scale = pre_x * pre_y
+
+        return scale * K0
+
+    raise ValueError(f"Unknown amplitude option: {amp}")
 
     return scale * K0
+
 
 def Kxy_gibbs_numpy(
     X: np.ndarray,
@@ -174,6 +199,8 @@ def Kxy_gibbs_numpy(
     sigma2: float,
     *,
     delta: float = 1e-5,
+    amp: str = "legacy",
+    beta: float | None = None,
     x_floor: float = 1e-12,
 ) -> np.ndarray:
     """
@@ -194,12 +221,30 @@ def Kxy_gibbs_numpy(
     expo = np.exp(-d2 / denom_safe)
     K0 = sigma2 * pref * expo
 
+    if amp == "None":
+        return K0
+
     x_safe = np.maximum(x, x_floor)
     y_safe = np.maximum(y, x_floor)
-    log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
-    log_scale = np.clip(log_scale, -700.0, 700.0)
 
-    return np.exp(log_scale) * K0
+    if amp == "legacy":
+        # original GP paper behaviour
+        log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
+        log_scale = np.clip(log_scale, -700.0, 700.0)
+
+        return np.exp(log_scale) * K0
+
+    if amp == "prefactor":
+        if beta is None:
+            raise ValueError("beta must be provided for amp='prefactor'")
+        pre_x = (x_safe**alpha) * ((1.0 - x_safe) ** beta)
+        pre_y = (y_safe**alpha) * ((1.0 - y_safe) ** beta)
+        scale = pre_x * pre_y
+
+        return scale * K0
+
+    raise ValueError(f"Unknown amplitude option: {amp}")
+
 
 def build_log_marginal_likelihood_pt(
     xgrid_t: pt.TensorVariable,
@@ -234,13 +279,3 @@ def build_log_marginal_likelihood_pt(
         return -0.5 * quad - 0.5 * logdet - 0.5 * n * pt.log(2 * np.pi)
 
     return lml
-
-
-
-
-
-
-
-
-
-

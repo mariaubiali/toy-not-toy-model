@@ -5,6 +5,7 @@ import torch.nn.functional as F
 
 # Helper function to check the functions from config
 
+
 def is_enabled(transforms: dict, key: str) -> bool:
     """
     Check if a transform is enabled in the config.
@@ -28,6 +29,7 @@ def is_enabled(transforms: dict, key: str) -> bool:
         return bool(cfg["enabled"])
     return True
 
+
 def log_trafo(
     x: torch.Tensor,
     transforms: dict | None,
@@ -43,6 +45,7 @@ def log_trafo(
 
     return x
 
+
 def softplus_trafo(
     f: torch.Tensor,
     transforms: dict | None,
@@ -53,5 +56,17 @@ def softplus_trafo(
 
     if is_enabled(transforms, "Softplus"):
         f = F.softplus(f)
-    
+
     return f
+
+
+def log_x_gp(x, transforms=None):
+    if transforms is None:
+        return x
+
+    if transforms.get("Logx", False):
+        x_clip = 1e-12
+        x = np.clip(x, x_clip, 1.0 - x_clip)
+        return np.log(x)
+
+    return x

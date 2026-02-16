@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict
 import os
 
+import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
 import arviz as az
@@ -16,6 +17,44 @@ def _prior(name: str, spec: Dict[str, Any]):
     if spec["dist"].lower() == "uniform":
         return pm.Uniform(name, lower=float(spec["low"]), upper=float(spec["high"]))
     raise ValueError(f"Unsupported prior spec: {spec}")
+
+
+def _trapz_weights(x: np.ndarray) -> np.ndarray:
+    x = np.asarray(x, dtype=float).ravel()
+    if x.size < 2:
+        raise ValueError("Need at least 2 points for trapezoid weights.")
+    w = np.zeros_like(x)
+    w[0] = 0.5 * (x[1] - x[0])
+    w[-1] = 0.5 * (x[-1] - x[-2])
+    w[1:-1] = 0.5 * (x[2:] - x[:-2])
+    return w
+
+
+def _pre_pt(
+    xgrid_t: pt.TensorVariable,
+    alpha: pt.TensorVariable,
+    beta: pt.TensorVariable | float,
+    x_clip: float = 1e-12,
+    x_floor: float = 1e-12,
+) -> pt.TensorVariable:
+    if beta is None:
+        raise ValueError("_pre_pt got beta=None but prefactor mode requires beta.")
+
+    if not isinstance(beta, pt.TensorVariable):
+        beta = pt.constant(float(beta))
+
+    # ensure numeric beta becomes a TensorVariable
+    if not isinstance(beta, pt.TensorVariable):
+        beta = pt.constant(float(beta))
+
+    # Keep within (0,1) like NN
+    x = pt.clip(xgrid_t, x_clip, 1.0 - x_clip)
+
+    # Stable x^alpha at tiny x
+    x_s = pt.maximum(x, x_floor)
+
+    # pre(x)
+    return pt.power(x_s, alpha) * pt.power(1.0 - x, beta)
 
 
 def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
@@ -32,26 +71,57 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
     kcfg = cfg["kernel"]
     kname = str(kcfg.get("name", "gibbs")).lower()
 
+    print(f"Selected kernel for NUTS hyperparam inference: {kname}")
+
     delta = float(kcfg.get("delta", 1e-5))
     x_floor = float(kcfg.get("x_floor", 1e-12))
     jitter = float(kcfg.get("jitter", 1e-10))
-    nu = float(kcfg.get("nu", 1.5))    # only for matern kernel
+    nu = float(kcfg.get("nu", 1.5))  # only for matern kernel
+    lambda_sr = float(kcfg.get("lambda_sr", 0.0))
+    pcfg = cfg.get("gp_prefactor", {})
+    pref_mode = str(pcfg.get("mode", "legacy")).lower()
 
-    def Kxx_fn(xgrid_t_, alpha, l0, sigma2):
-        if kname == "gibbs":
-            return Kxx_gibbs_pytensor(
-                xgrid_t_, alpha, l0, sigma2, delta=delta, x_floor=x_floor
-            )
-        elif kname == "rbf":
-            return Kxx_rbf_pytensor(xgrid_t_, alpha, l0, sigma2, x_floor=x_floor)
-        elif kname == "matern":
-            return Kxx_matern_pytensor(
-                xgrid_t_, alpha, l0, sigma2, nu=nu, x_floor=x_floor
-            )
-        else:
-            raise ValueError(f"Unknown kernel.name={kname!r}")
+    if pref_mode not in ("legacy", "prefactor", "none"):
+        raise ValueError(
+            f"Unknown gp_prefactor.mode={pref_mode!r} (use legacy|prefactor|none)"
+        )
 
-    lml = build_log_marginal_likelihood_pt(xgrid_t, W_t, C_t, y_t, Kxx_fn, jitter=jitter)
+    # ----------------------------
+    # Optional sumrule pseudo-observation (matches NN penalty)
+    # ----------------------------
+    if lambda_sr > 0.0:
+        meta = dataset.get("meta", {})
+        xt3_true = np.asarray(meta.get("xt3_true", []), float).ravel()
+        if xt3_true.size != xgrid.shape[0]:
+            raise ValueError(
+                "Need meta['xt3_true'] defined on full xgrid for sumrule ref integral."
+            )
+
+        # ref = ∫ (xt3_true/x) dx on full grid (same as NN)
+        ref = float(np.trapz(xt3_true / xgrid, xgrid))
+
+        # I(f) ≈ sum_i w_i * (f_i / x_i) = a^T f
+        w = _trapz_weights(xgrid)
+        a = (w / xgrid).astype(np.float64)  # (Ngrid,)
+        # tau^2 chosen so 0.5*(I-ref)^2/tau^2 == lambda_sr*(I-ref)^2
+        tau2 = 1.0 / (2.0 * lambda_sr)
+
+        a_t = pt.constant(a)
+        ref_t = pt.constant(np.array([ref], dtype=np.float64))
+        tau2_t = pt.constant(float(tau2))
+
+        # augment W: (Ndat+1, Ngrid)
+        W_t = pt.concatenate([W_t, a_t[None, :]], axis=0)
+
+        # augment y: (Ndat+1,)
+        y_t = pt.concatenate([y_t, ref_t], axis=0)
+
+        # augment C: blockdiag(C, tau2)
+        n = C_t.shape[0]
+        C_aug = pt.zeros((n + 1, n + 1), dtype=C_t.dtype)
+        C_aug = pt.set_subtensor(C_aug[:n, :n], C_t)
+        C_aug = pt.set_subtensor(C_aug[n, n], tau2_t)
+        C_t = C_aug
 
     pri = cfg["priors"]
     nuts = cfg["nuts"]
@@ -60,12 +130,76 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
     os.makedirs(out, exist_ok=True)
 
     with pm.Model() as model:
-        alpha = _prior("alpha", pri["alpha"])
+        # Always sample kernel hypers that always exist
         l0 = _prior("l0", pri["l0"])
         sigma = _prior("sigma", pri["sigma"])
         sigma2 = pm.Deterministic("sigma2", sigma**2)
 
-        pm.Potential("logpost", lml(alpha, l0, sigma2))
+        # Only sample alpha when scaling is used
+        alpha_rv = None
+        if pref_mode in ("legacy", "prefactor"):
+            alpha_rv = _prior("alpha", pri["alpha"])
+
+        # Only sample beta in prefactor mode
+        beta_rv = None
+        if pref_mode == "prefactor":
+            if "beta" not in pri:
+                raise KeyError(
+                    "gp_prefactor.mode=prefactor requires priors.beta in runcard."
+                )
+            beta_rv = _prior("beta", pri["beta"])
+
+        def _K0(xgrid_t_, l0_, sigma2_):
+            """Base kernel with NO internal x^alpha y^alpha scaling."""
+            alpha0 = pt.constant(0.0)
+            if kname == "gibbs":
+                return Kxx_gibbs_pytensor(
+                    xgrid_t_, alpha0, l0_, sigma2_, delta=delta, x_floor=x_floor
+                )
+            elif kname == "rbf":
+                return Kxx_rbf_pytensor(xgrid_t_, alpha0, l0_, sigma2_, x_floor=x_floor)
+            elif kname == "matern":
+                return Kxx_matern_pytensor(
+                    xgrid_t_, alpha0, l0_, sigma2_, nu=nu, x_floor=x_floor
+                )
+            else:
+                raise ValueError(f"Unknown kernel.name={kname!r}")
+
+        def Kxx_fn(xgrid_t_, alpha_, l0_, sigma2_):
+            if pref_mode == "none":
+                return _K0(xgrid_t_, l0_, sigma2_)
+
+            if pref_mode == "legacy":
+                # legacy scaling is inside the kernel: use alpha_
+                if kname == "gibbs":
+                    return Kxx_gibbs_pytensor(
+                        xgrid_t_, alpha_, l0_, sigma2_, delta=delta, x_floor=x_floor
+                    )
+                elif kname == "rbf":
+                    return Kxx_rbf_pytensor(
+                        xgrid_t_, alpha_, l0_, sigma2_, x_floor=x_floor
+                    )
+                elif kname == "matern":
+                    return Kxx_matern_pytensor(
+                        xgrid_t_, alpha_, l0_, sigma2_, nu=nu, x_floor=x_floor
+                    )
+
+            # prefactor scaling: apply pre(x) on BOTH sides (covariance)
+            K0 = _K0(xgrid_t_, l0_, sigma2_)
+            pre = _pre_pt(
+                xgrid_t_, alpha_, beta_rv, x_clip=1e-12, x_floor=x_floor
+            )  # (N,)
+            return (pre[:, None] * K0) * pre[None, :]
+
+        lml = build_log_marginal_likelihood_pt(
+            xgrid_t, W_t, C_t, y_t, Kxx_fn, jitter=jitter
+        )
+
+        # IMPORTANT: call lml with the correct alpha value depending on mode
+        if pref_mode == "none":
+            pm.Potential("logpost", lml(pt.constant(0.0), l0, sigma2))
+        else:
+            pm.Potential("logpost", lml(alpha_rv, l0, sigma2))
 
         idata = pm.sample(
             draws=int(nuts.get("draws", 1000)),

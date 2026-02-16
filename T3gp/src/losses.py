@@ -12,12 +12,14 @@ class LossContext:
     """
     Context passed to the loss functions.
     """
-    W: torch.Tensor              # (Ndat, Ngrid)
-    C: torch.Tensor              # (Ndat, Ndat)
-    y: torch.Tensor              # (Ndat,)
-    xgrid: Optional[torch.Tensor] = None   # (Ngrid,) needed for T3_Beta sum-rule
+
+    W: torch.Tensor  # (Ndat, Ngrid)
+    C: torch.Tensor  # (Ndat, Ndat)
+    y: torch.Tensor  # (Ndat,)
+    xgrid: Optional[torch.Tensor] = None  # (Ngrid,) needed for T3_Beta sum-rule
     t3_ref_int: float | None = None
     jitter: float = 1e-10
+    L: Optional[torch.Tensor] = None  # Precomputed Cholesky of C (Ndat, Ndat)
 
 
 def _cholesky_C(C: torch.Tensor, jitter: float) -> torch.Tensor:
@@ -54,164 +56,182 @@ def make_loss(
     lcfg = cfg.get("loss", {})
     name = str(lcfg.get("name", "weighted_mse")).lower()
     lambda_sr = float(lcfg.get("lambda_sr", 0.0))
+
     if ctx.xgrid is None:
-        raise ValueError("t3_beta/chi2_sumrule requires ctx.xgrid (1D tensor of the x-grid).")
+        raise ValueError("loss requires ctx.xgrid (1D tensor of the x-grid).")
+
+    # cache xgrid once (used by several losses)
     xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)
 
     extra_params = nn.ParameterDict()
 
-    # Precompute Cholesky for weighted losses
-    L = None
-    if name in {"weighted_mse"}:
-        L = _cholesky_C(ctx.C.to(device=device, dtype=dtype), ctx.jitter)
-
+    # ---- MSE loss ----
     if name == "mse":
+        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)
+        ref = (
+            torch.tensor(float(ctx.t3_ref_int), device=device, dtype=dtype)
+            if ctx.t3_ref_int is not None
+            else None
+        )
+
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
-            r = y_pred - ctx.y.to(device=device, dtype=dtype)
+            y_pred = y_pred.reshape(-1)
+            r = y_pred - y
+            loss = torch.mean(r * r)
 
-            loss_sumrule = torch.tensor(0.0, device=device, dtype=dtype)
             if lambda_sr > 0.0:
-                if "f_grid" not in extra:
-                    raise ValueError("t3_beta/chi2_sumrule requires model output extra['f_grid'].")
-                f_raw = extra["f_grid"].to(device=device, dtype=dtype).reshape(-1)
+                if "f_mu" not in extra:
+                    raise ValueError("chi2+sumrule requires extra['f_mu'].")
+                f_raw = extra["f_mu"].reshape(-1)
+                I_mid = torch.trapz(f_raw / xg, xg)
+                loss = loss + lambda_sr * (I_mid - ref) ** 2
 
-                # Exactly as in T3_Beta (no clamping)
-                t3_unc = f_raw / xg
-                I_mid = torch.trapz(t3_unc, xg)
+            return loss
 
-                ref = torch.tensor(ctx.t3_ref_int, device=device, dtype=dtype)
-                loss_sumrule = lambda_sr * (I_mid - ref) ** 2
-            return torch.mean(r * r) + loss_sumrule
         return loss_fn, extra_params
 
+    # ---- Weighted MSE loss ----
     if name == "weighted_mse":
+        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)
+        L = _cholesky_C(ctx.C.to(device=device, dtype=dtype), ctx.jitter)
+
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
+            y_pred = y_pred.reshape(-1)
             r = y_pred - ctx.y.to(device=device, dtype=dtype)
             Cinvr = _apply_Cinv(L, r)
             return torch.mean(r * Cinvr)
+
         return loss_fn, extra_params
-    
+
     if name == "mse_het":
-
         eps = float(lcfg.get("eps", 1e-12))
-        logvar_clip = lcfg.get("logvar_clip", (-20.0, 10.0))
+        logvar_clip = lcfg.get("logvar_clip", (-20.0, 5.0))  # tighter hi often helps
 
-        def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
-            """
-            y_pred[..., 0] = mean prediction μ
-            y_pred[..., 1] = log variance log(σ²)
-            """
+        y_true = ctx.y.to(device=device, dtype=dtype).reshape(-1)
+        W = ctx.W.to(device=device, dtype=dtype)  # (Ntr, Ngrid)
+        xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)
+        ref = (
+            torch.tensor(float(ctx.t3_ref_int), device=device, dtype=dtype)
+            if ctx.t3_ref_int is not None
+            else None
+        )
 
-            y_true = ctx.y.to(device=device, dtype=dtype)
+        def loss_fn(y_mu: torch.Tensor, extra: dict) -> torch.Tensor:
+            if "f_logvar" not in extra:
+                raise ValueError(
+                    "mse_het requires extra['f_logvar'] (grid log-variance). "
+                    "Your model output seems to be out_dim=1 or not providing logvar."
+                )
 
-            mu = y_pred[..., 0]
-            logvar = y_pred[..., 1]
+            # y_mu is the predicted mean in data space (Ntr,)
+            y_mu = y_mu.reshape(-1)
 
-            # numerical safety
+            f_mu = extra["f_mu"].to(device=device, dtype=dtype).reshape(-1)  # (Ngrid,)
+            f_logvar = (
+                extra["f_logvar"].to(device=device, dtype=dtype).reshape(-1)
+            )  # (Ngrid,)
+
             lo, hi = float(logvar_clip[0]), float(logvar_clip[1])
-            logvar = logvar.clamp(lo, hi)
+            f_logvar = f_logvar.clamp(lo, hi)
+            var_f = torch.exp(f_logvar).clamp_min(eps)  # (Ngrid,)
 
-            # σ² = exp(log σ²)
-            var = torch.exp(logvar).clamp_min(eps)
+            # propagate grid variance to data variance
+            var_y = (W * W) @ var_f
+            var_y = var_y.clamp_min(eps)
 
-            r2 = (mu - y_true) ** 2
+            r2 = (y_mu - y_true) ** 2
+            nll = 0.5 * (r2 / var_y + torch.log(var_y))
+            loss = nll.mean()
 
-            # Gaussian NLL (heteroscedastic MSE)
-            loss = 0.5 * (r2 / var + logvar)
+            # sum rule on f_mu
+            if lambda_sr > 0.0:
+                I_mid = torch.trapz(f_mu / xg, xg)
+                loss = loss + lambda_sr * (I_mid - ref) ** 2
 
-            return loss.mean()
+            return loss
 
         return loss_fn, extra_params
 
     # --- T3_Beta-style chi^2 + sum-rule penalty  ---
-    if name in {"t3_beta", "chi2"}:
+    if name == "chi2":
+        # load params from training module
+        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)  # cache once
+        xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)  # cache once
 
-        # Use Cholesky solves for C^{-1}r (more efficient/stable than forming C^{-1}).
-        C_t = ctx.C.to(device=device, dtype=dtype)
-        L = _cholesky_C(C_t, ctx.jitter)
+        ref = torch.tensor(ctx.t3_ref_int, device=device, dtype=dtype)  # cache once
 
-        if ctx.xgrid is None:
-            raise ValueError("t3_beta/chi2_sumrule requires ctx.xgrid (1D tensor of the x-grid).")
-        xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)
+        if ctx.L is not None:
+            L = ctx.L.to(device=device, dtype=dtype)
+        else:
+            L = _cholesky_C(ctx.C.to(device=device, dtype=dtype), ctx.jitter)
 
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
-            y = ctx.y.to(device=device, dtype=dtype).reshape(-1)
             y_pred = y_pred.reshape(-1)
-
             resid = y_pred - y
-            Cinv_r = _apply_Cinv(L, resid)
-            loss_chi2 = resid @ Cinv_r
+            loss_chi2 = resid @ _apply_Cinv(L, resid)
 
-            loss_sumrule = torch.tensor(0.0, device=device, dtype=dtype)
             if lambda_sr > 0.0:
-                if "f_grid" not in extra:
-                    raise ValueError("t3_beta/chi2_sumrule requires model output extra['f_grid'].")
-                f_raw = extra["f_grid"].to(device=device, dtype=dtype).reshape(-1)
+                if "f_mu" not in extra:
+                    raise ValueError("chi2+sumrule requires extra['f_mu'].")
+                f_raw = extra["f_mu"].reshape(-1)
+                I_mid = torch.trapz(f_raw / xg, xg)
 
-                # Exactly as in T3_Beta (no clamping)
-                t3_unc = f_raw / xg
-                I_mid = torch.trapz(t3_unc, xg)
-
-                ref = torch.tensor(ctx.t3_ref_int, device=device, dtype=dtype)
-                loss_sumrule = lambda_sr * (I_mid - ref) ** 2
-
-            return loss_chi2 + loss_sumrule
+            return loss_chi2 + lambda_sr * (I_mid - ref) ** 2
 
         return loss_fn, extra_params
-    
-    if name in ("chi_het"):
-        # Sum-rule settings (same as T3_Beta)
 
-        # Heteroscedastic settings
+    if name == "chi_het":
         eps = float(lcfg.get("eps", 1e-12))
         logvar_clip = lcfg.get("logvar_clip", (-20.0, 10.0))
-        # choose either: "nll" (Gaussian NLL) or "chi2" (scaled SSE)
-        form = str(lcfg.get("form", "nll")).lower()
 
-        W = ctx.W.to(device=device, dtype=dtype)
-        y = ctx.y.to(device=device, dtype=dtype)
+        W = ctx.W.to(device=device, dtype=dtype)  # (Ntr, Ngrid)
+        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)  # (Ntr,)
         xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)
 
-        # observational (data) variance baseline from diagonal of covariance
-        diagC = torch.diag(ctx.C.to(device=device, dtype=dtype)).clamp_min(eps)
+        # baseline observational variance from diagonal of C (train block)
+        diagC = torch.diag(ctx.C.to(device=device, dtype=dtype)).clamp_min(
+            eps
+        )  # (Ntr,)
+
+        ref = (
+            torch.tensor(float(ctx.t3_ref_int), device=device, dtype=dtype)
+            if ctx.t3_ref_int is not None
+            else None
+        )
 
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
-            # y_pred expected to be W @ f_mean (built by trainer)
-            if "logvar_f_grid" not in extra:
+            # y_pred expected to be W @ f_mu (built by trainer)
+            y_pred = y_pred.reshape(-1)
+
+            if "f_mu" not in extra:
+                raise ValueError("chi_het requires extra['f_mu'] (grid mean).")
+            if "f_logvar" not in extra:
                 raise ValueError(
-                    "t3_beta_het requires model output logvar_f_grid "
-                    "(set model out_dim>=2)."
+                    "chi_het requires extra['f_logvar'] (grid log-variance). Set out_dim=2."
                 )
-            f_mean = extra["f_grid"].to(device=device, dtype=dtype).reshape(-1)
 
-            # predicted variance on f-grid
-            logvar = extra["logvar_f_grid"].to(device=device, dtype=dtype)
+            f_mu = extra["f_mu"].to(device=device, dtype=dtype).reshape(-1)  # (Ngrid,)
+            f_logvar = (
+                extra["f_logvar"].to(device=device, dtype=dtype).reshape(-1)
+            )  # (Ngrid,)
+
             lo, hi = float(logvar_clip[0]), float(logvar_clip[1])
-            logvar = logvar.clamp(lo, hi).reshape(-1)
-            var_f = torch.exp(logvar).clamp_min(eps)  # (Ngrid,)
+            f_logvar = f_logvar.clamp(lo, hi)
+            var_f = torch.exp(f_logvar).clamp_min(eps)  # (Ngrid,)
 
-            # propagate to y-space (diagonal approx):
-            # Var(W f) ~= sum_j W_ij^2 Var(f_j)
-            var_y = diagC + (W * W) @ var_f           # (Ndat,)
+            # propagate to y-space (diag approx) and add experimental diag(C)
+            var_y = diagC + (W * W) @ var_f  # (Ntr,)
+            var_y = var_y.clamp_min(eps)
 
-            r = (y_pred - y).reshape(-1)
+            r = y_pred - y
 
-            if form == "chi2":
-                data_term = torch.mean((r * r) / var_y)
-            elif form == "mse":
-                # plain MSE but still learning logvar won't help; included for completeness
-                data_term = torch.mean(r * r)
-            else:
-                # Gaussian negative log-likelihood (heteroscedastic regression)
-                data_term = 0.5 * torch.mean((r * r) / var_y + torch.log(var_y))
+            # Gaussian NLL using var_y
+            data_term = 0.5 * torch.mean((r * r) / var_y + torch.log(var_y))
 
-            # Sum rule penalty (identical to T3_Beta)
+            # sum rule penalty on f_mu
             sumrule = torch.tensor(0.0, device=device, dtype=dtype)
             if lambda_sr > 0.0:
-                t3_unc = f_mean / xg
-                I_mid = torch.trapz(t3_unc, xg)
-
-                ref = torch.tensor(ctx.t3_ref_int, device=device, dtype=dtype)
+                I_mid = torch.trapz(f_mu / xg, xg)
                 sumrule = lambda_sr * (I_mid - ref) ** 2
 
             return data_term + sumrule
