@@ -31,11 +31,17 @@ conda activate t3-net
 ```
 
 ### 2. Generate Dataset
+To generate the data set, the environment t3-lhapdf is necessary.
 ```bash
+conda activate t3-lhapdf
+cd T3gp/ (if not already in T3gp/)
 python data/data_T3.py
 ```
 
-### 3. Run first fit
+### 3. Run first model
+To run either the NN, NTK or GP, the environment t3-net is required.
 ```bash
+conda activate t3-net
+cd T3gp/ (if not already in T3gp/)
 python src/main.py configs/config_nn.yaml
 ```
