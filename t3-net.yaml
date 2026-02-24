@@ -1,0 +1,26 @@
+name: t3-net
+channels:
+  - conda-forge
+dependencies:
+  # Core
+  - python=3.11
+  - pip
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - tqdm
+  - jupyterlab
+  - ipykernel
+  - ipywidgets
+
+  # PyMC stack (from your exported env)
+  - pymc=5.23.*
+  - arviz
+  - pytensor
+  - xarray
+  - xarray-einstats
+
+  - pytorch

@@ -17,11 +17,17 @@ A repository for uncertainty quantification using different models on the T3 dat
 
 ### 1. Create Pyhton environment
 
-**venv**
+Since PyMC and LHAPDF require different dependencies, two environments have to be created, one for the data generation and the other one for the GP sampling and NN/NTK evaluation.
+The requirements for LHAPDF can be found in `t3_lhapdf.yaml` and the ones for pyMC in `t3_net.yaml`.
+
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-add requirements.txt to repo
+# LHAPDF env
+conda env create -f envs/t3-lhapdf.yml
+conda activate t3-lhapdf
+
+# PyMC env
+conda env create -f envs/t3-net.yml
+conda activate t3-net
 ```
 
 ### 2. Generate Dataset
