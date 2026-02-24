@@ -1,5 +1,5 @@
 seed: 123
-output_dir: results/nn/test_NTK_init
+output_dir: results/nn/test_NTK_full
 data:
   path: data/Dataset/data_208_extended.npz
   target: y_pseudo
@@ -16,7 +16,7 @@ nn:
   activation: tanh
   out_dim: 1
   dropout: 0.2
-  epochs: 1000
+  epochs: 5000
   lr: 1.0e-3
   weight_decay: 0.0
   patience: 500
@@ -44,10 +44,14 @@ transforms:
   Softplus: {}
 
 ntk:
-  # post train diagnostics (model type nn and trained)
-  post_training: true
-  max_train_points: 256
+  when: "post"        # "none" | "init" | "post" | "both"
+  epoch: 50          # optional: run an extra NTK snapshot at this epoch (0-indexed)
+  diagnostics: false  # optional
 
-  # init time NTK baseline (model type ntk)
-  lambda: 1.0e-6
-  max_train_points: 512   # optional: subsample training rows for feasibility
+  gp:
+    enabled: true
+    use_data_cov: true     # if true, uses C_tr as noise; else uses lambda * I
+    lambda: 1e-3           # only used when use_data_cov=false
+    ridge: 1e-6            # always added to stabilize Cholesky
+    max_train_points: 256
+    max_pred_points: 512

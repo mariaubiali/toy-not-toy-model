@@ -5,28 +5,11 @@ import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 from tqdm import trange
-from torch.func import functional_call, jacrev
 
 from losses import LossContext, make_loss, _cholesky_C, _apply_Cinv
 from models.nn_models import MLPFModel
+from models.ntk import run_ntk_stage
 
-# --- NTK helpers ---
-def _params_buffers(model: torch.nn.Module):
-    return dict(model.named_parameters()), dict(model.named_buffers())
-
-def _scalar_f_from_out(out_dict: Dict[str, torch.Tensor]) -> torch.Tensor:
-    f = out_dict["f_grid"]
-    if f.ndim == 2 and f.shape[1] == 2:
-        f = f[:, 0]
-    return f.reshape(-1)
-
-def _jacobian_y_pred(model, params, buffers, xgrid_torch, W_block):
-    def ypred_from_params(p):
-        out = functional_call(model, (p, buffers), (xgrid_torch,))
-        f = _scalar_f_from_out(out)  # (Ngrid,)
-        return W_block @ f           # (Ndat,)
-    Jtree = jacrev(ypred_from_params)(params)
-    return torch.cat([leaf.reshape(W_block.shape[0], -1) for leaf in Jtree.values()], dim=1)
 
 def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     # ----------------------------
@@ -59,6 +42,13 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     out_dim = int(nncfg.get("out_dim", 1.0))
     jitter = float(cfg.get("kernel", {}).get("jitter", 1e-10))
     replica = int(cfg.get("replica", 0))
+
+    # NTK config (init + mid/post)
+    ntk_cfg = cfg.get("ntk", {})
+    ntk_when = ntk_cfg.get("when", "none")
+    # Optional: compute at an intermediate epoch (0-indexed).
+    ntk_epoch = ntk_cfg.get("epoch", None)
+    ntk_epoch = int(ntk_epoch) if ntk_epoch is not None else None
 
     # reproducibility for model init+split
     torch.manual_seed(seed)
@@ -113,12 +103,8 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     train_idx, val_idx = train_test_split(
         idx_all,
         test_size=0.2,
-        random_state=replica * 1000,
+        random_state=seed + replica * 1000,
     )
-
-    # ----------------------------
-    # Select Train and Val  blocks
-    # ----------------------------
 
     train_idx_t = torch.tensor(train_idx, dtype=torch.long, device=device)
     val_idx_t = torch.tensor(val_idx, dtype=torch.long, device=device)
@@ -153,6 +139,36 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
     loss_hist = []
     log_every = max(1, epochs // 20)
+
+    # ----------------------------
+    # Prediction grid selection
+    # ----------------------------
+    x_pred_torch = xext_torch if xgrid_ext.size > 0 else x_torch
+    x_pred_np = xgrid_ext.astype(np.float64) if xgrid_ext.size > 0 else xgrid.astype(np.float64)
+
+    res: Dict[str, Any] = {}
+
+    # ----------------------------
+    # NTK at initialization (optional)
+    # ----------------------------
+    if str(ntk_when).lower() in ("init", "both") or (isinstance(ntk_when, (list, tuple, set)) and "init" in {str(x).lower() for x in ntk_when}):
+        if C_tr is None and bool(ntk_cfg.get("gp", {}).get("use_data_cov", True)):
+            # If user wants C as noise but dataset has no C, they'll get a clear error.
+            pass
+        res.update(
+            run_ntk_stage(
+                stage="init",
+                model=model,
+                xgrid_torch=x_torch,
+                xgrid_np=xgrid.astype(np.float64),
+                W_train=W_tr,
+                y_train=y_tr,
+                C_train=C_tr,
+                x_pred_torch=x_pred_torch,
+                x_pred_np=x_pred_np,
+                cfg=cfg,
+            )
+        )
 
     # ----------------------------
     # Training loop
@@ -233,24 +249,51 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
-            # optional: train chi2/pt for comparison
-            # with torch.no_grad():
-            #     r_tr = (y_pred_tr.detach() - y_tr).reshape(-1)
-            #     chi2_tr = float(r_tr @ _apply_Cinv(L_tr, r_tr))
-            #     chi2_tr_pt = chi2_tr / float(len(train_idx))
 
-            # print(
-            #     f"Epoch {ep+1}/{epochs}: "
-            #     f"Train Loss = {loss.item():.6f}, "
-            #     f"Train χ²/pt = {chi2_tr_pt:.6f}, "
-            #     f"Val χ²/pt = {chi2_val_pt:.6f}, "
-            #     f"Val ΔSR = {delta_sr_v:+.3e}, "
-            #     f"Ntr={len(train_idx)}, Nval={len(val_idx)}"
-            # )
+        # ----------------------------
+        # NTK at a chosen epoch (optional)
+        # Linearize at the current weights after this epoch's update.
+        # ----------------------------
+        if ntk_epoch is not None and ep == ntk_epoch and str(ntk_when).lower() in ("both"):
+            res.update(
+                run_ntk_stage(
+                    stage="mid",
+                    model=model,
+                    xgrid_torch=x_torch,
+                    xgrid_np=xgrid.astype(np.float64),
+                    W_train=W_tr,
+                    y_train=y_tr,
+                    C_train=C_tr,
+                    x_pred_torch=x_pred_torch,
+                    x_pred_np=x_pred_np,
+                    cfg=cfg,
+                )
+            )
+
+    # ----------------------------
+    # NTK after full training (optional)
+    # ----------------------------
+    if str(ntk_when).lower() in ("post", "both") or (isinstance(ntk_when, (list, tuple, set)) and "post" in {str(x).lower() for x in ntk_when}):
+        res.update(
+            run_ntk_stage(
+                stage="post",
+                model=model,
+                xgrid_torch=x_torch,
+                xgrid_np=xgrid.astype(np.float64),
+                W_train=W_tr,
+                y_train=y_tr,
+                C_train=C_tr,
+                x_pred_torch=x_pred_torch,
+                x_pred_np=x_pred_np,
+                cfg=cfg,
+            )
+        )
+
     # ----------------------------
     # Return full-grid prediction
     # ----------------------------
     model.eval()
+    # print("model eval")
     with torch.no_grad():
         x_pred_torch = xext_torch if xgrid_ext.size > 0 else x_torch
         x_pred_np = (
@@ -275,41 +318,18 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
         f_mean = f_mu_full.detach().cpu().numpy().astype(np.float64)
 
-        res = {
+        res.update({
             "xgrid": x_pred_np,
             "f_grid_mean": f_mean,
             "loss_history": np.array(loss_hist, dtype=np.float64),
             "train_idx": train_idx,
             "val_idx": val_idx,
-        }
+        })
 
         if f_var is not None:
             res["f_grid_var"] = f_var
 
         assert res["xgrid"].shape[0] == res["f_grid_mean"].shape[0]
-
-    # --- POST-TRAINING NTK DIAGNOSTICS (optional) ---
-    ntk_cfg = cfg.get("ntk", {})
-    if bool(ntk_cfg.get("post_training", False)):
-        params, buffers = _params_buffers(model)
-
-        max_n = int(ntk_cfg.get("max_train_points", 256))
-        ntr = W_tr.shape[0]
-        if ntr > max_n:
-            idx = torch.randperm(ntr, device=device)[:max_n]
-            W_ntk = W_tr[idx]
-        else:
-            W_ntk = W_tr
-
-        J_y = _jacobian_y_pred(model, params, buffers, x_torch, W_ntk)  # (Nntk, P)
-        K_yy = J_y @ J_y.T                                              # (Nntk, Nntk)
-
-        # store light stats (fast to compare across loss functions)
-        eigs = torch.linalg.eigvalsh(K_yy).detach().cpu().numpy()
-        res["ntk_post_trace"] = float(torch.trace(K_yy).detach().cpu())
-        res["ntk_post_eigs"] = eigs
-        res["ntk_post_n_train_used"] = int(W_ntk.shape[0])
-
     return res
 
 

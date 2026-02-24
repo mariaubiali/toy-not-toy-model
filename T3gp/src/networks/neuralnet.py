@@ -18,7 +18,7 @@ def _train_ensemble(ds: dict, cfg: dict):
         mus = out["f_grid_mean"][None, :]
         vars_ = out.get("f_grid_var", None)
         vars_ = None if vars_ is None else vars_[None, :]
-        return x_star, mus, vars_
+        return x_star, mus, vars_, out
     
     ens = cfg.get("nn", {}).get("ensemble", {})
     enabled = bool(ens.get("enabled", False))
@@ -29,13 +29,13 @@ def _train_ensemble(ds: dict, cfg: dict):
         mus = out["f_grid_mean"][None, :]
         vars_ = out.get("f_grid_var", None)
         vars_ = None if vars_ is None else vars_[None, :]
-        return x_star, mus, vars_
+        return x_star, mus, vars_, None
 
     out = train_nn_ensemble_forward(ds, cfg)
     x_star = out["xgrid"]
     mus = out["replicas"]
     vars_ = out.get("vars_replicas", None)
-    return x_star, mus, vars_
+    return x_star, mus, vars_, None
 
 
 def run_from_config(cfg: dict):
@@ -44,11 +44,29 @@ def run_from_config(cfg: dict):
 
     ds = load_dataset(cfg["data"])
     meta = ds.get("meta", {})
+    W_full = np.asarray(ds["W"], dtype=np.float64)         # (Ndat, Ngrid)
+    y_pseudo = np.asarray(ds['y'], dtype=np.float64).ravel()
+    C_full = np.asarray(ds["C"], dtype=np.float64) 
+    diagC = np.diag(C_full)
+    x_fk  = np.asarray(ds["xgrid"], dtype=np.float64).ravel()  
 
     # ----------------------------
     # Train NN ensemble -> replicas
     # ----------------------------
-    xgrid, mus, vars_ = _train_ensemble(ds, cfg)
+    xgrid, mus, vars_, out_ntk = _train_ensemble(ds, cfg)
+
+    mus_fk = np.empty((mus.shape[0], x_fk.size), dtype=np.float64)
+    for s in range(mus.shape[0]):
+        mus_fk[s] = np.interp(x_fk, xgrid, mus[s])
+
+    # --- Push to data space on FK grid ---
+    y_pred_members = mus_fk @ W_full.T                               # (S, Ndat)
+    y_pred_mean = y_pred_members.mean(axis=0)
+    sigma2_ens_xg = y_pred_members.var(axis=0, ddof=1) if y_pred_members.shape[0] > 1 else np.zeros_like(y_pred_mean)
+
+    # Your sigma definition:
+    sigma2 = sigma2_ens_xg + diagC**2
+    sigma_xg = np.sqrt(np.maximum(sigma2, 1e-18))
 
     # ----------------------------
     # Bands + mean from ensemble
@@ -67,10 +85,6 @@ def run_from_config(cfg: dict):
     # total
     var_tot = var_ens + var_het
 
-    # If you want quantile bands from ensemble only (epistemic), keep these:
-    lo68_ens_q, hi68_ens_q = np.percentile(mus, [16.0, 84.0], axis=0)
-    lo95_ens_q, hi95_ens_q = np.percentile(mus, [2.5, 97.5], axis=0)
-
     # Gaussian-approx bands for total/ens/het (simple & fast)
     std_ens = np.sqrt(np.maximum(var_ens, 0.0))
     std_het = np.sqrt(np.maximum(var_het, 0.0))
@@ -84,6 +98,17 @@ def run_from_config(cfg: dict):
 
     lo68_het, hi68_het = mean_curve - 1.0 * std_het, mean_curve + 1.0 * std_het
     lo95_het, hi95_het = mean_curve - 1.96 * std_het, mean_curve + 1.96 * std_het
+
+    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
+    if model_type == "ntk" and out_ntk is not None:
+        print("plot Ntk error")
+        # If run_ntk stored bands, prefer them
+        if "f_grid_lo68" in out_ntk and "f_grid_hi68" in out_ntk:
+            lo68_tot = out_ntk["f_grid_lo68"]
+            hi68_tot = out_ntk["f_grid_hi68"]
+        if "f_grid_lo95" in out_ntk and "f_grid_hi95" in out_ntk:
+            lo95_tot = out_ntk["f_grid_lo95"]
+            hi95_tot = out_ntk["f_grid_hi95"]
 
     # ----------------------------
     # True curve (NNPDF)
@@ -108,36 +133,19 @@ def run_from_config(cfg: dict):
     )
 
     np.savez(
-        os.path.join(out, "nn_uncertainty_summary.npz"),
+        os.path.join(out, "nn_summary.npz"),
         xgrid=xgrid,
         mean_curve=mean_curve,
         xt3_true_star=xt3_true if xt3_true is not None else np.array([]),
         true_sigma=true_sigma if true_sigma is not None else np.array([]),
-        # variances
         var_ens=var_ens,
         var_het=var_het,
-        var_tot=var_tot,
-        # total bands
-        lo68_tot=lo68_tot,
-        hi68_tot=hi68_tot,
-        lo95_tot=lo95_tot,
-        hi95_tot=hi95_tot,
-        # ens bands (gaussian)
-        lo68_ens=lo68_ens,
-        hi68_ens=hi68_ens,
-        lo95_ens=lo95_ens,
-        hi95_ens=hi95_ens,
-        # het bands (gaussian)
-        lo68_het=lo68_het,
-        hi68_het=hi68_het,
-        lo95_het=lo95_het,
-        hi95_het=hi95_het,
-        # ensemble-only quantile bands (optional, useful sanity check)
-        lo68_ens_q=lo68_ens_q,
-        hi68_ens_q=hi68_ens_q,
-        lo95_ens_q=lo95_ens_q,
-        hi95_ens_q=hi95_ens_q,
-        # optional heavy arrays
+        # Data space (for pull)
+        y_pseudo=y_pseudo,
+        y_pred_mean=y_pred_mean,
+        sigma2_ens_xg=sigma2_ens_xg,
+        diagC=diagC,
+        sigma_xg=sigma_xg,
         mus=mus if save_members else np.array([]),
         vars=vars_ if (save_members and vars_ is not None) else np.array([]),
     )
@@ -147,14 +155,14 @@ def run_from_config(cfg: dict):
     # ----------------------------
     if cfg.get("eval", {}).get("make_fig2", True):
         output_cfg = cfg.get("nn", {}).get("out_dim", {})
-        het_enabled = output_cfg == 2
+        het_enabled = (vars_ is not None)
 
         if het_enabled:
             print("Plotting NN fig2 with heteroscedastic uncertainty bands.")
             bands_total = (lo68_tot, hi68_tot, lo95_tot, hi95_tot)
 
             # ensemble uncertainty: use quantiles from mus
-            bands_ens = (lo68_ens_q, hi68_ens_q, lo95_ens_q, hi95_ens_q)
+            bands_ens = (lo68_ens, hi68_ens, lo95_ens, hi95_ens)
 
             # heteroscedastic uncertainty: gaussian from var_het
             bands_het = (lo68_het, hi68_het, lo95_het, hi95_het)
@@ -173,10 +181,10 @@ def run_from_config(cfg: dict):
             plot_fig2(
                 x_star=xgrid,
                 mean_curve=mean_curve,
-                lo68=lo68_ens_q,
-                hi68=hi68_ens_q,
-                lo95=lo95_ens_q,
-                hi95=hi95_ens_q,
+                lo68=lo68_tot,
+                hi68=hi68_tot,
+                lo95=lo95_tot,
+                hi95=hi95_tot,
                 xt3_true_star=xt3_true,
                 true_sigma=true_sigma,
                 outpath=os.path.join(out, "fig2_nn.pdf"),
@@ -185,10 +193,10 @@ def run_from_config(cfg: dict):
             plot_fig2(
                 x_star=xgrid,
                 mean_curve=mean_curve,
-                lo68=lo68_ens_q,
-                hi68=hi68_ens_q,
-                lo95=lo95_ens_q,
-                hi95=hi95_ens_q,
+                lo68=lo68_tot,
+                hi68=hi68_tot,
+                lo95=lo95_tot,
+                hi95=hi95_tot,
                 xt3_true_star=xt3_true,
                 true_sigma=true_sigma,
                 outpath=os.path.join(out, "fig2_nn.pdf"),

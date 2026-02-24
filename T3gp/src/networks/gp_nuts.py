@@ -32,10 +32,15 @@ def run_from_config(cfg: dict):
     # ----------------------------
     ds = load_dataset(cfg["data"])
 
+    W_full = np.asarray(ds["W"], dtype=np.float64)                      # (Ndat, Nfk)
+    C_full = np.asarray(ds["C"], dtype=np.float64)                      # (Ndat, Ndat)
+    diagC = np.diag(C_full).astype(np.float64)
+    y_pseudo = np.asarray(ds['y'], dtype=np.float64).ravel()
+
     # ----------------------------
     # Train/val split over DATA points (rows of W) – match NN
     # ----------------------------
-    n_data = ds["W"].shape[0]
+    n_data = W_full.shape[0]
     replica = int(cfg.get("replica", 0))
     idx_all = np.arange(n_data)
     train_idx, val_idx = train_test_split(
@@ -249,8 +254,6 @@ def run_from_config(cfg: dict):
         lo68, hi68 = np.percentile(replicas, [16, 84], axis=0)
         lo95, hi95 = np.percentile(replicas, [2.5, 97.5], axis=0)
 
-        meta = ds.get("meta", {})
-
         xt3_true_star = None
         if (
             "xgrid_ext" in meta
@@ -290,24 +293,44 @@ def run_from_config(cfg: dict):
             outpath=os.path.join(out, "fig2_gp_uncbands.pdf"),
         )
 
+
+        x_star_1d = np.asarray(x_star_phys, float).reshape(-1)              # (N*,)
+        x_fk_1d = np.asarray(x_train_phys, float).reshape(-1)               # (Nfk,)
+
+        y_pred_members = np.empty((replicas.shape[0], n_data), dtype=np.float64)
+
+        for s in range(replicas.shape[0]):
+            f_star = replicas[s].reshape(-1)                              # (N*,)
+            f_fk = np.interp(x_fk_1d, x_star_1d, f_star)                     # (Nfk,)
+            y_pred_members[s] = W_full @ f_fk                                # (Ndat,)
+
+        y_pred_mean = y_pred_members.mean(axis=0)
+        sigma_ens2 = y_pred_members.var(axis=0, ddof=1) if replicas.shape[0] > 1 else np.zeros_like(y_pred_mean)
+
+        # Your sigma definition:
+        sigma2_xg = sigma_ens2 + diagC**2
+        sigma_xg = np.sqrt(np.maximum(sigma2_xg, 1e-18))
+
+
         save_replicas = bool(cfg.get("eval", {}).get("save_fstar_replicas", True))
-        npz_path = os.path.join(out, "fstar_posterior_summary.npz")
+        npz_path = os.path.join(out, "gp_summary.npz")
         np.savez(
             npz_path,
             x_star=x_star_phys,
             mean_curve=mean_curve,
-            lo68=lo68,
-            hi68=hi68,
-            lo95=lo95,
-            hi95=hi95,
+            lo68=lo68, hi68=hi68,
+            lo95=lo95, hi95=hi95,
             xt3_true_star=xt3_true_star if xt3_true_star is not None else np.array([]),
+            y_pseudo=y_pseudo,
+            y_pred_mean=y_pred_mean,
+            sigma_ens2=sigma_ens2,
+            diagC=diagC,
+            sigma_xg=sigma_xg,
             replicas=replicas if save_replicas else np.array([]),
             means=means if save_replicas else np.array([]),
             vars_f=vars_f if save_replicas else np.array([]),
             train_idx=train_idx,
             val_idx=val_idx,
-            chi2_val_pt_mean=float(np.mean(chi2_pts)),
-            chi2_val_pt_std=float(np.std(chi2_pts)),
         )
         print(f"Saved f* posterior summary to {npz_path}")
 
