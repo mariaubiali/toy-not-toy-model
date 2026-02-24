@@ -60,6 +60,8 @@ df_d["idx_d"] = np.arange(len(df_d))
 merged_df = df_p.merge(df_d, on=["x", "Q2"], suffixes=("_p", "_d"))
 merged_df["y"] = merged_df["F2_p"] - merged_df["F2_d"]
 
+print("y shape: ", merged_df["y"].shape)
+
 
 # %%
 # FK tables

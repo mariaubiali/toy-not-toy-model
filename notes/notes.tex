@@ -142,25 +142,28 @@
 
 	\subsection{Implementation}
 	\NEc{polish text further}
-
-	As first approach to this regression problem, we use a GP with a radial basis function (RBF) multiplied by a constant as kernel. As hyperparameter ranges, we choose the kernel length $l \in [0.01, 100]$ with a starting value of $1.0$ for the constant and RBF kernel. The optimizer is restarted for five times and we add artifical noise of order $10^{-2}$ to the GP. 
-	The results for this naive and straightforward implementation is shown in Fig.~\ref{fig:RBF_GP}, where we can see, that the GP has problems to estimate the regions close to the boundaries of its fitting and training region. Otherwise, it can mostly reproduce $f(x)$ within its error bands and deviations of maximum $40\%$ of the true, as seen in the residual plot. The best fit parameter for the RBF kernel is $l=0.239$ and for the constant kernel $c=1.13^2$.
+ 
+	As first approach to this regression problem, we use a GP with a radial basis function (RBF) multiplied by a constant as kernel. As hyperparameter ranges, we choose the kernel length $l \in [0.29, 0.35]$ with a starting value of $0.31$ for the kernel length and $C \in [1.1, 1.4]$ with an intital value of $1.25$ for the constant. The optimizer is restarted for $50$ times and we add artifical noise of order $10^{-2}$ to the GP. The best fit parameters are estimated to be $l=0.29$ and for the constant kernel $c=1.18^2$.
+	Next, we also included a Gibbs kernel and a Matern kernel, the more generalized version of the RBF kernel. 
+	The Gibbs kernel has two tuneable hyperparameters, $l_0$ and $\sigma^2$ and a fixed parameter $\delta$ to ensure positiveness of the lengthscale $l$ via $l= l_0 \times (x + \delta)$. We choose $\delta = 2\pi$ and $l_0 \in [0.05, 0.5]$, with initialization of $l_0=0.1$. $\sigma^2$ is choosen as $\sigma^2 \in [0.5, 2]$ with initialisation $\sigma^2=0.1$. The optimizer is restarted for $50$ times and we add some artificial noise $\alpha=1e^{-3}$ to it. The optimal values choosen by the GP are $l_0 = 0.5$ and $\sigma^2=2.0$. 
+	For the Matern kernel, we have two tunable hyperparamters, the constant prefactor $c$ and the kernel length scale $l$ and a fixed parameter $\nu$ for the smoothness of the function. In this setup $\nu=2.5$, the initial value for $c=1.25$ and can be finetuned in the range of $c \in [1.0, 1.4]$. The lengthscale is set to $l=1.0$ with a range of $l \in [0.8, 1.2]$, again the optimizer is restarted for $50$ times and a noise $\alpha = 1e^{-8}$ is added.
+	The results for all three kernels compared with each other are shown in Fig.~\ref{fig:kernel_GP}.
 	%
 	\begin{figure}[hptb]
 		\centering
 		\includegraphics[width=0.9\textwidth]{figs/toy_kernel/kernel_tests.pdf}
     	\caption{Results for a comparison of a GP using either a RBF, Gibbs or Matern kernel. Upper: Comparison prediction against true distribution $f(x)$. Lower: Deviation of the prediction $f_\theta(x)$ from the truth $f(x)$.}
-    	\label{fig:RBF_GP}
+    	\label{fig:kernel_GP}
 	\end{figure} 
 	%
-	Next, we implement a Neural Tangent Kernel (NTK) approach. Therefore, we have to begin by setting up a neural network, that is fully connected with the Gaussian Errorfunction (Erf) as activation function in between layers. The neural network includes two hidden blocks with dimesion $512$ and a weight initialization of $1.5$ and a bias initialization of $0.05$.
+	Next, we implement a Neural Tangent Kernel (NTK) approach. Therefore, we have to begin by setting up a neural network, that is fully connected with the Gaussian Errorfunction (Erf) as activation function in between layers. The neural network includes three hidden blocks with dim1esion $64$ and a weight initialization variance of $1.5$ and a bias initialization variance of $0.05$.
 	For this NTK we want to use an infinite-wdith GP to be able to perform exact Bayesian inference by using an infinite width network. To mimic these infinite width network behaviour, we use the NTK or the NNGP approach. The NTK corresponds to the behaviour of gradient descent training in the infinite width limit of a network, while NNGP is a neural network using a Bayesian posterior encoded as a GP model, thus starting from an infinite width limit at initialization and then using Bayesian inference.
 	Because of the periodic nature of the training data, we gain some improvement in the predictions of the neural networks, when we add a periodicity as preprocessing to the kernel function.
 
 	Again, both methods provide a prediction and a corresponding uncertainty estimation. For the NTK approach, the variance is obtained by sampling over random initializations of the kernel and network, thus we show as mean the convergence limit of the infinite-width gradient descent plus an ensemble uncertainty from random initializations. 
 	For the NNGP approach, we get a prediction of a Bayesian GP with an infinite network prior and the uncertainty is obtained as covariance matrix of the posterior distribution.
 
-	Finally, we can compare the results for the NNGP (labelled as Bayesian inference), the NTK and the GP using a RBF kernel as shown in Fig.~\ref{fig:comp_RBF}.
+	Finally, we can compare the results for the NNGP (labelled as Bayesian inference), the NTK and the GP for the three different kernels shown in Fig.~\ref{fig:comp_RBF}.
 	All three methods are capable of predicitng the true function $f(x)$ within their corresponding errorbands, while the RBF kernel has more difficulties to get all the features of the target function, especially if there are no points in between. The NTK and NNGP results are almost identical, with a slight bias twoards the NTK, as seen in the residual plot. 
 	With periodic preprocesing, the NTK and NNGP both outperform the naive GP with RBF kernel approach. 
 	%
@@ -180,7 +183,7 @@
     \left[ \frac{(f_i-f_\theta(x_i))^2}{2} \right] \; .
 	\end{align}
 	%
-	The results for a single NN compared to an infinite width network, the NTK, is shown in Fig.~\ref{}. The results indicate that the finite width NN has problems to get a smooth interpolation between the individual points, leading to some unwanted spikes in its prediction. The same concept is also shown in the residuals plot, where the deviations from the true $f(x)$ are larger for the NN than the NTK.
+	The results for a single NN compared to an infinite width network, the NTK, is shown in Fig.~\ref{fig:comp_NN_NTK}. The results indicate that the finite width NN has problems to get a smooth interpolation between the individual points, leading to some unwanted spikes in its prediction. The same concept is also shown in the residuals plot, where the deviations from the true $f(x)$ are larger for the NN than the NTK.
 	%
 	\begin{figure}[hptb]
 		\centering
@@ -203,7 +206,7 @@
 
 	We use the same network set up as before and train it ten times independently to get an ensemble with ten memebers. These results are then compared to the NTK approach for an infinite network. The results are shown in Fig.~\ref{fig:comp_NN10_NTK} and we observe that the ensemble of networks, even for only ten members is almost as good as the infinte width network, only the errorbars for the ensemble are a bit larger than the ones from the infinite-width network. Additionally, the residuals also look similar. This leads to the conclusion, that for even more members the ensemble would converge to the NTK approach or even outperfrom it.
 	
-	Again, we looked at the timescale evolution of the network prediction and error estimate for different points during training, which is shown in Fig.~\ref{fig:timeeval_10mem}. These plots indicate, that training for only $5000$ steps would be sufficient on this problem and we can reduce the number of training steps.
+	Again, we looked at the timescale evolution of the network prediction and error estimate for different points during training, which is shown in Fig.~\ref{fig:timeeval_10mem}.
 	%
 	\begin{figure}[hptb]
 		\centering
@@ -241,7 +244,7 @@
 
 	\subsection{Adding a Bayesian neural network}
 	So far we have only looked at approaches without any systematic uncertainties, but with uncertainties of a purely statistical nature. To estimate the performance of an approach including sytematic and statistical uncertainty, we decided to choose a Bayesian neural network (BNN), since with its posterior estimate based on varaitional inference it is close to the GP approach.
-	The BNN is trained for $1000$ epochs, with $200$ samplings, three hidden layers with dimensionality of $64$, Adam as optimizer and a learning rate of $0.001$.
+	The BNN is trained for $1000$ epochs, with $200$ samplings, three hidden layers with dimensionality of $64$, Adam as optimizer and a learning rate of $0.001$, as activation function a GELU function is choosen. %based on arlo papers
 	The errorbands on the BNN in Fig.~\ref{fig:BNN} show the total uncertainty, as combination of the systematic and statistical
 	%
 	\begin{align}

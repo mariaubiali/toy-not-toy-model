@@ -1,12 +1,27 @@
 # environment.yml
-name: environment_nnpdf_full
+name: nnpdf
 channels:
+  - pytorch
   - conda-forge
-
 dependencies:
-  - nnpdf=4.0.10
-  - python=3.12
+  - python=3.11
   - pip
 
-  - pip:
-      - -r requirements.txt
+  # core stack
+  - nnpdf=4.0.10
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - pyarrow
+  - numba
+  - llvmlite=0.42.0
+
+  # ML frameworks
+  - pytorch
+  - torchvision
+  - torchaudio
+  - tensorflow=2.18   # or pin exactly if you want
+
