@@ -4,3 +4,5 @@ notebooks/figs/
 T3gp/plots
 T3gp/results/
 .DS_Store
+T3gp/src/models/__pycache__/
+T3gp/src/__pycache__/

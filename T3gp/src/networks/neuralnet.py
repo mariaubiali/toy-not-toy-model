@@ -62,7 +62,15 @@ def run_from_config(cfg: dict):
     # --- Push to data space on FK grid ---
     y_pred_members = mus_fk @ W_full.T                               # (S, Ndat)
     y_pred_mean = y_pred_members.mean(axis=0)
-    sigma2_ens_xg = y_pred_members.var(axis=0, ddof=1) if y_pred_members.shape[0] > 1 else np.zeros_like(y_pred_mean)
+
+    if y_pred_members.shape[0] > 1:
+        C_ens = np.cov(y_pred_members, rowvar=False, ddof=1)  # (Ndat, Ndat)
+    else:
+        C_ens = np.zeros((y_pred_members.shape[1], y_pred_members.shape[1]))
+
+    # If you still want the diagonal variance too:
+    sigma2_ens_xg = np.diag(C_ens)
+    # sigma2_ens_xg = y_pred_members.var(axis=0, ddof=1) if y_pred_members.shape[0] > 1 else np.zeros_like(y_pred_mean)
 
     # Your sigma definition:
     sigma2 = sigma2_ens_xg + diagC**2
@@ -145,6 +153,7 @@ def run_from_config(cfg: dict):
         y_pred_mean=y_pred_mean,
         sigma2_ens_xg=sigma2_ens_xg,
         diagC=diagC,
+        ensC=C_ens,
         sigma_xg=sigma_xg,
         mus=mus if save_members else np.array([]),
         vars=vars_ if (save_members and vars_ is not None) else np.array([]),

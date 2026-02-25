@@ -3,7 +3,7 @@
 % -------------------------------
 \usepackage{jheppub}  % JHEP-style title/author/abstract formatting
 \usepackage{multirow, float, graphicx, url, cancel, slashed, placeins, soul}
-\usepackage{bm, amsmath, amssymb, listings, color, booktabs, pgf, empheq}
+\usepackage{bm, amsmath, amssymb, listings, color, booktabs, pgf, empheq, dsfont}
 \usepackage[toc,page]{appendix}
 \usepackage{lipsum, tabularx, subfigure, braket, enumitem, pifont, array, amsthm, hyperref, tensor}
 
@@ -22,3 +22,14 @@
 % Column types
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+
+% get ToDo list
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=$\square$}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\done}{\rlap{$\square$}{\raisebox{2pt}{\large\hspace{1pt}\cmark}}%
+\hspace{-2.5pt}}
+\newcommand{\wontfix}{\rlap{$\square$}{\large\hspace{1pt}\xmark}}

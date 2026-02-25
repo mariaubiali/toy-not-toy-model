@@ -1,5 +1,5 @@
 seed: 123
-output_dir: results/nn/test_NTK_full
+output_dir: results/nn/mse_scaling
 data:
   path: data/Dataset/data_208_extended.npz
   target: y_pseudo
@@ -9,7 +9,7 @@ data:
     eps: 1e-12
 
 model:
-  type: ntk   # gp | nn | ntk
+  type: nn   # gp | nn
 
 nn:
   hidden: [32, 32, 32]
@@ -24,34 +24,21 @@ nn:
   grad_clip: null         # or e.g. 1.0
   device: cpu             # or cpu
   dtype: float32
-  use_preproc: true     # if true applies scaling law x^alpha (1-x)^beta
+  use_preproc: true      # if true applies scaling law x^alpha (1-x)^beta
   init_alpha: 1.0
   init_beta: 3.0
 
   ensemble:
     enabled: true
-    n_members: 10
+    n_members: 100
     seed_offset: 1000        # member i uses seed = seed + seed_offset + i
     save_member_preds: false # if true saves each member curve  
 
 loss:
-  name: chi2                 # mse | weighted_mse | chi_het | chi2 | mse_het
+  name: mse                 # mse | weighted_mse | chi_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
   lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
 
 transforms:
   Logx: {}
   Softplus: {}
-
-ntk:
-  when: "post"        # "none" | "init" | "post" | "both"
-  epoch: 50          # optional: run an extra NTK snapshot at this epoch (0-indexed)
-  diagnostics: false  # optional
-
-  gp:
-    enabled: true
-    use_data_cov: true     # if true, uses C_tr as noise; else uses lambda * I
-    lambda: 1e-3           # only used when use_data_cov=false
-    ridge: 1e-6            # always added to stabilize Cholesky
-    max_train_points: 256
-    max_pred_points: 512

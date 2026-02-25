@@ -1,22 +1,105 @@
-@article{Costantini:2025agd,
-    author = "Costantini, Mark N. and Mantani, Luca and Moore, James M. and Sanchez, Valentina Schutze and Ubiali, Maria",
-    title = "{Colibri: A new tool for fast-flying PDF fits}",
-    eprint = "2510.03391",
+% General papers on UQ in AI
+@article{MLgenUQ1,
+author = {Gawlikowski, J. and  Tassi, C.R.N. and  Ali, M. et al.},
+title = {A survey of uncertainty in deep neural networks. },
+journal = {Artif Intell Rev 56},
+volume = {(Suppl 1)},
+pages = {1513–1589},
+year = {2023},
+publisher = {ASA Website},
+doi = {s10462-023-10562-9},
+URL = {https://doi.org/10.1007/s10462-023-10562-9},
+eprint = {https://doi.org/10.1007/s10462-023-10562-9}
+}
+
+@misc{MLgenUQ2,
+      title={A Structured Review of Literature on Uncertainty in Machine Learning \& Deep Learning}, 
+      author={Fahimeh Fakour and Ali Mosleh and Ramin Ramezani},
+      year={2024},
+      eprint={2406.00332},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2406.00332}, 
+}
+
+@inproceedings{MLgenU3,
+    author ={Stahl, N. and Falkman, G. and Karlsson, A. and Mathiason, G.},
+    title ={Evaluation of Uncertainty Quantification in Deep Learning. },
+    booktitle ={Information Processing and Management of Uncertainty in Knowledge-Based Systems: 18th International Conference, IPMU 2020, Lisbon, Portugal, June 15–19, 2020, Proceedings, Part I, 1237, 556–568.} ,
+    year = {2020},
+    url={https://doi.org/10.1007/978-3-030-50146-4_41}
+}
+
+@Article{PHYgenUQ1,
+AUTHOR = {Siddique, Talha and Mahmud, Md Shaad and Keesee, Amy M. and Ngwira, Chigomezyo M. and Connor, Hyunju},
+TITLE = {A Survey of Uncertainty Quantification in Machine Learning for Space Weather Prediction},
+JOURNAL = {Geosciences},
+VOLUME = {12},
+YEAR = {2022},
+NUMBER = {1},
+ARTICLE-NUMBER = {27},
+URL = {https://www.mdpi.com/2076-3263/12/1/27},
+ISSN = {2076-3263},
+ABSTRACT = {With the availability of data and computational technologies in the modern world, machine learning (ML) has emerged as a preferred methodology for data analysis and prediction. While ML holds great promise, the results from such models are not fully unreliable due to the challenges introduced by uncertainty. An ML model generates an optimal solution based on its training data. However, if the uncertainty in the data and the model parameters are not considered, such optimal solutions have a high risk of failure in actual world deployment. This paper surveys the different approaches used in ML to quantify uncertainty. The paper also exhibits the implications of quantifying uncertainty when using ML by performing two case studies with space physics in focus. The first case study consists of the classification of auroral images in predefined labels. In the second case study, the horizontal component of the perturbed magnetic field measured at the Earth’s surface was predicted for the study of Geomagnetically Induced Currents (GICs) by training the model using time series data. In both cases, a Bayesian Neural Network (BNN) was trained to generate predictions, along with epistemic and aleatoric uncertainties. Finally, the pros and cons of both Gaussian Process Regression (GPR) models and Bayesian Deep Learning (DL) are weighed. The paper also provides recommendations for the models that need exploration, focusing on space weather prediction.},
+DOI = {10.3390/geosciences12010027}
+}
+
+@inproceedings{Chen:2022pzc,
+    author = "Chen, Thomas Y. and Dey, Biprateep and Ghosh, Aishik and Kagan, Michael and Nord, Brian and Ramachandra, Nesar",
+    title = "{Interpretable Uncertainty Quantification in AI for HEP}",
+    booktitle = "{Snowmass 2021}",
+    eprint = "2208.03284",
     archivePrefix = "arXiv",
-    primaryClass = "hep-ph",
+    primaryClass = "hep-ex",
+    reportNumber = "FERMILAB-FN-1179-SCD, FERMILAB-FN-1179-SCD; arXiv:2208.03284 oai:inspirehep.net:2132723",
+    doi = "10.2172/1886020",
+    month = "8",
+    year = "2022"
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PDF specific
+
+@article{Candido:2024hjt,
+	author = "Candido, Alessandro and Del Debbio, Luigi and Giani, Tommaso and Petrillo, Giacomo",
+	title = "{Bayesian inference with Gaussian processes for the determination of parton distribution functions}",
+	eprint = "2404.07573",
+	archivePrefix = "arXiv",
+	primaryClass = "hep-ph",
+	doi = "10.1140/epjc/s10052-024-13100-1",
+	journal = "Eur. Phys. J. C",
+	volume = "84",
+	number = "7",
+	pages = "716",
+	year = "2024"
+}
+
+@article{Medrano:2025cmg,
+    author = "Medrano, Yamil Cahuana and Dutrieux, Herv{\'e} and Karpie, Joseph and Orginos, Kostas and Zafeiropoulos, Savvas",
+    title = "{Gaussian Processes for Inferring Parton Distributions}",
+    eprint = "2510.21041",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-lat",
+    reportNumber = "JLAB-THY-25-4579",
     month = "10",
     year = "2025"
 }
 
-@article{Medrano:2025cmg,
-	author = "Medrano, Yamil Cahuana and Dutrieux, Herv{\'e} and Karpie, Joseph and Orginos, Kostas and Zafeiropoulos, Savvas",
-	title = "{Gaussian Processes for Inferring Parton Distributions}",
-	eprint = "2510.21041",
-	archivePrefix = "arXiv",
-	primaryClass = "hep-lat",
-	month = "10",
-	year = "2025"
+@article{Costantini:2025agd,
+    author = {Costantini, Mark N. and Mantani, Luca and Moore, James M. and S{\'a}nchez, Valentina Sch{\"u}tze and Ubiali, Maria},
+    title = "{Colibri: A new tool for fast-flying PDF fits}",
+    eprint = "2510.03391",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    doi = "10.1140/epjc/s10052-025-15185-8",
+    journal = "Eur. Phys. J. C",
+    volume = "86",
+    number = "1",
+    pages = "22",
+    year = "2026"
 }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 @article{Lee_2020,
 	title={Wide neural networks of any depth evolve as linear models under gradient descent
@@ -34,19 +117,6 @@
 }
 
 
-@article{Candido:2024hjt,
-	author = "Candido, Alessandro and Del Debbio, Luigi and Giani, Tommaso and Petrillo, Giacomo",
-	title = "{Bayesian inference with Gaussian processes for the determination of parton distribution functions}",
-	eprint = "2404.07573",
-	archivePrefix = "arXiv",
-	primaryClass = "hep-ph",
-	doi = "10.1140/epjc/s10052-024-13100-1",
-	journal = "Eur. Phys. J. C",
-	volume = "84",
-	number = "7",
-	pages = "716",
-	year = "2024"
-}
 
 @article{Halverson:2020trp,
 	author = "Halverson, James and Maiti, Anindita and Stoner, Keegan",

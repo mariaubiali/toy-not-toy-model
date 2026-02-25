@@ -15,343 +15,1021 @@
 \abstract{Something... }
 
 \keywords{NTK, NN, Gaussian Process...}
-\arxivnumber{2507.xxxxx}
+\arxivnumber{2603.xxxxx}
 
 \begin{document}
-	
-	\maketitle
-	\flushbottom
-	
-	\section{Introduction}
-	Add references like Colibri~\cite{Costantini:2025agd}.\\
-	In Section 3 of Ref.~\cite{Candido:2024hjt} the $T_3$ dataset is discussed, which we want to use for our toy model.\\
-	Ref.~\cite{Lee_2020} is the paper from Google explaining infinite-width scaling behaviour for GP using a NTK-kernel.\\
-	The other references are supplementary material at the moment~\cite{Medrano:2025cmg,Halverson:2020trp,DelDebbio:2024qfh,DelDebbio:2007ee}.
-	
-	% add references here
+
+\maketitle
+\flushbottom
+
+\section{Introduction}
+
+Uncertainty quantification (UQ) is a foundational element of both physics and machine learning (ML)~\cite{MLgenUQ1,MLgenUQ2,MLgenU3,PHYgenUQ1,Chen:2022pzc}.
+In physics, reliable uncertainty estimates are crucial: they determine the credibility of measurements, enable the consistent combination of experimental 
+and theoretical results, and ultimately govern the statistical significance of scientific claims. In high-energy physics, in particular, discoveries 
+are assessed against stringent significance thresholds, while systematic uncertainties associated with detector effects or theoretical modelling often 
+dominate the total error budget. Similar considerations arise in astrophysics and cosmology, where uncertainty estimates are central to parameter 
+inference and to the interpretation of increasingly precise observational data.
+
+In machine learning, the importance of uncertainty estimates has become equally apparent. As ML models are deployed in settings where 
+decisions carry significant consequences, predictions must be accompanied by reliable measures of confidence rather than point estimates alone. 
+This has motivated a broad range of approaches aimed at quantifying predictive uncertainty, including Bayesian neural networks, ensemble methods, 
+and approximate Bayesian techniques. When ML tools are applied to physics problems, the standards for uncertainty estimation are particularly high: 
+unreliable or poorly calibrated uncertainties directly undermine the scientific conclusions drawn from the analysis.
+
+Among probabilistic regression methods, Gaussian processes (GPs) occupy a distinguished role. As fully Bayesian, non-parametric models, GPs 
+provide predictive distributions with analytically tractable uncertainties and have long served as reference models for uncertainty quantification. 
+
+There have been a few pioneering papers exploring the use of GPs in the determination of parton distribution functions (PDFs)~\cite{Candido:2024hjt,Medrano:2025cmg} 
+and they demonstrate them to be very promising. A defining feature of GPs is the choice of kernel function, which encodes prior assumptions about smoothness, 
+correlations, and functional structure. While this flexibility is one of the strengths of the GP framework, it also raises an important question: to what extent do predictions and associated uncertainties depend on the chosen kernel, and how robust are these uncertainties when confronted with realistic data?
+Systematic studies of how kernel choice impacts both fit quality and uncertainty estimation remain relatively limited, particularly in comparison with modern neural-network-based approaches. Deterministic neural networks typically deliver high predictive accuracy but lack intrinsic uncertainty estimates, while Bayesian neural networks aim to restore probabilistic predictions at the cost of additional modelling and computational complexity. Comparing these approaches on equal footing requires not only accuracy metrics but also quantitative validation of uncertainty estimates, such as coverage, calibration, and behavior under extrapolation.
+
+In this work, we address these questions through a controlled and progressive analysis. We first investigate Gaussian-process predictions in a toy-model setting, where the data-generating process is known and the impact of kernel choice on both predictions and uncertainties can be studied in detail. We then move to a more realistic and phenomenologically relevant application: the parametrisation of the triplet $T_3$ parton distribution function and its extraction from measurements of deep-inelastic structure functions by the BCDMS experiment. 
+This setting provides a stringent testbed for uncertainty quantification, combining limited data coverage, correlated uncertainties, and physically motivated constraints.
+
+Our results are benchmarked against deterministic neural networks and Bayesian neural networks using both accuracy-based metrics and dedicated uncertainty-quality diagnostics. Through this comparison, we aim to clarify the strengths and limitations of Gaussian processes as uncertainty-aware regression models in physics applications, to assess the role of kernel choice in shaping predictive uncertainties, and to contribute to a more systematic validation of ML-based uncertainty estimates in precision phenomenology.
+
+
+
+In Section 3 of Ref.~\cite{Candido:2024hjt} the $T_3$ dataset is discussed, which we want to use for our toy model.\\
+Ref.~\cite{Lee_2020} is the paper from Google explaining infinite-width scaling behaviour for GP using a NTK-kernel.\\
+The other references are supplementary material at the moment~\cite{Medrano:2025cmg,Halverson:2020trp,DelDebbio:2024qfh,DelDebbio:2007ee}.
+
+% add references here
+
+Some interesting references
+\begin{itemize}
+    \item Stephenson et al. (AISTATS 2022), Measuring the robustness of Gaussian processes to kernel choice — proposes a workflow to assess how sensitive the GP posterior (including uncertainty) is to “qualitatively interchangeable” kernels, i.e., when multiple kernel choices look plausible.
+    \item Rasmussen and Williams (2006), Gaussian Processes for Machine Learning (GPML book) — the canonical reference that cleanly explains how the kernel encodes smoothness/periodicity/linearity assumptions and how that flows into posterior mean/variance. It’s not a “benchmark vs NNs” paper, but it’s the foundation for reasoning about kernel-driven uncertainty.
+\item  Lu et al. (2025), Choice of Gaussian Process kernels… — a domain study (flood downscaling) that systematically swaps kernels/compositions and evaluates predictive performance. 
+\end{itemize}
+
+
+
+
+
     
-	\section{Overall information}
-	The overall problem we want to address in this project is to understand how the predictions of a Gaussian process (GP) depend on the choice of kernel and their ability of uncertainty estimation.
-	Thus, we need a simple, but physical relevant toy model. These criterias are fulfilled for the $T_3$ data set of NNPDF. It consists of a convolution of two functions, the Wilson coefficient $C_3$ and the PDF $T_3$.
-	Additionally, the $T_3$ dataset was used in the first NNPDF paper proving that a NN can be used to parameterize a single PDF and was also used in Ref.~\cite{DelDebbio:2024qfh} as first model showing that GP's can be used for single PDF fits.
+\section{Overall information}
+{\bf MU: incorporate it in section 1 and expand references [..]}
+The overall problem we want to address in this project is to understand how the predictions of a Gaussian process (GP) depend on the choice of kernel and their ability of uncertainty estimation.
+Thus, we need a simple, but physical relevant toy model. These criterias are fulfilled for the $T_3$ data set of NNPDF. It consists of a convolution of two functions, the Wilson coefficient $C_3$ and the PDF $T_3$.
+Additionally, the $T_3$ dataset was used in the first NNPDF paper proving that a NN can be used to parameterize a single PDF and was also used in Ref.~\cite{DelDebbio:2024qfh} as first model showing that GP's can be used for single PDF fits.
 
-	We want to improve the fit quality and uncertainty estimation compared to previous work and perform some benchmarking not only against previous NNPDF fitting techniques but also against Bayesian Neural Networks (BNNs) in terms of accuracy and uncertainty estimation.
+We want to improve the fit quality and uncertainty estimation compared to previous work and perform some benchmarking not only against previous NNPDF fitting techniques but also against Bayesian Neural Networks (BNNs) in terms of accuracy and uncertainty estimation.
 
-	\section{Gaussian Process}
-	A GP is defined as nonparametric, supervised learning method for regression and probabilistic classification tasks. Its prediction is a probabilistic interpolation of observations based on the input data. For a typical regression task, the GP combines a specific, set prior with a likelihood based on training samples, thus it provides a probabilistic approach for predictions, being capable of estimating a mean and standard deviation.
-	Since the toy model is only a first step and we want to extend the study to physics data and its application and implementation in COLIBRI, we need to understand how this mean and standard deviation is obtained and what class of uncertainty does it provide.
-	Starting from the prior distribution of the GP, where the prior mean is specified in the GP regression function. The mean of the prior is either constant at zero or can be set to the mean value of the training data. The corresponding covariance of the prior is specified by the kernel choice. The hyperparameters of the choosen kernel are optimized during the training process of the GP by a maximum log-marginal likelihood approach, based on the used optimizer. The initialisation parameters for the optimizer are sampled from the allowed range of hyperparameters in the kernel. 
-	
-	The GP now finds a distribution over all possible functions $f(x)$ consistent with the observed data, by starting from the prior and via optimizer updates it moves closer to the underlying posterior distribution and uses the covariance matrix of the prior to ensure smoothness in the resulting function. Thus, the covariance matrix and the mean of all possible functions defines a GP.
-	Based on the input data $x_1, ..., x_n$, the GP assumes a probability distribution of $p(f(x_1),...,f(x_n))$ is jointly Gaussian in combination with a mean $\mu(x)$ and a covariance $\Sigma_{x}$, where $\Sigma(x)$ is constructed as $\Sigma_{ij}=\text{kernel}(x_i,x_j)$.
-	The key idea is that if $x_i$ and $x_j$ are deemed by the kernel to be similar, then we expect the output of the function, $f(x_i)$ and $f(x_j)$ to be similar too.
-	Thus, the essence of a GP is a multivariate Gaussian which shape is determined by the covariance matrix using conditional probabilities to determine the posterior from the underlying prior, written as
-	%
-	\begin{align}
-		\begin{pmatrix}%
-		x_1 \\ x_2
-		\end{pmatrix}
-		= \mathcal{N} \left(
-		\begin{pmatrix}
-		\mu_1 \\ \mu_2
-		\end{pmatrix}
-		,
-		\begin{pmatrix}
-		\sigma_{11} & \sigma_{12}\\ \sigma_{21} & \sigma_{22}
-		\end{pmatrix}
-		\right) \;,
-	\end{align}
-	%
-	with $\sigma$ the variance and its correlation of the multivariate Gaussian.
-	In terms of functions $f(x)$, the posterior can be described as joint probability of outcome values of possible funtions, where $f$ are the observed functions of points $x$ and the functions we would like to estimated based on points $x_\star$ with $f(x_\star)=f_\star$. 
-	Similar to the equation above, we can write
-	%
-	\begin{align}
-		\begin{pmatrix}%
-		f \\ f_\star
-		\end{pmatrix}
-		= \mathcal{N} \left(
-		\begin{pmatrix}
-		\mu \\ \mu_\star
-		\end{pmatrix}
-		,
-		\begin{pmatrix}
-		K & K_\star\\ K_\star^\top & K_{\star\star}
-		\end{pmatrix}
-		\right) \;,
-	\end{align}
-	%
-	with $K$ the matrix we get from applying the kernel function $k$ on observed $x$, $K_\star$ is the kernel function applied on train and test data, to relate their similarities and $K_{\star\star}$ relates the test values to each other.
-	So we try to get $p(f_\star | x_\star, x, f)$ by using the relation between $p(f, f_\star)$ and $p(f_\star|f)$ with $f_\star \approx \mathcal{N}(\mu_\star, \Sigma_\star)$ and that $f$ and $f_\star$ are together jointly Gaussian.
-	\NEc{The mathematical proof is quite long and I didn't had the time to look at it in full detail.}
+%
+\section{Architectures and Uncertainties}
+\label{sec:setup}
+%
+In this section we describe the numerical tools and architectures used with an additional focus on their ability for uncertainty handling and the different knids and sources of uncertainties entering. First, we discuss the numerical tools, namely Gaussian processes (GPs), neural networks (NNs) in terms of a Multilayer Perceptron (MLP) and Neural Tangent Kernels (NTKs). After agreeing on a set-up, we discuss the different uncertainties entering the analysis. 
+%
+\subsection{Gaussian process}
+\label{sec:GP}
+%
+A GP is defined as a non-parametric, supervised learning method for regression and probabilistic classification tasks. It predicts a probabilistic interpolation of observations based on its input data. When used for a regression task, the GP combines a set prior with a likelihood, which is based on the training samples. Thus, the GP provides a probabilistic prediction approach while being capable of splitting the prediction into a mean value $\mu$ and uncertainty $\sigma$. The prior distribution follows a Gaussian distribution, where the mean values can either be set to zero or derived based on the mean of the training data. The corresponding covariance matrix of the prior is specified by the kernel $k(x, x_\star)$. The hyperparameters of the chosen kernel $k$ are optimized during the training using a maximum log-marginal likelihood approach. At initialization, the optimizer parameters are sampled from the allowed hyperparameter range. 
+Starting from the prior, the GP moves closer to the underlying posterior distribution with each optimizer step to find a distribution out of all possible functions $f(x)$, which is consistent with the observed data.
+In these steps the covariance matrix ensures a certain smoothness of the final function. 
+Therefore, a GP can be defined via its covariance matrix and mean of all possible functions $f(x)$.
+Based on a vector of input data $x_1, ..., x_n$, the GP assumes that a probability distribution $p(f(x_1),...,f(x_n))$ is jointly Gaussian with mean $\mu(x)$ and a covariance $\Sigma_{x}$, where $\Sigma(x)$ is constructed as $\Sigma_{ij}=\text{kernel}(x_i,x_j)$.
+The key idea is that if $x_i$ and $x_j$ are deemed by the kernel to be similar, then we expect the output of the function, $f(x_i)$ and $f(x_j)$ to be similar too.
+Thus, the essence of a GP is a multivariate Gaussian which shape is determined by the covariance matrix using conditional probabilities to determine the posterior from the underlying prior, written as
+%
+\begin{align}
+    \begin{pmatrix}%
+    x_1 \\ x_2
+    \end{pmatrix}
+    = \mathcal{N} \left(
+    \begin{pmatrix}
+    \mu_1 \\ \mu_2
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+    \sigma_{11} & \sigma_{12}\\ \sigma_{21} & \sigma_{22}
+    \end{pmatrix}
+    \right) \;,
+\end{align}
+%
+with $\sigma$ the variance and its correlation of the multivariate Gaussian.
+Translating this from single parameters $x$ to functions $f(x)$, the posterior is then defined as the joint probability of all possible functions $f$ of points $x$. The function $f(x)$ describes the input parameters, while $f(x_\star)$ describes the estimated function on values $x_\star$ with $f(x_\star)=f_\star$. Similar to the previous equation, we can write
+%
+\begin{align}
+    \begin{pmatrix}%
+    f \\ f_\star
+    \end{pmatrix}
+    = \mathcal{N} \left(
+    \begin{pmatrix}
+    \mu \\ \mu_\star
+    \end{pmatrix}
+    ,
+    \begin{pmatrix}
+    K & K_\star\\ K_\star^\top & K_{\star\star}
+    \end{pmatrix}
+    \right) \;,
+\end{align}
+%
+with $K$ the matrix we get from applying the kernel function $k$ on observed $x$, $K_\star$ is the kernel function applied on train and test data, to relate their similarities and $K_{\star\star}$ relates the test values to each other.
+As goal we would like to estimate $p(f_\star | x_\star, x, f)$ using the relations between $p(f, f_\star)$ and $p(f_\star|f)$ with $f_\star \approx \mathcal{N}(\mu_\star, \Sigma_\star)$ and the knowledge that $f$ and $f_\star$ together are jointly Gaussian.
+As for the kernel implementation, we test three different distributions: a radial basis function (RBF), a Gibbs, and a Matern kernel. 
+The RBF kernel is also known as the squared exponential or Gaussian kernel, written as
+%
+\begin{align}
+    k(x,x') = \gamma \sigma^2 \exp\left(- \frac{(x-x')^2}{2l^2} \right)\; ,
+    \label{eq:RBF}
+\end{align}
+%
+with $l$ denoting the kernel length scale, $\sigma$ a constant prefactor and $\gamma$ a scaling factor of choice. In this $T_3$ analysis, we include three choices for $\gamma$
+\begin{align}
+    \gamma =    \begin{cases}
+                    1 \\
+                    x^\alpha x'^\alpha \\
+                    x^\alpha (1-x)^\beta x'^\alpha (1-x')^\beta \; .
+                \end{cases}
+    \label{eq:GP_scale}
+\end{align}
+Based on the RBF kernel, the Gibbs kernel introduces an $x$-dependent length scale $l$ but still uses an exponential function. Thus, the Gibbs kernel is introduced as
+%
+\begin{align}
+    k(x, x') = \gamma \sigma^2 \sqrt{\frac{2l(x) l(x')}{l^2(x)+l^2(x')}} \exp \left[ - \frac{(x-x')^2}{l^2(x)+l^2(x')} \right] x'^\alpha \quad \text{with} \quad l(x) = l_0 \times (x+\delta) \; ,
+    \label{eq:Gibbs}
+\end{align}
+%
+where $\sigma$ is again the constant prefactor and $\gamma$ a scaling factor as introduced for the RBF kernel. 
+Lastly, we discuss the Matern kernel, a generalisation of the RBF and Gibbs kernels, with an additional hyperparameter $\nu$ to control the smoothness of the function. The kernel is denoted as
+%
+\begin{align}
+    k(x, x') = \gamma \sigma^2 \frac{1}{\Gamma(\nu) 2^{\nu-1}} \left(\frac{\sqrt{2\nu}}{l} d(x, x') \right)^\nu K_\nu \left(\frac{\sqrt{2\nu}}{l} d(x, x') \right) \; ,
+    \label{eq:matern}
+\end{align}
+%
+with $d(x, x')$ the Euclidean distance between two points, $K_\nu$ the modified Bessel function and $\Gamma$ the Gamma function. In the limit of $\nu \rightarrow \infty$, the Matern kernel is equivalent to the RBF kernel, while for $\nu =0.5$ it describes the absolute exponential kernel. With $\nu=1.5$, the kernel symbolises a once differentiable function, and for $\nu =2.5$, a twice differentiable function. The other parameters $\sigma$ and $\gamma$ are the same as in the RBF and Gibbs kernel. 
+For a better coverage of the small-$x$ region by the GP, we add a logarithmic transformation to the GP input, such as
+%
+\begin{align}
+    x \rightarrow \log(x), \quad f(x) \rightarrow f(\log(x))\; .
+\end{align}
 
-    \section{Toy model}
-    We started with a first, simple toy example to investigate the behaviour and function of Gaussian processes (GPs) in a simple regression problem using a continuous function
-    %
-    \begin{align}
-    	f(x) = \sin(2\pi \cdot x) + 0.5 \cdot x \; .
-    \end{align} 
-    %
-	As training data set, we generate $20$ random points, where some artificial noise is added on top of the true values as
-	%
-	\begin{align}
-		D_\text{train} = f(x_i) + 0.1 \cdot \mathcal{N}(0, 1) \; ,
-	\end{align}
-	%
-	and as test dataset we use $100$ randomly choosen points. 
-	With this set-up we train a GP to estimate the function $f$ defined above and test different kernel and approaches on their abilities of recovering the true distribution. The uncertainty we get from such a GP is an epistemic or statistical uncertainty arising from model simplifications and lack of data.
+%
+\subsection{Neural Network}
+\label{sec:NN}
+%
+As underlying architecture we consider a Multilayer Perceptron (MLP), again with $x$ as input parameters and $f_\theta(x)$ the network output. In the case of the $T_3$ dataset, the input $x$ corresponds to the Bjorken-$x$ variable and $f_\theta(x)=xT_3(x)$. The general structure of the MLP is as follows, after a general input layer, there are $n$ hidden blocks with, if not otherwise stated, $n=3$. These hidden blocks are consist first of a hidden layer, followed by non-linearities in form of an activation function and lastly a dropout layer.
+Similar as to the GP we introduce an additional scaling behaviour of $x^\alpha (1-x)^\beta$ to enforce more stable predictions in the small-$x$ region, with $\alpha$ and $\beta$ trainable hyperparameters. Similar as for the GP, we apply a logarithmic transformation on the input variable $x$ and additionally to enforce positivity, we also use a softplus transformation, which can be written as
+%
+\begin{align}
+    g_\theta(x) = \mathrm{softplus}(f_\theta(x)) = \log(1+\exp(f_\theta(x)) \; ,
+    \label{eq:softplus}
+\end{align}
+%
+with $f_\theta(x)$ the previous MLP output and $g_\theta(x)$ the transformed output, still depending on the network parameter $\theta$.
+As loss function, either a mean-squared error (MSE) function or a $\chi^2$ loss is used.
+The MSE loss is defined as
+%
+\begin{align}
+\loss_\mathrm{MSE} = \frac{1}{N}\sum_{i=1}^N(y_\theta(x) - y(x))_i^2+\lambda_\mathrm(sr)(I_\mathrm{mid} - I_\mathrm{ref}) \; ,
+    \label{eq:MSE_loss}
+\end{align}
+%
+with $N$ the number of (training) data points, $\lambda_\mathrm{sr}$ a tunable hyperparameter, $I_\mathrm{mid}=\int dx T_3(x)$, the integral over the $T_3$ data-space and $I_\mathrm{ref}$ is the reference integral computed over the actual data. Note, that in the loss function, we compare $y_\theta(x)$ and $y(x)$ instead of $f_\theta(x)$ and $f(x)$. This is due to the nature of the $T_3$ data as discussed in Sec.~\ref{sec:t3model} and both are related via $y(x)=\mathrm{(FK)}T_3(x)=\mathrm{(FK)} f(x)$ and $y_\theta(x)=\mathrm{(FK)}T_{3, \theta}(x)=\mathrm{(FK)} f_\theta(x)$.
+Next, we consider the $\chi^2$-loss, which also takes the experimental covariance matrix $C_Y$ into account
+%
+\begin{align}
+    \loss_{\chi^2} = (y_\theta(x) - y(x))^\top C_Y^{-1} (y_\theta(x) - y(x)) + \lambda_\mathrm(sr)(I_\mathrm{mid} - I_\mathrm{ref}) \; ,
+    label{eq:chi2_loss}
+\end{align}
+%
+with $C_Y^{-1}$ the inverse of the experimental covariance matrix $C_Y$. The other parameters are the same as for the MSE loss. 
+Compared to the GP, we introduce the sumrule to the loss function as $\lambda_\mathrm(sr)(I_\mathrm{mid} - I_\mathrm{ref})$. To keep bith approaches comparable we can also add it via a fixed hyperparameter $\lambda_\mathrm{sr}$ to the GP. 
+%--------------------------------------------------------
+\subsection{Neural Tangent kernel}
+\label{sec:NTK}
+%
 
-	\subsection{On uncertainties} %cite VEraiphy report?
-	In physics analyses we distinguish betweeen two different kinds of uncertainties, systematic and statistical ones.
-	Statsistical uncertainties hereby originate from a finite data set size and stochastic fluctuations in the results when the experiment gets repeated. Thus statistical uncertainties decrease with more data.
-	Systematic uncertainteis on the other hand arise from an imperfect knowledge of measurement conditions, detector effects or flaws in the underlying theoretical model. Thus, they do not vanish with more data.
+%
+\subsection{General uncertainty quantification} %cite VEraiphy report?
+In physics analyses, we distinguish between two different kinds of uncertainties, systematic and statistical ones.
+Statistical uncertainties originate from a finite data set size and stochastic fluctuations in the results when the experiment is repeated. Thus, statistical uncertainties decrease with more data.
+Systematic uncertainties, on the other hand, arise from an imperfect knowledge of measurement conditions, detector effects or flaws in the underlying theoretical model. Thus, they do not vanish with more data.
 
-	In the machine learning or statistics convention, uncertainteis are separated into aleatoric and epistemic ones.
-	Aleatoric uncertainties are data uncertainites from some inherent randomness and fluctuations within the data generation process and are thus irreducible. 
-	Epistemic uncertainties are model uncertainties, describing a lack of knowledge about the model or its parameters. These can be reduced by taking more data into account, improved modeling or theoretical input. With this we can separate the epistemic uncertainties into three subcategories:
-	%
-	\begin{itemize}
-		\item training variability from imperfect training, as cause could be multiple local minima or an imperfect optimization of hyperparameters
-		\item data variability, because we only have a finite amount of data available
-		\item model bias, when the truth distribution cannot be matched, due to wrong underlying hypothesis, or the truth is outside the scope of the hypothesis.
-	\end{itemize}
-	%
-	From these three subcategories, training and data variability can be categorized as statistical uncertaintiy from a physics persepctive and the model bias as systematic uncertainty.
-	Both approaches, systematic/statistical and aleatoric/epistemic, describe different features and thus cannot be used interchangable but complementary. A summary of both approaches and how they relate to each other is shown in Tab.~\ref{tab:unc}.
-	%
-	\begin{table}[htpb]
-		\centering
-		\begin{tabularx}{\linewidth}{lXX}
-			\toprule
-			& \textbf{aleatoric (data uncertainty)} & \textbf{epistemic (model uncertainty)}\\
-			\midrule
-			\textbf{systematic} &
-			Irreducible, stocastic effects in calibration or background effects &
-			Imperfect model assumptions, limited theoretical knowledge \\
-			\midrule
-			\textbf{statistical} &
-			Data fluctuations due to finite sampling & 
-			Model uncertainty from limited data (overfitting, poorly constrained parameters)\\
-			\bottomrule
-		\end{tabularx}
-		\caption{Uncertainty classification}
-		\label{tab:unc}
-	\end{table}
-	%
+In the machine learning or statistics convention, uncertainties are separated into aleatoric and epistemic ones.
+Aleatoric uncertainties are data uncertainties arising from inherent randomness and fluctuations in the data-generating process and are thus irreducible. 
+Epistemic uncertainties are model uncertainties that describe a lack of knowledge about the model or its parameters. These can be reduced by taking more data into account, improving the modelling, or adding theoretical input. With this, we can separate the epistemic uncertainties into three subcategories:
+%
+\begin{itemize}
+    \item training variability from imperfect training, as cause could be multiple local minima or an imperfect optimization of hyperparameters
+    \item data variability, because we only have a finite amount of data available
+    \item model bias, when the truth distribution cannot be matched, due to wrong underlying hypothesis, or the truth is outside the scope of the hypothesis.
+\end{itemize}
+%
+From these three subcategories, training and data variability can be categorised as statistical uncertainty from a physics perspective and the model bias as systematic uncertainty.
+Both approaches, systematic/statistical and aleatoric/epistemic, describe different features and thus cannot be used interchangeably, but are complementary. A summary of both approaches and their relationship is shown in Tab.~\ref{tab:unc}.
+%
+\begin{table}[htpb]
+    \centering
+    \begin{tabularx}{\linewidth}{lXX}
+        \toprule
+        & \textbf{aleatoric (data uncertainty)} & \textbf{epistemic (model uncertainty)}\\
+        \midrule
+        \textbf{systematic} &
+        Irreducible, stochastic effects in calibration or background effects &
+        Imperfect model assumptions, limited theoretical knowledge \\
+        \midrule
+        \textbf{statistical} &
+        Data fluctuations due to finite sampling & 
+        Model uncertainty from limited data (overfitting, poorly constrained parameters)\\
+        \bottomrule
+    \end{tabularx}
+    \caption{Uncertainty classification}
+    \label{tab:unc}
+\end{table}
+%
+In the case of a GP, one can think naively of two different uncertainties, first from the hyperparameter sampling, and second, of the GP itself, also known as conditional GP uncertainty. The uncertainty on the hyperparameters is considered a model or epistemic uncertainty expressed as
+%
+\begin{align}
+    \sigma^2_\theta = \mathrm{Var}_\theta [\mathbb{E} (f(x^*)|\theta, y)] \; ,
+\end{align}
+%
+which does not vanish as we add more data points. It is also the dominant uncertainty source in extrapolation regions and reflects only model ambiguities, not noisy data. 
+The conditional GP uncertainty is affected by a finite amount of training data, kernel smoothness and relative position of the GP interpolation to the training data. Thus, it arises from a GP, even with known hyperparameters and can be written as
+%
+\begin{align}
+    \sigma^2_\text{GP} = \mathrm{Var}[f(x^*)|\theta, y ] \; .
+\end{align}
+%
+Thus, it becomes smaller in dense data regions and larger in sparse data regions, depending solely on the kernel choice and the data points. 
+Lastly, we have to consider an aleatoric, or data-driven, uncertainty, which is not directly encoded in the GP but rather in the data points originating from noisy data $y(x) = f(x) + \epsilon$, with noise $\epsilon$.  
+
+For the neural network approach ....
+\NEc{TBC after finishing the NN and NTK section}
+% ----------------------------------------------
+\section{T3 PDF model}
+\label{sec:t3model}
+%
+{\bf MU: add some text and add reference to feature scaling paper. }\\
+{\bf MU: send name of the test observable and FK table to Nina. }\\
+In this section, we will describe and discuss the $T3$ PDF framework as a more straightforward approach for our Gaussian process study compared to a full PDF fit. The approach described in this section is based on the setup described in Ref.~\cite{Candido:2024hjt}, especially the data set as written down in Section 3.1.
+Thus, we will start by discussing the data used to construct the $T3$ dataset and its relation to experimental observed or pseudo data. Next, we....
+
+%
+\subsection{Data and Theory}
+%
+As data we consider a nonsinglet, triplet PDF $T_3$, which is defined as 
+%
+\begin{align}
+    T_3 = u^+ - d^+ \; .
+\end{align}
+%
+Because of the similarity of the proton and neutron structure function, which only differ by a sign of the $T_3$ contribution
+%
+\begin{align}
+    F_2^{p,n} = C_g \otimes g + C_\Sigma \otimes \Sigma \pm C_{T_3} \otimes T_3 + C_{T_8} \otimes T_8 + C_{T_{15}} \otimes T_{15} \; ,
+\end{align}
+%
+Where the $T_a$ with $a=3,8,15$ are the non-singlet quark distributions, $\Sigma$ the quark singlet and $g$ the gluon distribution.
+Thus, if we only take into consideration the $T_3$ distribution, one needs to take into account the structure function of deuterium by 
+%
+\begin{align}
+    F_2^d = \frac{1}{2} (F^p + F^n) = C_g \otimes g + C_\Sigma \otimes \Sigma + C_{T_8} \otimes T_8 + C_{T_{15}} \otimes T_{15} \; .
+\end{align}
+%
+Furthermore, we can define the observable then as
+%
+\begin{align}
+    F_2^p - F_2^d = C_{T_3} \otimes T_3 \; ,
+\end{align}
+%
+the convolution of the Wilson coefficient $C_{T_3}$ with only one PDF, $T_3$.
+
+From a theoretical perspective, the PDF $T_3$, for the $i$-th data point in the PDF prediction, can be constructed as 
+%
+\begin{align}
+    T_{3,i} = \int dx c_i(x)f(x) \; ,
+    \label{eq:theory_t3}
+\end{align}
+%
+where the $c_i(x)$ are known functions describing each data point $i$ of the PDF, and $f(x)$ represents the true value of the PDF (in this case $T_3$) based on an underlying law, for each value of $x\in [0,1]$.
+For numerical reasons, the distribution of $x$ is not continuous but rather a grid of points.
+Thus, we have to discretise the integral by introducing so-called FK-tables as
+%
+\begin{align}
+    (FK)_{ij} = \int dx c_i(x) p_j(x) \; ,
+\end{align}
+%
+with $p_j(x)$ interpolation polynomials for every $x_j$ on the grid of $x$-values.
+This results in the following representation of $T_3$
+%
+\begin{align}
+    T_{3,i} = \sum_{j=1}^N (FK)_{ij}f_{j} \; ,
+\end{align}
+%
+for the $j$ entries of the $x$-grid and every PDF prediction $i$. The FK-tables are matrices with dimension $i \times j$, or $N_\mathrm{data} \times N_\mathrm{grid}$. The $f_j$ are considered as vectors with dimension $N_\mathrm{grid}$.
+The FK-table for $T_3$ is constructed from the individual FK-tables for $F_2^p$ and $F_2^d$ obtained from the BCDMSP and BCDMSD datasets via
+\begin{align}
+    (FK)_{T_3} = (FK)_{F_2^p} - (FK)_{F_2^d} \; .
+\end{align}
+%
+The $f(x)$ are constructed based on an underlying theory; in this case, we choose the NNPDF 4.0 NNLO data set with $\alpha_s = 0.1180$ as the underlying law. Based on this theory, we obtain the predicted values for $u, \bar{u}, d$ and $\bar{d}$ for each point of the $x$-grid.
+Finally, we can write down 
+%
+\begin{align}
+    f(x) = (u - \bar{u}) - (d - \bar{d}) \; ,
+\end{align}
+%
+based on the underlying NNPDF law. This $f(x)$ can be interpreted as true values for $T_3$, while the $T_{3,i}$ in Eq.~\eqref{eq:theory_t3} are the theoretically predicted outcome values of experimental measurements.
+For numerical and stability reasons, we will only consider the rescaled $xT_3$ values rather than the unscaled $T_3$ values.
+Based on this we can generate the data
+%
+\begin{align}
+    y_0 = \sum_i T_{3,i} = \sum_{j=1}^N (FK)_{T_3, ij} f_{j}
+\end{align}
+%
+as input for the Gaussian process. 
+As the next step, we want to mimic experimental data $y$, with respect to the theory predictions $y_0$. We accomplish this by adding an experimental error $C_Y$ to the data points $y_0$. This experimental error $C_Y$ is constructed based on the full experimental covariance matrix for the observable $F_2^p - F_2^d$ as
+%
+\begin{align}
+    C_Y = \mathrm{Cov}[F_2^p, F_2^p] + \mathrm{Cov}[F_2^d, F_2^d] -2 \mathrm{Cov}[F_2^p, F_2^d] \; ,
+\end{align}
+%
+which is computed from publicly available experimental information, also stored in the BCDMSP and BCSDMSD data sets.
+The final dimensions of the $C_Y$ matrix are $N_\mathrm{data} \times N_\mathrm{data}$.
+Bringing everything together, we obtain the experimental data
+%
+\begin{align}
+    y = y_0 + \eta \quad \text{with} \quad \eta \sim \mathcal{N}(0, C_Y) \; .
+\end{align}
+%
+\subsection{Numerical implementation}
+%
+From a numerical perspective, we can also approximate the $T_3$ distribution using a GP, where the associated mean $m$ is set to $0$, based on physical expectations and measurements, and kernel $k$
+%
+\begin{align}
+    T_3 \sim \mathcal{GP}(m(x)=0, \; k(x, x')) \; .
+\end{align}
+%
+Since $T_3$ is defined as a vector of grid values $x$, the mean $\bfm=m(x)$ and the kernel $k(x, x')$ is defined over a discrete set of points $\bfx = \{x_1, \dots , x_N\}$ as $K = k(\bfx, \bfx^T)$. 
+Now we have to distinguish between points $\bfx$ already included in the theory prediction of $T_3$, denoted as $\bff$ and those we want to infer, which are labelled as $\bfxs$ with the corresponding function $f(\bfxs)=\bffs$. Therefore, we obtain two different data sets
+%
+\begin{align}
+    \bff \in \mathds{R}^N, \quad \bffs \in \mathds{R}^M \; .
+\end{align}
+%
+Based on this GP we get a prior distribution for $\bff$ and $\bffs$ with theire respective means of $\bfm$ and $\bfms$
+%
+\begin{align}
+    p(\bff, \bffs | \theta) = \frac{1}{\sqrt{\det(2\pi K)}}\exp\{-\frac{1}{2}((\bff - \bfm)^T, (\bffs - \bfms)^T)K^{-1}
+    \begin{pmatrix}
+        \bff - \bfm\\ \bffs - \bfms
+    \end{pmatrix}
+    \} \; ,
+\end{align}
+%
+where the kernel $K$ is extended to the following $(N+M)\times(N+M)$ matrix
+%
+\begin{align}
+    K = \begin{pmatrix}
+        k(\bfx, \bfx^T) & k(\bfx, \bfxs^T) \\ k(\bfxs, \bfx^T) & k(\bfxs, \bfxs^T)
+    \end{pmatrix}
+    = \begin{pmatrix}
+        K_{xx} & K_{xx^*} \\ K_{x^*x} & K_{x^*x^*}
+    \end{pmatrix}
+\end{align}
+%
+and additional hyperparameters $\theta$.
+With this we can also construct the probability distribution of $\bff$ and $\theta$ for some given experimental values $y$
+%
+\begin{align}
+    p(\bff, \theta | y) = p(\bff|\theta, y)p(\theta|y) \; ,
+\end{align}
+%
+where $p(\bff|\theta, y)$ denotes the posterior distribution. Based on prior distributions, the uncertainty on $\bff$, $\bffs$, and the experimental uncertainty $C_Y$ are all uncorrelated. Thus, we can construct the overall covariance matrix for the joint set of priors, regarding $(\bff, \bffs, \eta)$ as $(N+M+N_\mathrm{data})\times (N+M+N_\mathrm{data})$ block-diagonal matrix
+%
+\begin{align}
+    \mathrm{Cov} = 
+    \begin{pmatrix}
+      K & 0 \\ 0 & C_Y  
+    \end{pmatrix}
+\end{align}
+%
+with $K$ the kernel matrix of the GP.
+
+Next: Write down joint prior and Gaussian posterior for $\bff$ and $\bffs$.
+
+With this, we cannot only provide one solution but rather the probability distribution of the vector $\bffs$.
+Next, we want to calculate the posterior distribution of the hyperparameters $\theta$ given the data $y$, $p(\theta|y)$. The observed data is given by $y = (FK)\bff + \eta$ and thus follows a Gaussian distribution
+%
+\begin{align}
+    y_0 = (FK)\bff \sim \mathcal{N}((FK)\bfm, (FK)K_{xx}(FK)^T), \quad \eta \sim \mathcal{N}(0, C_Y) \; .
+\end{align}
+%
+Following this derivation, we find that
+%
+\begin{align}
+    y = y_0 + \eta \sim \mathcal{N}((FK)\bfm, C_{YT}) \; ,
+\end{align}
+%
+with $C_{YT}$ defined as
+%
+\begin{align}
+    C_{YT} = (FK)K_{xx}(FK)^T + C_Y \; .
+\end{align}
+%
+Using these results, we find for the hyperparameter prior
+%
+\begin{align}
+    p(y|\theta) = \frac{\exp{(-\frac{1}{2}(y-(FK)\bfm)^T C_{YT}^{-1}(y-(FK)\bfm))}}{\sqrt{\det [2\pi C_{YT}]}} \; .
+\end{align}
+%
+The second interference step to calculate the posterior $p(\theta|y)$ cannot be solved analytically in general; thus, this problem is a standard interference problem, where one can either select the hyperparameter values as MAP or use an MCMC algorithm to sample from the posterior $p(\theta|y)$. 
+It is still up for discussion which approach yields the more precise results.
+For the MCMC approach, we currently implemented the NUTS sampler from the \textit{pyMC} package, using an acceptance rate of $0.97$, $4000$ draws, $3000$ tunes and $4$ chains. 
+Afterwards, we generate a hyperparameter ensemble by sampling over the posterior distribution 
+$p(\theta|y, C_Y)$. For each hyperparameter sample, we can calculate the posterior $p(\bffs|\theta, y, C_Y)$ using a Gaussian replica method. This yields the same results as sampling directly from $p(\bffs, \theta |y, C_Y)$.
+For this $T_3$ model, we obtained an $x$-grid and corresponding $(FK)$-table from the BCDM data set. For the GP and NN ansatzes, we split the $x$ grid into training and testing subsets. Therefore, we use a $80/20$-split, $80\%$ of the $x$-grid and corresponding $xT_3$ points are used for training, and the remaining $20\%$ are used for testing. 
+%
+
+%---------------------------
+\section{Extrapolation of the $T_3$ data}
+%---------------------------
+So far, we have evaluated the NN and GP only on a fixed $x$-grid, and also only evaluated both methods on the same $x$-grid. However, this $x$-grid is limited to a certain range and does not cover arbitrarily small $x$ ranges, which are of certain interest for particle physics, since we do not have much data to model this region... \mpar{NE: polish this introduction further}
+
+To test the extrapolation behaviour of the GP and NN models in this extrapolation region, we used the LHAPDF package to generate further $x$-grid points in the small-$x$ region, which is not covered by the initial model, and extrapolate the $xT_3$ distribution. The models are trained on the original $x$-grid and then evaluated on the extrapolated $x$-grid $x_\mathrm{ext}$.
+
+To study and compare the results of the GP and NN, we introduce a similar scaling behaviour and sum-rule penalty to the GP as it was added to the NN. Thus, we replaced the $x^\alpha x'^\alpha$ scaling term by \mpar{add sumrule penalty to the kernel approach}
+%
+\begin{align}
+    k(x, x') \rightarrow x^\alpha (1-x)^\beta k(x, x') x'^\alpha (1-x')^\beta \; .
+\end{align}
+%
+Next, we evaluate the extrapolation behaviour for the NN with different loss functions and the GP using different kernels as listed above.
+
+For the extrapolation in the small-$x$ region, we can see that the NN and GP are able to recover the underlying law if we introduce the additional scale $x^\alpha (1-x)^\beta$, which can model the $xT_3$ distribution accurately. 
+Both methods fall back and rely on an incorporated underlying law for the extrapolation. If there is no such underlying law or scaling behavior introduced to the model, it fails to reproduce and extrapolate the $xT_3$ distribution and increases the error bands in the extrapolation region. This is a desired outcome: the model is aware of its lack of knowledge in these regions; however, it is not a good estimator in regions with sparse or no data without additional information. As shown in the gap study in Ref.\mpar{cite ARLO2}, NNs are capable of extrapolating through sparse data regions, if these regions do not include any artefacts or fluctuations.
+If the scaling law is removed, the NN fails to recover the underlying law, unless we increase the network expressivity. With the scaling law, we train the NN for $1000$ epochs, using three hidden layers with a dimensionality of $32$ each. Without the scaling law, the NN with a $\chi^2$ law has to be trained at least for $10000$ epochs with three hidden layers having a dimensionality of $128$ each. 
+This shows that a NN highly relies and depends on its underlying and introduced distribution. We achieve the best results for the GP and NN when we introduce the scaling factor $x^\alpha (1-x)^\beta$ and the sumrule penalty term $\lambda_{sr} (I_\mathrm{mid} - I_\mathrm{ref})$.
+
+% ---------------------------------
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/gp_noscaling.pdf}
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/gp_scaling.pdf}
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/gp_prefactor.pdf}
+    \caption{Results for the GP using different kernel and introduce different scaling behaviours. In the upper row, we do not apply any scaling to the GP kernels, in the middel we apply some $x^\alpha$ scaling as introduced by DelDebbio et al. and in the lower panel we introduce the scaling from T3nn.}
+    \label{fig:gp_scaling}
+\end{figure} 
+% -------------------------------------------
 
 
-	\subsection{Implementation}
-	\NEc{polish text further}
- 
-	As first approach to this regression problem, we use a GP with a radial basis function (RBF) multiplied by a constant as kernel. As hyperparameter ranges, we choose the kernel length $l \in [0.29, 0.35]$ with a starting value of $0.31$ for the kernel length and $C \in [1.1, 1.4]$ with an intital value of $1.25$ for the constant. The optimizer is restarted for $50$ times and we add artifical noise of order $10^{-2}$ to the GP. The best fit parameters are estimated to be $l=0.29$ and for the constant kernel $c=1.18^2$.
-	Next, we also included a Gibbs kernel and a Matern kernel, the more generalized version of the RBF kernel. 
-	The Gibbs kernel has two tuneable hyperparameters, $l_0$ and $\sigma^2$ and a fixed parameter $\delta$ to ensure positiveness of the lengthscale $l$ via $l= l_0 \times (x + \delta)$. We choose $\delta = 2\pi$ and $l_0 \in [0.05, 0.5]$, with initialization of $l_0=0.1$. $\sigma^2$ is choosen as $\sigma^2 \in [0.5, 2]$ with initialisation $\sigma^2=0.1$. The optimizer is restarted for $50$ times and we add some artificial noise $\alpha=1e^{-3}$ to it. The optimal values choosen by the GP are $l_0 = 0.5$ and $\sigma^2=2.0$. 
-	For the Matern kernel, we have two tunable hyperparamters, the constant prefactor $c$ and the kernel length scale $l$ and a fixed parameter $\nu$ for the smoothness of the function. In this setup $\nu=2.5$, the initial value for $c=1.25$ and can be finetuned in the range of $c \in [1.0, 1.4]$. The lengthscale is set to $l=1.0$ with a range of $l \in [0.8, 1.2]$, again the optimizer is restarted for $50$ times and a noise $\alpha = 1e^{-8}$ is added.
-	The results for all three kernels compared with each other are shown in Fig.~\ref{fig:kernel_GP}.
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.9\textwidth]{figs/toy_kernel/kernel_tests.pdf}
-    	\caption{Results for a comparison of a GP using either a RBF, Gibbs or Matern kernel. Upper: Comparison prediction against true distribution $f(x)$. Lower: Deviation of the prediction $f_\theta(x)$ from the truth $f(x)$.}
-    	\label{fig:kernel_GP}
-	\end{figure} 
-	%
-	Next, we implement a Neural Tangent Kernel (NTK) approach. Therefore, we have to begin by setting up a neural network, that is fully connected with the Gaussian Errorfunction (Erf) as activation function in between layers. The neural network includes three hidden blocks with dim1esion $64$ and a weight initialization variance of $1.5$ and a bias initialization variance of $0.05$.
-	For this NTK we want to use an infinite-wdith GP to be able to perform exact Bayesian inference by using an infinite width network. To mimic these infinite width network behaviour, we use the NTK or the NNGP approach. The NTK corresponds to the behaviour of gradient descent training in the infinite width limit of a network, while NNGP is a neural network using a Bayesian posterior encoded as a GP model, thus starting from an infinite width limit at initialization and then using Bayesian inference.
-	Because of the periodic nature of the training data, we gain some improvement in the predictions of the neural networks, when we add a periodicity as preprocessing to the kernel function.
+% ---------------------------------
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/nn_noscaling.pdf}
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/nn_scaling.pdf}
+    \caption{Results for the NN using different loss functions with and without scaling behaviour applied. In the upper row, we do not apply any scaling to the GP kernels, and in the lower panel we introduce the scaling from T3nn. The $\chi^2$ long in the upper panel implies a longer training duration with higher network expressivity.}
+    \label{fig:nn_scaling}
+\end{figure} 
+% -------------------------------------------
 
-	Again, both methods provide a prediction and a corresponding uncertainty estimation. For the NTK approach, the variance is obtained by sampling over random initializations of the kernel and network, thus we show as mean the convergence limit of the infinite-width gradient descent plus an ensemble uncertainty from random initializations. 
-	For the NNGP approach, we get a prediction of a Bayesian GP with an infinite network prior and the uncertainty is obtained as covariance matrix of the posterior distribution.
+% ---------------------------------
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/gp_gibbs_scalings.pdf}
+    \caption{We show the Gibbs kernel results for different scalings and an additional sumrule added to the kernel, with $\lambda_\mathrm{sr}=1000$.}
+    \label{fig:gibbs_test}
+\end{figure} 
+% -------------------------------------------
+%%%%%%%%%%
+\subsection{NTK implementation}
 
-	Finally, we can compare the results for the NNGP (labelled as Bayesian inference), the NTK and the GP for the three different kernels shown in Fig.~\ref{fig:comp_RBF}.
-	All three methods are capable of predicitng the true function $f(x)$ within their corresponding errorbands, while the RBF kernel has more difficulties to get all the features of the target function, especially if there are no points in between. The NTK and NNGP results are almost identical, with a slight bias twoards the NTK, as seen in the residual plot. 
-	With periodic preprocesing, the NTK and NNGP both outperform the naive GP with RBF kernel approach. 
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/Bayes_NTK_RBF_combined.pdf}
-    	\caption{Comparison of a NNGP, NTK and RBF approach. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
-    	\label{fig:comp_RBF}
-	\end{figure} 
-	%
-	\subsection{Training a neural network}
-	After implementing a NTK and NNGP for a simple neural network, we also want to compare it to an ensemble of finite width network, or normal neural network. Thus, we start by training a single network drawn from a prior using a gradient descent optimizer. 
-	Again, same as for the NTK and NNGP we introduce a periodicity as preprocessing to our network. The network is trained for $10000$ steps with a learning rate of $0.001$. As loss we use a MSE loss
-	%
-	\begin{align}
-		\loss_\text{MSE} = \sum_{i=1}^{N_\text{data}}
-    \left[ \frac{(f_i-f_\theta(x_i))^2}{2} \right] \; .
-	\end{align}
-	%
-	The results for a single NN compared to an infinite width network, the NTK, is shown in Fig.~\ref{fig:comp_NN_NTK}. The results indicate that the finite width NN has problems to get a smooth interpolation between the individual points, leading to some unwanted spikes in its prediction. The same concept is also shown in the residuals plot, where the deviations from the true $f(x)$ are larger for the NN than the NTK.
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN.pdf}
-    	\caption{Comparison of a NNGP, NTK and single, finte-width NN. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
-    	\label{fig:comp_NN_NTK}
-	\end{figure} 
-	%
-	Next, we have a look at the time evolution of the NN, the NTK and the NNGP for different points in training time displayed in Fig.~\ref{fig:timeeval_single}.
-	\NEc{write some text to time evolution plot here}
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_single.pdf}
-    	\caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and single NN.}
-    	\label{fig:timeeval_single}
-	\end{figure} 
-	%
-	Previous studies have shown, that an ensemble of networks spread across the phase space region outperforms an individual NN. With this in mind, we extend this study to an ensemble with ten individual members and for the overall prediction and error band we calculate its mean and variance.
+Next, we implement a Neural Tangent Kernel (NTK) \mpar{Cite NTK papers} into the $T_3$ extrapolation framework. Using the NTK approach, one can choose between different stages during the training procedure, when the NTK is evaluated, either at initialisation (before any training), or after training (before evaluation). 
+As a baseline model for the NTK, we use the previously introduced NN with a $\chi^2$ loss. This means in particular:
+%
+\begin{itemize}
+    \item Training for 5000 epochs
+    \item Learning rate of $10^{-3}$
+    \item Three hidden layers with dimensionality of $32$
+    \item Dropout of $0.2$
+    \item Tanh activation function
+    \item $\lambda_\mathrm{sr} = 1000.0$
+\end{itemize}
+%
+The results using the NTK with a scaling behaviour of $x^\alpha (1-x)^\beta$ are shown in the upper panel of Fig.~\ref{fig:NTK_results}, and the results without any additional scaling are shown in the middle panel.
+We observe no difference for the NTK results evaluated at different stages, we observe better results when we introduce the scaling, while the width of the uncertainty bands remains almost the same. 
+This indicates that we are already in the lazy training regime with a wide enough network, and linear behaviour. Another indicator for an almost linear NN are stationary network parameters $\theta$ during the training time. The lower panel of Fig.~\ref{fig:NTK_results} displays the results for an NTK at initialisation for a normal and small sized network. The small sized network uses a RELU activation function, a learning rate of $10^{-2}$ and only one hidden layer with a dimensionality of $4$. As the results indicate, the performance of the NTK depends on the scaling introduced and the network expressivity, while the smaller architecture with additional training performs almost as good as the bigger architecture without any scaling. 
 
-	We use the same network set up as before and train it ten times independently to get an ensemble with ten memebers. These results are then compared to the NTK approach for an infinite network. The results are shown in Fig.~\ref{fig:comp_NN10_NTK} and we observe that the ensemble of networks, even for only ten members is almost as good as the infinte width network, only the errorbars for the ensemble are a bit larger than the ones from the infinite-width network. Additionally, the residuals also look similar. This leads to the conclusion, that for even more members the ensemble would converge to the NTK approach or even outperfrom it.
-	
-	Again, we looked at the timescale evolution of the network prediction and error estimate for different points during training, which is shown in Fig.~\ref{fig:timeeval_10mem}.
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN10mem.pdf}
-    	\caption{Comparison of a NNGP, NTK and ensemble of finte-width NN with 10 members. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
-    	\label{fig:comp_NN10_NTK}
-	\end{figure} 
-	%
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_10mem.pdf}
-    	\caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and ensemble of NNs with 10 members.}
-    	\label{fig:timeeval_10mem}
-	\end{figure}
-	%
+% ---------------------------------
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/NTK_scaling.pdf}
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/NTK_noscaling.pdf}
+    \includegraphics[width=0.9\textwidth]{figs/T3_gp/NTK_init_comp.pdf}
+    \caption{Results for the NTK implementation evaluated at different times during training and with or without any scaling included. Additionally we show the init behaviour for different architectures.}
+    \label{fig:NTK_results}
+\end{figure} 
+% -------------------------------------------
 
-	Next, we increased the number of ensemble members to 50.
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN50mem.pdf}
-    	\caption{Comparison of a NNGP, NTK and ensemble of finte-width NN with 50 members. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
-    	\label{fig:comp_NN50_NTK}
-	\end{figure} 
-	%
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_50mem.pdf}
-    	\caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and ensemble of NNs with 50 members.}
-    	\label{fig:timeeval_50mem}
-	\end{figure}
-	%
+%---------------------------
+\newpage
+\section{Current To-Dos}
+\begin{todolist}
+    \item[\done] write on GP uncertainty split up
+    \item[\done] Building a program in python including GP, NN and NTK approach
+    \item[\done] agree on approach, with $x^*$ grid or split up $x$ grid
+    \item[\done] Implement GP with Gibbs, Matern and RBF kernel, extrapolation and normal
+    \item[\done] Implement NN with MSE and $\chi^2$ loss for normal and extrapolation
+    \item[\done] Implement NTK approach
+    \item Implement BNN approach
+    \item add bias and pull plots for GP, NN etc.
+    
+\end{todolist}
 
-	\subsection{Adding a Bayesian neural network}
-	So far we have only looked at approaches without any systematic uncertainties, but with uncertainties of a purely statistical nature. To estimate the performance of an approach including sytematic and statistical uncertainty, we decided to choose a Bayesian neural network (BNN), since with its posterior estimate based on varaitional inference it is close to the GP approach.
-	The BNN is trained for $1000$ epochs, with $200$ samplings, three hidden layers with dimensionality of $64$, Adam as optimizer and a learning rate of $0.001$, as activation function a GELU function is choosen. %based on arlo papers
-	The errorbands on the BNN in Fig.~\ref{fig:BNN} show the total uncertainty, as combination of the systematic and statistical
-	%
-	\begin{align}
-		\sigma_\text{tot} = \sqrt{\sigma^2_\text{syst} + \sigma^2_\text{stat}} \; .
-	\end{align}
-	%
-	The BNN captures the underlying truth distribution within its error bands and as seen in the residual plot, the uncertainty is within $25\%$ deviation of the true distribution.
 
-	Now we compare the BNN results with the NTK approach and the ensemble of finite networks, this is shown in Fig.~\ref{fig:comp_NN50_BNN}. We can observe, that the BNN provides more consistent and symmetric error bands than the other two methods and for the residuals NTK and BNN outperform the ensemble of NN. 
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/BNN.pdf}
-    	\caption{Upper: Predictions of a BNN for the true $f(x)$. Lower: Residual function of the BNN predictions.}
-    	\label{fig:BNN}
-	\end{figure} 
-	%
-	%
-	\begin{figure}[hptb]
-		\centering
-		\includegraphics[width=0.75\textwidth]{figs/toy_kernel/BNN_NTK_NN50mem.pdf}
-    	\caption{Comparison of a NTK, ensemble of finte-width NN with 50 members and BNN. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
-    	\label{fig:comp_NN50_BNN}
-	\end{figure} 
-	%
 
-	\subsection{More notes on different kernels}
+\newpage
+\section*{Acknowledgments}
+We are very grateful to ...
 
-	\subsubsection*{Constant kernel} %Scikit documentation page
-	A constant kernel $k_C$ is defined as
-	\begin{align}
-		k_C (x, x') = \mathrm{const.}
-	\end{align}
-	and implemented as ConstantKernel=(1.0, (1e-3, 1e3)), where the initial constant value is set to $1.0$, but is allowed to vary between $0.001$ and $1000$ during the optimization process.
- 
-	\subsubsection*{RBF kernel} %scikit documentation page
-	Also known as squared exponential or Gaussian kernel:
-	\begin{align}
-		k(x, x') = \exp(- \frac{(x-x')^2}{2l^2}) \; ,
-	\end{align}
-	where $l$ denotes the kernel length-scale. This length-scale controls the smoothness of the kernel.
-	Thus, the RBF kernel provides a good estimate for a variety of smooth functions, ideal for cases where we have a limited prior knowledge.
-	The RBF kernel is implemented as RBF(1.0, (1e-2, 1e2)), where the kernel length $l=1.0$ and can vary between $0.01$ and $100$ during optimization.
+\newpage
 
-	\subsubsection*{NTK} %NTK paper 1902.06720v4
-	Neural Tangent kernels (NTKs) also known as infinite-width kernel:
-	\begin{align}
-		k_{\text{NTK}}(x, x'; \theta) = \nabla_{\theta} f(x; \theta) \cdot \nabla_{\theta} f(x' ; \theta) \; ,
-	\end{align}
-	with $f_{\theta}(x)$ denoting the output of a neural network parameterized by $\theta$.
-	It was first introduced to describe the evolution of a deep NN during gradient descent. Opposite to other kernels, NTKs are specifically derived for their use with neural networks.
-	Thus with a NN parameter $\theta$ change during training, the kernel evolves as well, letting us capture the training dynamics.
-	In the infinite width limit of the NN the NTK has some nice properties:
-	\begin{itemize}
-		\item NTK is deterministic (independent of random parameter intialization)
-		\item NTK constant during training
-		\item Each parameter itself changes negligibly during training, but collectively the provide a finite change in variables
-		\item During training network is linearized: Use first order Taylor expansion for parameter dependence 
-			  $f(x;\theta_0 + \Delta \theta) = f(x; \theta_0) + \Delta \theta \cdot \nabla_\theta f(x; \theta_0)$, $\theta_0$ initial parameters
-		\item Training dynamics are equivalent to a kernel gradient descent using the NTK as kernetl. If the loss is an MSE loss, the final distribution $f(x; \theta)$ remains a GP but with new mean and variance.   
-	\end{itemize}
+\appendix
+\section{Hyperparameters used in the analysis}
+This section will contain tables for the different hyperparameter setups used in the analysis.
+% -----------------------------------------
+\section{First toy model}
+\label{app:toy}
+%
+We started with a first, simple toy example to investigate the behaviour and function of Gaussian processes (GPs) in a simple regression problem using a continuous function
+%
+\begin{align}
+    f(x) = \sin(2\pi \cdot x) + 0.5 \cdot x \; .
+\end{align} 
+%
+As a training data set, we generate $20$ random points, where some artificial noise is added on top of the true values as
+%
+\begin{align}
+    D_\text{train} = f(x_i) + 0.1 \cdot \mathcal{N}(0, 1) \; ,
+\end{align}
+%
+and as test dataset we use $100$ randomly choosen points. 
+With this set-up we train a GP to estimate the function $f$ defined above and test different kernel and approaches on their abilities of recovering the true distribution. The uncertainty we get from such a GP is an epistemic or statistical uncertainty arising from model simplifications and lack of data.
 
-	\subsubsection*{NNGP kernel} %based on 1902.06720v4
-	The neural network Gaussian process (NNGP) uses a Gaussian process as posterior estimate and thus also models a deep, infinitely wide NN. It uses a Bayesian model to average over randomly distributed, infinite-wide networks.
-	The uncertainty estimate of this NNGP originates from the Bayesian approach of the posterior estimation, where we get a posterior variance from the introduced covariance matrix. This uncertainty is thus a so-called model uncertainty, or epistemic uncertainty.
-	The kernel is computed as 
-	%
-	\begin{align}
-		K^{i,j} (x, x') = \lim_{\min{(n_1,...,n_L)} \rightarrow \infty} \mathbb{E} \left[ f_0^i (x) \cdot f_0^j(x') \right] \; ,
-	\end{align}
-	%
-	where $K^{i,j}$ denotes the covariance between the i-th output of $x$ and the j-th output of $x'$, with $x$ and $x'$ elements of the training data set. $f_t^i (x)$ describes the i-th output of the NN with input $x$ at a time $t$ and thus $f_0^i(x)$ is the i-th output at initialization of the input $x$, sampeled from a Gaussian distribution as $f_0(\mathcal{X}) \sim \mathcal{N}(0, K(\mathcal{X}, \mathcal{X}))$ and $\mathcal{X} = \{ x: (x,y) \in D\}$ with $x$ inputs and $y$ labels. Accordingly one can define $\mathcal{Y} = \{ y: (x,y) \in D\}$. The $n_l$ denote the width of the $L$ hiddenlayer with $l=1,...,L$. Thus $k_\text{NNGP} (x, x')$ is defined as matrix with entries $K^{i,j} (x, x')$ for all input features.
+%
+\subsection{Implementation}
+%
+As an initial approach to this regression problem, we use a GP with a radial basis function (RBF) kernel multiplied by a constant. As hyperparameter ranges, we choose the kernel length $l \in [0.29, 0.35]$ with a starting value of $0.31$ for the kernel length and $C \in [1.1, 1.4]$ with an intital value of $1.25$ for the constant. The optimizer is restarted for $50$ times and we add artifical noise of order $10^{-2}$ to the GP. The best fit parameters are estimated to be $l=0.29$ and for the constant kernel $c=1.18^2$.
+Next, we also included a Gibbs kernel and a Matern kernel, the more generalized version of the RBF kernel. 
+The Gibbs kernel has two tuneable hyperparameters, $l_0$ and $\sigma^2$ and a fixed parameter $\delta$ to ensure positiveness of the lengthscale $l$ via $l= l_0 \times (x + \delta)$. We choose $\delta = 2\pi$ and $l_0 \in [0.05, 0.5]$, with initialization of $l_0=0.1$. $\sigma^2$ is choosen as $\sigma^2 \in [0.5, 2]$ with initialisation $\sigma^2=0.1$. The optimizer is restarted for $50$ times and we add some artificial noise $\alpha=1e^{-3}$ to it. The optimal values choosen by the GP are $l_0 = 0.5$ and $\sigma^2=2.0$. 
+For the Matern kernel, we have two tunable hyperparamters, the constant prefactor $c$ and the kernel length scale $l$ and a fixed parameter $\nu$ for the smoothness of the function. In this setup $\nu=2.5$, the initial value for $c=1.25$ and can be finetuned in the range of $c \in [1.0, 1.4]$. The lengthscale is set to $l=1.0$ with a range of $l \in [0.8, 1.2]$, again the optimizer is restarted for $50$ times and a noise $\alpha = 1e^{-8}$ is added.
+The results for all three kernels compared with each other are shown in Fig.~\ref{fig:kernel_GP}.
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/toy_kernel/kernel_tests.pdf}
+    \caption{Results for a comparison of a GP using either a RBF, Gibbs or Matern kernel. Upper: Comparison prediction against true distribution $f(x)$. Lower: Deviation of the prediction $f_\theta(x)$ from the truth $f(x)$.}
+    \label{fig:kernel_GP}
+\end{figure} 
+%
+Next, we implement a Neural Tangent Kernel (NTK) approach. Therefore, we have to begin by setting up a neural network, that is fully connected with the Gaussian Errorfunction (Erf) as activation function in between layers. The neural network includes three hidden blocks with dim1esion $64$ and a weight initialization variance of $1.5$ and a bias initialization variance of $0.05$.
+For this NTK we want to use an infinite-wdith GP to be able to perform exact Bayesian inference by using an infinite width network. To mimic these infinite width network behaviour, we use the NTK or the NNGP approach. The NTK corresponds to the behaviour of gradient descent training in the infinite width limit of a network, while NNGP is a neural network using a Bayesian posterior encoded as a GP model, thus starting from an infinite width limit at initialization and then using Bayesian inference.
+Because of the periodic nature of the training data, we gain some improvement in the predictions of the neural networks, when we add a periodicity as preprocessing to the kernel function.
 
-	\subsubsection*{Gibbs kernel} %T3 deldebbio paper
-	The study in Ref~\cite{Candido:2024hjt} for the $T_3$ dataset approximated by a GP used a Gibbs kernel in their model.
-	This Gibbs kernel is similar to the RBF kernel but as a more advanced function. It can be expressed in the following way
-	%
-	\begin{align}
-		k_\mathrm{Gibbs} (x, x') = \sigma^2 \sqrt{\frac{2l(x) 2l(x')}{l^2(x)+l^2(x')}} \exp \left[ - \frac{(x-x')^2}{l^2(x)+l^2(x')} \right] \; ,
-	\end{align}
-	with 
-	\begin{align}
-		l(x) = l_0 \times (x+\delta) \; .
-	\end{align}
-	%
-	The GP hyperparameters are denoted as $l_0$, the kernel length and $\sigma^2$, some constant prefactor to adjust the width.
-	$\delta$ is implemented as small fixed number to regularize $k_\mathrm{Gibbs}$ when $x, x' \rightarrow 0$. For $x\rightarrow 0$, the correlation length in this kernel decreases linearly in $x$ to reflect limited knowledge in the small-$x$ regieme of PDF fits.
+Again, both methods provide a prediction and a corresponding uncertainty estimation. For the NTK approach, the variance is obtained by sampling over random initializations of the kernel and network, thus we show as mean the convergence limit of the infinite-width gradient descent plus an ensemble uncertainty from random initializations. 
+For the NNGP approach, we get a prediction of a Bayesian GP with an infinite network prior and the uncertainty is obtained as covariance matrix of the posterior distribution.
 
-	\subsubsection*{Matern kernel} %Scikit lern webpage
-	The Matern kernel is a generalization of the previously introduced RBF kernel with an additional parameter $\nu$ to control the smoothness of the function. For $\nu \rightarrow \infty$ the Matern kernel is equivalent to the RBF kernel, while for $\nu = 0.5$ it is the absolute exponential kernel. Other useful values are $\nu =1.5$ symbolising a once differential function and $\nu = 2.5$ for a twice differenttiable function.
-	The kernel is written down as
-	%
-	\begin{align}
-		k_\mathrm{Matern} (x, x') = \frac{1}{\Gamma(\nu) 2^{\nu-1}} \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right) \; ,
-	\end{align}
-	%
-	with $d(x, x')$ the Euclidean distance, $K_\nu$ a modified Bessel function and $\Gamma$ the Gamma function. 
+Finally, we can compare the results for the NNGP (labelled as Bayesian inference), the NTK and the GP for the three different kernels shown in Fig.~\ref{fig:comp_RBF}.
+All three methods are capable of predicitng the true function $f(x)$ within their corresponding errorbands, while the RBF kernel has more difficulties to get all the features of the target function, especially if there are no points in between. The NTK and NNGP results are almost identical, with a slight bias twoards the NTK, as seen in the residual plot. 
+With periodic preprocesing, the NTK and NNGP both outperform the naive GP with RBF kernel approach. 
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/Bayes_NTK_RBF_combined.pdf}
+    \caption{Comparison of a NNGP, NTK and RBF approach. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
+    \label{fig:comp_RBF}
+\end{figure} 
+%
+\subsection{Training a neural network}
+After implementing a NTK and NNGP for a simple neural network, we also want to compare it to an ensemble of finite width network, or normal neural network. Thus, we start by training a single network drawn from a prior using a gradient descent optimizer. 
+Again, same as for the NTK and NNGP we introduce a periodicity as preprocessing to our network. The network is trained for $10000$ steps with a learning rate of $0.001$. As loss we use a MSE loss
+%
+\begin{align}
+    \loss_\text{MSE} = \sum_{i=1}^{N_\text{data}}
+\left[ \frac{(f_i-f_\theta(x_i))^2}{2} \right] \; .
+\end{align}
+%
+The results for a single NN compared to an infinite width network, the NTK, is shown in Fig.~\ref{fig:comp_NN_NTK}. The results indicate that the finite width NN has problems to get a smooth interpolation between the individual points, leading to some unwanted spikes in its prediction. The same concept is also shown in the residuals plot, where the deviations from the true $f(x)$ are larger for the NN than the NTK.
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN.pdf}
+    \caption{Comparison of a NNGP, NTK and single, finte-width NN. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
+    \label{fig:comp_NN_NTK}
+\end{figure} 
+%
+Next, we have a look at the time evolution of the NN, the NTK and the NNGP for different points in training time displayed in Fig.~\ref{fig:timeeval_single}.
+\NEc{write some text to time evolution plot here}
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_single.pdf}
+    \caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and single NN.}
+    \label{fig:timeeval_single}
+\end{figure} 
+%
+Previous studies have shown, that an ensemble of networks spread across the phase space region outperforms an individual NN. With this in mind, we extend this study to an ensemble with ten individual members and for the overall prediction and error band we calculate its mean and variance.
 
-	\section*{Acknowledgments}
-	We are very grateful to ...
-	
-	\newpage
-	
-	%\appendix
-	%\input{app-split}
-	
-	\bibliographystyle{UTPstyle}
-	\bibliography{references}
+We use the same network set up as before and train it ten times independently to get an ensemble with ten memebers. These results are then compared to the NTK approach for an infinite network. The results are shown in Fig.~\ref{fig:comp_NN10_NTK} and we observe that the ensemble of networks, even for only ten members is almost as good as the infinte width network, only the errorbars for the ensemble are a bit larger than the ones from the infinite-width network. Additionally, the residuals also look similar. This leads to the conclusion, that for even more members the ensemble would converge to the NTK approach or even outperfrom it.
+
+Again, we looked at the timescale evolution of the network prediction and error estimate for different points during training, which is shown in Fig.~\ref{fig:timeeval_10mem}.
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN10mem.pdf}
+    \caption{Comparison of a NNGP, NTK and ensemble of finte-width NN with 10 members. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
+    \label{fig:comp_NN10_NTK}
+\end{figure} 
+%
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_10mem.pdf}
+    \caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and ensemble of NNs with 10 members.}
+    \label{fig:timeeval_10mem}
+\end{figure}
+%
+
+Next, we increased the number of ensemble members to 50.
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/NNGP_NTK_NN50mem.pdf}
+    \caption{Comparison of a NNGP, NTK and ensemble of finte-width NN with 50 members. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
+    \label{fig:comp_NN50_NTK}
+\end{figure} 
+%
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.99\textwidth]{figs/toy_kernel/timeevol_50mem.pdf}
+    \caption{Timeevolution of the prediction during training at different time steps for NNGP, NTK and ensemble of NNs with 50 members.}
+    \label{fig:timeeval_50mem}
+\end{figure}
+%
+
+\subsection{Adding a Bayesian neural network}
+So far, we have only looked at approaches without any systematic uncertainties, but with uncertainties of a purely statistical nature. To estimate the performance of an approach including systematic and statistical uncertainty, we decided to choose a Bayesian neural network (BNN), since with its posterior estimate based on variational inference, it is close to the GP approach.
+The BNN is trained for $1000$ epochs, with $200$ samplings, three hidden layers with dimensionality of $64$, Adam as optimizer and a learning rate of $0.001$, as activation function a GELU function is choosen. %based on arlo papers
+The error bands on the BNN in Fig.~\ref{fig:BNN} show the total uncertainty, as combination of the systematic and statistical
+%
+\begin{align}
+    \sigma_\text{tot} = \sqrt{\sigma^2_\text{syst} + \sigma^2_\text{stat}} \; .
+\end{align}
+%
+The BNN captures the underlying truth distribution within its error bands and as seen in the residual plot, the uncertainty is within $25\%$ deviation of the true distribution.
+
+Now we compare the BNN results with the NTK approach and the ensemble of finite networks, this is shown in Fig.~\ref{fig:comp_NN50_BNN}. We can observe, that the BNN provides more consistent and symmetric error bands than the other two methods and for the residuals NTK and BNN outperform the ensemble of NN. 
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/BNN.pdf}
+    \caption{Upper: Predictions of a BNN for the true $f(x)$. Lower: Residual function of the BNN predictions.}
+    \label{fig:BNN}
+\end{figure} 
+%
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figs/toy_kernel/BNN_NTK_NN50mem.pdf}
+    \caption{Comparison of a NTK, ensemble of finte-width NN with 50 members and BNN. Upper: Agreement with true $f(x)$. Lower: Residuals between prediction $f_\theta(x)$ and true $f(x)$.}
+    \label{fig:comp_NN50_BNN}
+\end{figure} 
+%
+
+\subsection{More notes on different kernels}
+
+\subsubsection*{Constant kernel} %Scikit documentation page
+A constant kernel $k_C$ is defined as
+\begin{align}
+    k_C (x, x') = \mathrm{const.}
+\end{align}
+and implemented as ConstantKernel=(1.0, (1e-3, 1e3)), where the initial constant value is set to $1.0$, but is allowed to vary between $0.001$ and $1000$ during the optimization process.
+
+\subsubsection*{RBF kernel} %scikit documentation page
+Also known as squared exponential or Gaussian kernel:
+\begin{align}
+    k(x, x') = \exp(- \frac{(x-x')^2}{2l^2}) \; ,
+\end{align}
+where $l$ denotes the kernel length-scale. This length-scale controls the smoothness of the kernel.
+Thus, the RBF kernel provides a good estimate for a variety of smooth functions, ideal for cases where we have a limited prior knowledge.
+The RBF kernel is implemented as RBF(1.0, (1e-2, 1e2)), where the kernel length $l=1.0$ and can vary between $0.01$ and $100$ during optimization.
+
+\subsubsection*{NTK} %NTK paper 1902.06720v4
+Neural Tangent kernels (NTKs) also known as infinite-width kernel:
+\begin{align}
+    k_{\text{NTK}}(x, x'; \theta) = \nabla_{\theta} f(x; \theta) \cdot \nabla_{\theta} f(x' ; \theta) \; ,
+\end{align}
+with $f_{\theta}(x)$ denoting the output of a neural network parameterized by $\theta$.
+It was first introduced to describe the evolution of a deep NN during gradient descent. Opposite to other kernels, NTKs are specifically derived for their use with neural networks.
+Thus with a NN parameter $\theta$ change during training, the kernel evolves as well, letting us capture the training dynamics.
+In the infinite width limit of the NN the NTK has some nice properties:
+\begin{itemize}
+    \item NTK is deterministic (independent of random parameter intialization)
+    \item NTK constant during training
+    \item Each parameter itself changes negligibly during training, but collectively the provide a finite change in variables
+    \item During training network is linearized: Use first order Taylor expansion for parameter dependence 
+          $f(x;\theta_0 + \Delta \theta) = f(x; \theta_0) + \Delta \theta \cdot \nabla_\theta f(x; \theta_0)$, $\theta_0$ initial parameters
+    \item Training dynamics are equivalent to a kernel gradient descent using the NTK as kernetl. If the loss is an MSE loss, the final distribution $f(x; \theta)$ remains a GP but with new mean and variance.   
+\end{itemize}
+
+\subsubsection*{NNGP kernel} %based on 1902.06720v4
+The neural network Gaussian process (NNGP) uses a Gaussian process as posterior estimate and thus also models a deep, infinitely wide NN. It uses a Bayesian model to average over randomly distributed, infinite-wide networks.
+The uncertainty estimate of this NNGP originates from the Bayesian approach of the posterior estimation, where we get a posterior variance from the introduced covariance matrix. This uncertainty is thus a so-called model uncertainty, or epistemic uncertainty.
+The kernel is computed as 
+%
+\begin{align}
+    K^{i,j} (x, x') = \lim_{\min{(n_1,...,n_L)} \rightarrow \infty} \mathbb{E} \left[ f_0^i (x) \cdot f_0^j(x') \right] \; ,
+\end{align}
+%
+where $K^{i,j}$ denotes the covariance between the i-th output of $x$ and the j-th output of $x'$, with $x$ and $x'$ elements of the training data set. $f_t^i (x)$ describes the i-th output of the NN with input $x$ at a time $t$ and thus $f_0^i(x)$ is the i-th output at initialization of the input $x$, sampeled from a Gaussian distribution as $f_0(\mathcal{X}) \sim \mathcal{N}(0, K(\mathcal{X}, \mathcal{X}))$ and $\mathcal{X} = \{ x: (x,y) \in D\}$ with $x$ inputs and $y$ labels. Accordingly one can define $\mathcal{Y} = \{ y: (x,y) \in D\}$. The $n_l$ denote the width of the $L$ hiddenlayer with $l=1,...,L$. Thus $k_\text{NNGP} (x, x')$ is defined as matrix with entries $K^{i,j} (x, x')$ for all input features.
+
+\subsubsection*{Gibbs kernel} %T3 deldebbio paper
+The study in Ref~\cite{Candido:2024hjt} for the $T_3$ dataset approximated by a GP used a Gibbs kernel in their model.
+This Gibbs kernel is similar to the RBF kernel but as a more advanced function. It can be expressed in the following way
+%
+\begin{align}
+    k_\mathrm{Gibbs} (x, x') = \sigma^2 \sqrt{\frac{2l(x) l(x')}{l^2(x)+l^2(x')}} \exp \left[ - \frac{(x-x')^2}{l^2(x)+l^2(x')} \right] \; ,
+    \label{eq:Gibbs}
+\end{align}
+with 
+\begin{align}
+    l(x) = l_0 \times (x+\delta) \; .
+\end{align}
+%
+The GP hyperparameters are denoted as $l_0$, the kernel length and $\sigma^2$, some constant prefactor to adjust the width.
+$\delta$ is implemented as small fixed number to regularize $k_\mathrm{Gibbs}$ when $x, x' \rightarrow 0$. For $x\rightarrow 0$, the correlation length in this kernel decreases linearly in $x$ to reflect limited knowledge in the small-$x$ regieme of PDF fits.
+
+\subsubsection*{Matern kernel} %Scikit lern webpage
+The Matern kernel is a generalization of the previously introduced RBF kernel with an additional parameter $\nu$ to control the smoothness of the function. For $\nu \rightarrow \infty$ the Matern kernel is equivalent to the RBF kernel, while for $\nu = 0.5$ it is the absolute exponential kernel. Other useful values are $\nu =1.5$ symbolising a once differentiable function and $\nu = 2.5$ for a twice differentiable function.
+The kernel is written down as
+%
+\begin{align}
+    k_\mathrm{Matern} (x, x') = \frac{1}{\Gamma(\nu) 2^{\nu-1}} \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right) \; ,
+    \label{eq:matern}
+\end{align}
+%
+with $d(x, x')$ the Euclidean distance, $K_\nu$ a modified Bessel function and $\Gamma$ the Gamma function. 
+
+
+\section{Posterior plots for GP}
+\subsection{Gibbs kernel}
+%
+For this analysis of the $T_3$ data we have to choose a kernel $k(x,x')$ for the Gaussian process, which is then also used to determine the probability, prior and posterior distributions. As a first choice we implemented the Gibbs kernel as written down in Eq.~\eqref{eq:Gibbs}. To encounter the small-$x$ behaviour of the PDFs, we add an additional hyperparameter $\alpha$ as
+%
+\begin{align}
+    k(x, x') = x^\alpha \sigma^2 \sqrt{\frac{2l(x) l(x')}{l^2(x)+l^2(x')}} \exp \left[ - \frac{(x-x')^2}{l^2(x)+l^2(x')} \right] x'^\alpha \quad \text{with} \quad l(x) = l_0 \times (x+\delta) \; .
+\end{align}
+%
+As hyperparameter ranges we choose $\alpha \in (-1, 0]$, $\sigma \in (0,10)$ and $l_0 \in (0,10)$. 
+%
+\subsubsection{Results}
+%
+The results for the posterior of the hyperparameters $\alpha, \sigma$ and $l_0$ are shown in Fig.~\ref{fig:gibbs_hyper}, with the 1D distributions on the left and the 2D correlations on the right side.
+Next, we show the samples of $p(\bffs, \theta |y, C_Y)$ in Fig.~\ref{fig:gibbs_smples} using a linear $x$ scale on the left and a logarithmic one on the right side. The $68\%$ and $95\%$ uncertainty bands on the posterior estimate are constructed by calculating the corresponding percentiles of the sampled replicas of the posterior $f^*$. For sampling, we use 4 chains, with $4000$ draws, $500$ tune-in points and an acceptance rate of $0.97$.
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figs/T3_gp/hyperparam_gibbs.pdf}
+%     \caption{Results for the MCMC sampling of the hyperparameter posterior using a GP with a Gibbs kernel.}
+%     \label{fig:gibbs_hyper}
+% \end{figure}
+%
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{figs/T3_gp/posteriormean_gibbs.pdf}
+%     \caption{Samples from $p(\bffs, \theta | y, C_Y)$ with a linear (left) and logarithmic $x$ scale (right) using a GP with a Gibbs kernel.}
+%     \label{fig:gibbs_smples}
+% \end{figure}
+%
+% The two theory Ids, 208 and 40002000 have different FK tables values and thus I get different results
+
+\subsection{RBF kernel}
+
+Additionally, to the modified Gibbs kernel, we introduce a modified version of the RBF (Radial Basis Function) kernel with additional scaling behaviour same as for the Gibbs kernel. Thus, we use
+%
+\begin{align}
+    k(x, x') = x^\alpha \sigma^2 \exp\left(- \frac{(x-x')^2}{2 l^2} \right) x'^\alpha \; ,
+\end{align}
+%
+with trainable hyperparameters $\alpha, l$ and $\sigma$. Note, that compared to the Gibbs kernel, $l$ is a constant and does not depend on $x, x'$. With this different hyperparameters, we also have to adapt the bounds with respect to the new implementation. The bounds of $\alpha$ and $\sigma$ remain the same, however, $l$ translates from $l(x) = l_0 (x + \delta)$ to $l$. The previous hyperparameter $l_0$ gets rescaled by the $x$-values with an additional small factor $\delta$, to avoid the case of $l(x) = l_0 = 0$, for $x=0$. Since, we know that $x \in [0, 1]$, the bounds cam remain the same and if only get slightly more conservative.
+
+\subsubsection{Results}
+
+In the following figures we show the results obtained by using the modified RBF kernel. As sampling parameters, we sampled four chains, with $500$ points for tune in and $4000$ draws and a target acceptance rate of $0.97$. The results for the posterior distribution of the hyperparameters $\alpha, l$ and $\sigma$ are shown in Fig.\ref{fig:rbf_hyper}, displaying the one-dimensional distribution on the left and the two-dimensional correlations on the right hand side. 
+Fig.\ref{fig:rbf_smples} shows the sample distribution of $p(\bffs, \theta |y, C_Y)$ for $1200$ samples drawn. The left plot uses a linear $x$-scale, while the right one has a logarithmic $x$-scale. Compared to the Gibbs results, the error bands are larger for the RBF kernel. I need to investigate this behaviour further, but the only changes are the removed prefactor in the kernel and the independence of $l$ on the $x$ and $x'$ values. However, when looking at the additional prefactor of the Gibbs kernel compared to the RBF, the prefactor only contains $l(x)$ and $l(x')$, which simplifies to $1$ when the $x$ and $x'$ dependence is removed.
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figs/T3_gp/hyperparam_rbf.pdf}
+%     \caption{Results for the MCMC sampling of the hyperparameter posterior using a modified RBF kernel.}
+%     \label{fig:rbf_hyper}
+% \end{figure}
+%
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{figs/T3_gp/posteriormean_rbf.pdf}
+%     \caption{Samples from $p(\bffs, \theta | y, C_Y)$ with a linear (left) and logarithmic $x$ scale (right) using a modified RBF kernel.}
+%     \label{fig:rbf_smples}
+% \end{figure}
+% ----------------------------------
+\subsection{Matern kernel}
+Additionally, we implemented a modified version of the Matern kernel
+%
+\begin{align}
+    k_\mathrm{Matern} (x, x') = x^\alpha \frac{1}{\Gamma(\nu) 2^{\nu-1}} \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}}{l} d(x, x') \right) x'^\alpha
+\end{align}
+%
+As a modification, we added the same small-$x$ scaling and the factor $\sigma^2$ as for the other two kernels. $\nu$ is a fixed hyperparameter and can be chosen as $\nu \in \{0.5, 1.5, 2.5\}$. The results for all three choices of $\nu$ are shown in the Figs.~\ref{fig:matern05_hyper}-\ref{fig:matern25_smples}. 
+We also have to adapt the length scaling accordingly, using 
+%
+\begin{align}
+    l_\text{Matern} = \frac{\sqrt{2\nu}}{l_\text{Gibbs}} \; .
+\end{align}
+Thus, the range of the hyperparameter $l$ changes to $l\in [0, 10]$ for $\nu=0.5$, $l \in [0, 5.8]$ for $\nu=1.5$ and $l \in [0, 4.5]$ for $\nu=2.5$.
+
+\subsubsection{Results}
+The results for the posterior sampling of the hyperparameters used in the Matern kernel are shown in Fig.~\ref{fig:matern05_hyper}-\ref{fig:matern25_smples}, for three different choices of $\nu = \{0.5, 1.5, 2.5\}$ and adapted hyperparameter ranges for $l$. Next, the results for the posterior $p(f^*, \theta|y, C_Y)$ sampling using NUTS are shown in Figs.~\ref{fig:matern05_smples, fig:matern15_smples, fig:matern25_smples}. For the NUTS sampling algorithm, we use four chains with 500 tune-in points and 4000 draws and an acceptance rate of 0.97. Note that the choice of $\nu$ has a direct impact on the accuracy of the predictions. While for $\nu =0.5$, the prediction is below the underlying NNPDF law, for $\nu=1.5$ is has more problems with the small-x region compared to $\nu=0.5$, but it has a better agreement with the underlying NNPDF law for larger x values. The same holds for $\nu=2.5$, where the deviations for small-x values are even larger. The same behaviour is also observed in the residual plot in Fig.~\ref{fig:gp_bias}.
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figs/T3_gp/hyperparam_matern_05.pdf}
+%     \caption{Results for the MCMC sampling of the hyperparameter posterior using a modified Matern kernel and $\nu=0.5$.}
+%     \label{fig:matern05_hyper}
+% \end{figure}
+%
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{figs/T3_gp/posteriormean_matern_05.pdf}
+%     \caption{Samples from $p(\bffs, \theta | y, C_Y)$ with a linear (left) and logarithmic $x$ scale (right) using a modified Matern kernel with $\nu =0.5$}
+%     \label{fig:matern05_smples}
+% \end{figure}
+% ----------------------------------
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figs/T3_gp/hyperparam_matern_15.pdf}
+%     \caption{Results for the MCMC sampling of the hyperparameter posterior using a modified Matern kernel and $\nu=1.5$.}
+%     \label{fig:matern15_hyper}
+% \end{figure}
+%
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{figs/T3_gp/posteriormean_matern_15.pdf}
+%     \caption{Samples from $p(\bffs, \theta | y, C_Y)$ with a linear (left) and logarithmic $x$ scale (right) using a modified Matern kernel with $\nu =1.5$}
+%     \label{fig:matern15_smples}
+% \end{figure}
+% ----------------------------------
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.99\linewidth]{figs/T3_gp/hyperparam_matern_25.pdf}
+%     \caption{Results for the MCMC sampling of the hyperparameter posterior using a modified Matern kernel and $\nu=2.5$.}
+%     \label{fig:matern25_hyper}
+% \end{figure}
+% %
+% %
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.7\linewidth]{figs/T3_gp/posteriormean_matern_25.pdf}
+%     \caption{Samples from $p(\bffs, \theta | y, C_Y)$ with a linear (left) and logarithmic $x$ scale (right) using a modified Matern kernel with $\nu =2.5$}
+%     \label{fig:matern25_smples}
+% \end{figure}
+% ----------------------------------
+
+% --------------------------------------------------------
+\subsection{Bias and pulls}
+
+In the following plots, see Fig.~\ref{fig:gp_bias}, we show the underlying pull and bias distributions for the Gibbs and RBF kernel used in a GP. 
+The pull distribution is defined as
+%
+\begin{align}
+    t = \frac{(f^*_\theta - f^*)}{\sigma} \; ,
+\end{align}
+%
+where $f^*_\theta$ is the posterior prediction and $f^*$ the underlying truth represented by an NNPDF law. A perfectly calibrated uncertainty and prediction should follow a Gaussian distribution. The bias is displayed as $\Delta$, where $|\Delta|$ defines the accuracy of the prediction via
+%
+\begin{align}
+    \Delta = \frac{(f^*_\theta - f^*)}{f^*} \; .
+\end{align}
+%
+Lastly, we also display the residuals defined as $f^* - f^*_\theta$.
+We can observe that $t$ and $\Delta$ are not centred around zero, and the residuals strongly deviate for small $x$ values. This may be due to the fact that the minimum value on the $x$-grid is around $0.0693$, while the test grid $x^*$ is equally spaced from $0$ to $1$.
+
+Note on the plots, for the GP the posterior is evaluated on an artificial grid $x^*$, which is spaced equally between $0$ and $1$. This grid is also shown in the plots for the GP ($x=x^*$), while for the NN we only train it on the real $x$ grid used also for the FK table.
+%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.49\linewidth, page=5]{figs/T3_gp/kernel_bias.pdf}
+%     \includegraphics[width=0.49\linewidth, page=4]{figs/T3_gp/kernel_bias.pdf}
+%     \includegraphics[width=0.49\linewidth, page=2]{figs/T3_gp/kernel_bias.pdf}
+%     \includegraphics[width=0.49\linewidth, page=3]{figs/T3_gp/kernel_bias.pdf}
+%     \includegraphics[width=0.49\linewidth, page=1]{figs/T3_gp/kernel_bias.pdf}
+%     \caption{Pull distribution, residuals and bias plots for the GP approach using a modified Gibbs, RBF and Matern kernel. For the Matern kernel, we show three different choices for $\nu$.}
+%     \label{fig:gp_bias}
+% \end{figure}
+% ----------------------------------
+\section{Neural Network implementation}
+
+In this section, we want to discuss implementing a simple MLP architecture with different loss functions to replace the GP approach, and posterior sampling using NUTS from the previous sections.
+We start by laying out the underlying architecture of the MLP and the structure of the hidden layers, next we introduce different loss functions and their results for regressing $T_3$ dataset. 
+% --------------------------------------
+\subsection{Network and architecture}
+
+As for the GP setup, we use the Bjorken-$x$ variable as input to the network. As output, we choose $f(x) = xt_3(x)$, again the same as in the GP case.
+In the case of moving from an MSE loss towards a heteroscedastic loss, the output dimensionality changes to two dimensions, with the additional heteroscedastic variance $\log(\sigma_f^2(x))$. 
+To be able to get better predictions in the small-$x$ regime of the PDF, we insert an optional scaling by $x^\alpha (1-x)^\beta$, similar to the additional scaling in the GP process, where $\alpha$ and $\beta$ are trainable hyperparameters. Thus we get for the NN output
+%
+\begin{align}
+    f(x) = g(x) \times x^\alpha (1-x)^\beta \; ,
+\end{align}
+%
+with $g(x)$ the NN prediction. 
+Additionally, we apply an optional $\log(x)$ transformation on the input values $x$ and an optional softplus transformation on the output to ensure positivity. The softplus transformation can be written as
+%
+\begin{align}
+    s(x_{in}) = \mathrm{MLP}(x_{in}) \nonumber \\
+    g(x) = \mathrm{softplus}(s(x)) = \log(1+\exp(s(x))) \; .
+\end{align}
+%
+As hiddenlayer structure, we first apply a linear layer, then add some non-linearities in form of an activation function (Tanh, ReLU, GELU, ...) and lastly we apply a dropout layer for regularization. This block is repeated $N$ times, where $N$ is a hyperparameter to be tuned. Finally, we apply one last linear layer to map to the output dimension.
+We can also fintune the dimensionality of heach hidden layer via a hyperparameter to test different widths of the network.
+As baseline we started using the same architecture as in the \path{T3_Beta.py} script, with $3$ hidden layers and dimensionality $32$ for each hidden layer, a Tanh activation fucntion and a dropout rate of $0.2$. We train an ensemble of networks with $100$ members or replicas, each trained for $5000$ epochs using the Adam optimizer with a learning rate of $0.001$ and no weight decay. As for the batch size, we use the full dataset for each training step. Since $\alpha$ and $\beta$ are trainable hyperparameters, we set their initial values to $\alpha = 1.0$ and $\beta = 3.0$, same as in the \path{T3_Beta.py} script.
+
+\subsection{Loss functions}
+In this section we discuss and define different loss functions implemented to the MLP network architecture as discussed in the previous section. For now we include an MSE loss, a $\chi^2$ loss from \path{T3_Beta.py} and a heteroscedastic form of the $\chi^2$ loss in our implmentation.
+As general remarks we define the following variables as used in the loss functions:
+%
+\begin{itemize} %check these definitions with my notebook
+    \item Data $y \in \mathbb{R}^{N_\mathrm{data}}$ with $y = T_3 = \mathrm{(FK)} f$ including experimental uncertainties in form of $C_Y$.
+    \item Prediction $y_\theta = \mathrm{(FK)} f = Wf \in \mathbb{R}^{N_\mathrm{data}}$
+    \item Covariance matrix $C_Y \in \mathbb{R}^{N_\mathrm{data} \times N_\mathrm{data}}$
+    \item FK table $W \in \mathbb{R}^{N_\mathrm{data} \times N_\mathrm{grid}}$ 
+    \item model output on grid $f(x) \in \mathbb{R}^{N_\mathrm{grid}}$
+    \item Residual $r = y_\theta - y$
+    \item Use Cholesky transformation to calculate inv. $C$: $C+\delta \mathds{1} = LL^\top$
+\end{itemize}
+% -----------------------------------------
+\subsubsection*{MSE loss}
+
+First, we start with a basic mean-squared-error (MSE) loss to test the network and architecture and fine-tune hyperparameters. 
+The MSE-loss is defined as 
+%
+\begin{align}
+    \loss_\mathrm{MSE} = \frac{1}{N} \sum_{i=1}^N r_i^2 + \lambda_\mathrm{sr} (I_\mathrm{mid} - I_\mathrm{ref}) = \frac{1}{N}\sum_{i=1}^N (y_{\theta} - y)_i^2 + \lambda_\mathrm{sr} (I_\mathrm{mid} - I_\mathrm{ref}) \; ,
+\end{align}
+%
+with $N$ the number of (training) data points, $\lambda_\mathrm{sr}$ a tunable hyperparameter, $I_\mathrm{mid}=\int dx t_3(x)$, the integral over the $t_3$ dataspace and $I_\mathrm{ref}$ is the reference integral computed over the actual data.
+This is the most standard approach as a loss function. The results for predicting $xT_3$ are shown in Fig.~\ref{}, where the errorbands are of a purely statistical nature, as they are averaged over different ensemble members trained simultaneously. 
+The first figure shows the results for the MSE loss without any sum-rule penalties, while the second figure shows the MSE loss with an additional term to enforce the sum-rule and $\lambda_\mathrm{sr}=10000$ (used value from \path{T3_Beta.py}).
+
+%
+\begin{figure}[hptb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/T3_nn/pred_t3_mse_nolambda.pdf}
+    \caption{Results for an MLP trained using an MSE loss with $\lambda_\mathrm{sr}=0$. The error bands originate from averaging over $100$ ensemble members or $100$ replicas.}
+    \label{fig:mse_t3_nolambda}
+\end{figure} 
+%
+
+% ----------------------------------------------
+\subsubsection*{Heteroscedastic MSE loss}
+
+Additionally, we can turn the normal MSE loss into a heteroscedastic loss by introducing a variance $\sigma$ in the form of a Gaussian negative log-likelihood (NLL) version. 
+With this we can write down the heteroscedastic loss as
+%
+\begin{align}
+    \loss_\mathrm{het} = \langle \frac{(y - \mu)^2}{2\sigma^2} + \log \sigma\rangle \; ,
+\end{align}
+%
+with $\mu$ being the mean of the predictions $y_\theta$ and $\sigma$ as variance.
+
+% ----------------------------------------
+\subsubsection*{$\chi^2$ loss}
+
+Based on the \path{T3_Beta.py} script, we also implemented a $\chi^2$ loss with an additional regularisation term $\lambda_\mathrm{sr}$ to enforce the PDF sum-rule.
+This loss is constructed as
+%
+\begin{align}
+    \loss_{\chi^2} = \mathbf{r^\top C^{-1} r} + \lambda_\mathrm{sr} (I_\mathrm{mid} - I_\mathrm{ref}) \; ,
+\end{align}
+%
+where $\lambda_\mathrm{sr}$ is a tunable hyperparameter, $I_\mathrm{mid}=\int dx t_3(x)$, the integral over the $t_3$ data space and $I_\mathrm{ref}$ is the reference integral computed over the actual data. 
+
+% ------------------------------------------
+
+
+\bibliographystyle{UTPstyle}
+\bibliography{references}
 	
 \end{document}
