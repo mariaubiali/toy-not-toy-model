@@ -6,7 +6,7 @@ import torch
 from sklearn.model_selection import train_test_split
 from tqdm import trange
 
-from losses import LossContext, make_loss, _cholesky_C, _apply_Cinv
+from losses import LossContext, make_loss, _cholesky_C, _apply_Cinv, _safe_cholesky
 from models.nn_models import MLPFModel
 from models.ntk import run_ntk_stage
 
@@ -34,12 +34,13 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     weight_decay = float(nncfg.get("weight_decay", 0.0))
     seed = int(cfg.get("seed", 0))
     dropout = float(nncfg.get("dropout", 0.0))
-    use_preproc = bool(nncfg.get("use_preproc", True))
+    scaling = nncfg.get("scaling", True)
     init_alpha = float(nncfg.get("init_alpha", 1.0))
     init_beta = float(nncfg.get("init_beta", 3.0))
     transforms = cfg.get("transforms", {})
     loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
     out_dim = int(nncfg.get("out_dim", 1.0))
+    use_het = (loss_name in {"mse_het", "chi2_het"}) and (out_dim == 2)
     jitter = float(cfg.get("kernel", {}).get("jitter", 1e-10))
     replica = int(cfg.get("replica", 0))
 
@@ -90,7 +91,7 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         activation=activation,
         dropout=dropout,
         out_dim=out_dim,
-        use_preproc=use_preproc,
+        scaling=scaling,
         init_alpha=init_alpha,
         init_beta=init_beta,
         transforms=transforms,
@@ -178,7 +179,6 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         # -------- training step --------
         model.train()
         opt.zero_grad()
-
         out = model(x_torch)
         f_grid = out["f_grid"]  # (Ngrid, 2) if out_dim=2
         f_mu = out["f_grid"]
@@ -233,19 +233,38 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
             # OPTIONAL: heteroscedastic NLL on val (diagonal propagation)
             nll_val_mean = None
-            if f_logvar_v is not None:
+            if use_het and (f_logvar_v is not None):
                 lcfg = cfg.get("loss", {})
                 eps = float(lcfg.get("eps", 1e-12))
                 logvar_clip = lcfg.get("logvar_clip", (-20.0, 5.0))
+                full_cov = bool(lcfg.get("full_cov", False))
+                full_cov_jitter_abs = float(lcfg.get("full_cov_jitter_abs", eps))
+                full_cov_jitter_rel = float(lcfg.get("full_cov_jitter_rel", 1e-8))
                 lo, hi = float(logvar_clip[0]), float(logvar_clip[1])
 
                 f_logvar_v = f_logvar_v.clamp(lo, hi)
                 var_f_v = torch.exp(f_logvar_v).clamp_min(eps)  # (Ngrid,)
-                var_y_val = (W_val * W_val) @ var_f_v  # (Nval,)
-                var_y_val = var_y_val.clamp_min(eps)
-
-                nll_val = 0.5 * ((r_val * r_val) / var_y_val + torch.log(var_y_val))
-                nll_val_mean = float(nll_val.mean().detach().cpu().item())
+                if full_cov:
+                    C_val_het = (W_val * var_f_v.unsqueeze(0)) @ W_val.T
+                    L_val_het, _ = _safe_cholesky(
+                        C_val_het,
+                        jitter_abs=full_cov_jitter_abs,
+                        jitter_rel=full_cov_jitter_rel,
+                    )
+                    alpha = _apply_Cinv(L_val_het, r_val)
+                    quad = r_val @ alpha
+                    logdet = 2.0 * torch.sum(torch.log(torch.diag(L_val_het)))
+                    nll_val_mean = float(
+                        (0.5 * (quad + logdet) / float(r_val.shape[0]))
+                        .detach()
+                        .cpu()
+                        .item()
+                    )
+                else:
+                    var_y_val = (W_val * W_val) @ var_f_v  # (Nval,)
+                    var_y_val = var_y_val.clamp_min(eps)
+                    nll_val = 0.5 * ((r_val * r_val) / var_y_val + torch.log(var_y_val))
+                    nll_val_mean = float(nll_val.mean().detach().cpu().item())
 
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
@@ -273,7 +292,8 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     # ----------------------------
     # NTK after full training (optional)
     # ----------------------------
-    if str(ntk_when).lower() in ("post", "both") or (isinstance(ntk_when, (list, tuple, set)) and "post" in {str(x).lower() for x in ntk_when}):
+    if str(ntk_when).lower() in ("post", "both") or ((isinstance(ntk_when, (list, tuple, set)) and "post" in {str(x).lower() for x in ntk_when})):
+        print("ntk post mode")
         res.update(
             run_ntk_stage(
                 stage="post",
@@ -293,6 +313,8 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     # Return full-grid prediction
     # ----------------------------
     model.eval()
+    # print("x pred shape:", x_pred_torch.shape)
+    # print("x shape:", x_torch.shape)
     # print("model eval")
     with torch.no_grad():
         x_pred_torch = xext_torch if xgrid_ext.size > 0 else x_torch
@@ -304,17 +326,24 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
         # CHANGED: evaluate on chosen grid
         out_full = model(x_pred_torch)
+        
 
         f_grid_full = out_full["f_grid"]
+        f_mu_full = f_grid_full[:, 0].reshape(-1) if f_grid_full.ndim == 2 else f_grid_full.reshape(-1)
 
-        # handle both out_dim=1 and out_dim=2
-        if f_grid_full.ndim == 2 and f_grid_full.shape[1] == 2:
-            f_mu_full = f_grid_full[:, 0].reshape(-1)
+        f_var = None
+        f_cov = None
+        f_sigma = None
+        if use_het and ("logvar_f_grid" in out_full):
+            f_logvar_full = out_full["logvar_f_grid"].reshape(-1)
+            f_var = torch.exp(f_logvar_full).detach().cpu().numpy().astype(np.float64)
+            f_cov = np.diag(f_var)
+            f_sigma = np.sqrt(np.maximum(np.diag(f_cov), 1e-18))
+        elif use_het and f_grid_full.ndim == 2 and f_grid_full.shape[1] == 2:
             f_logvar_full = f_grid_full[:, 1].reshape(-1)
             f_var = torch.exp(f_logvar_full).detach().cpu().numpy().astype(np.float64)
-        else:
-            f_mu_full = f_grid_full.reshape(-1)
-            f_var = None
+            f_cov = np.diag(f_var)
+            f_sigma = np.sqrt(np.maximum(np.diag(f_cov), 1e-18))
 
         f_mean = f_mu_full.detach().cpu().numpy().astype(np.float64)
 
@@ -328,8 +357,13 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
         if f_var is not None:
             res["f_grid_var"] = f_var
+        if f_cov is not None:
+            res["f_grid_cov"] = f_cov
+        if f_sigma is not None:
+            res["f_grid_sigma"] = f_sigma
 
         assert res["xgrid"].shape[0] == res["f_grid_mean"].shape[0]
+        # print("f_var: ", f_var)
     return res
 
 
@@ -339,6 +373,9 @@ def train_nn_ensemble_forward(
     ens = cfg.get("nn", {}).get("ensemble", {})
     if not bool(ens.get("enabled", True)):
         return train_nn_forward(ds, cfg)
+    
+    member_post_ntk_means = []
+    member_post_ntk_vars  = []
 
     # Treat ensemble size as replicas
     n_members = int(ens.get("n_members", 20))
@@ -367,6 +404,8 @@ def train_nn_ensemble_forward(
 
         member_means.append(out_i["f_grid_mean"])
         member_losses.append(out_i["loss_history"])
+        member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
+        member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
 
         # might be zero, depending on loss type
         v = out_i.get("f_grid_var", None)
@@ -378,6 +417,10 @@ def train_nn_ensemble_forward(
     # Only keep vars if EVERY member provided them
     have_all_vars = all(v is not None for v in member_vars)
     vars_replicas = np.stack(member_vars, axis=0) if have_all_vars else None
+
+    have_all_post = all(v is not None for v in member_post_ntk_means) and all(v is not None for v in member_post_ntk_vars)
+    post_ntk_replicas = np.stack(member_post_ntk_means, axis=0) if have_all_post else None
+    post_ntk_vars     = np.stack(member_post_ntk_vars,  axis=0) if have_all_post else None
 
     # OPTIONAL SUBSAMPLING OF MEMBERS
     if subsample_members is not None and replicas.shape[0] > subsample_members:
@@ -414,5 +457,7 @@ def train_nn_ensemble_forward(
         res["member_means"] = member_means
         if vars_replicas is not None:
             res["member_vars"] = vars_replicas
-
+    res["post_ntk_replicas"] = post_ntk_replicas
+    res["post_ntk_vars_replicas"] = post_ntk_vars
+    
     return res

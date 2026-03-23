@@ -1,7 +1,7 @@
 seed: 123
-output_dir: results/nn/mse_scaling
+output_dir: results/nn/chi2_5pts
 data:
-  path: data/Dataset/data_208_extended.npz
+  path: data/Dataset/data_208_proj5_extended.npz
   target: y_pseudo
 
   rescale:
@@ -9,36 +9,49 @@ data:
     eps: 1e-12
 
 model:
-  type: nn   # gp | nn
+  type: nn   # gp | nn | ntk
 
 nn:
   hidden: [32, 32, 32]
-  activation: tanh
+  activation: gelu
   out_dim: 1
-  dropout: 0.2
+  dropout: 0.001
   epochs: 5000
-  lr: 1.0e-3
+  lr: 5.0e-4
   weight_decay: 0.0
   patience: 500
   min_delta: 0.0
   grad_clip: null         # or e.g. 1.0
   device: cpu             # or cpu
   dtype: float32
-  use_preproc: true      # if true applies scaling law x^alpha (1-x)^beta
+  scaling: true    # true: nn scaling, false or none: no scaling, xalpha: GP scaling
   init_alpha: 1.0
   init_beta: 3.0
 
   ensemble:
     enabled: true
-    n_members: 100
+    n_members: 20
     seed_offset: 1000        # member i uses seed = seed + seed_offset + i
     save_member_preds: false # if true saves each member curve  
 
 loss:
-  name: mse                 # mse | weighted_mse | chi_het | chi2 | mse_het
+  name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
   lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
+  full_cov: false
+  full_cov_jitter_abs: 1e-12
+  full_cov_jitter_rel: 1e-8
 
 transforms:
   Logx: {}
   Softplus: {}
+
+ntk:
+  when: "none"          # "none" | "init" | "post"
+  gp_eval: false
+
+  use_data_cov: true     # if true, uses C_tr as noise; else uses lambda * I
+  lambda: 1e-3           # only used when use_data_cov=false
+  ridge: 1e-6            # always added to stabilize Cholesky
+  max_train_points: 256
+  max_pred_points: 512

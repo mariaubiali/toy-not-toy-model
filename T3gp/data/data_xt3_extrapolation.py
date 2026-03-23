@@ -9,7 +9,7 @@ from validphys.fkparser import load_fktable
 # =========================
 # CONFIG (edit here only)
 # =========================
-NPZ_PATH = "Dataset/data_208.npz"
+NPZ_PATH = "Dataset/data_208_proj5.npz"
 THEORYID = 208
 FKSET = "BCDMSP"
 PDFSET = "NNPDF40_nnlo_as_01180"
@@ -17,18 +17,19 @@ MEMBER = 0
 
 N_X = 400
 XMIN = 1e-6
+XMAX = 1.0
 XJOIN = 1e-1
 
 DO_PLOT = True
-OUT_PATH = None  # None → auto "_extended.npz"
-ADD_EXTENDED_TO_NPZ = True  # <<< NEW: include x_ext, xt3_ext, xt3_new_fk in output
+OUT_PATH = "Dataset/data_208_proj5_extended.npz"
+ADD_EXTENDED_TO_NPZ = True
 # =========================
 
 
-def make_xgrid(N=N_X, xmin=XMIN, xjoin=XJOIN):
+def make_xgrid(N=N_X, xmin=XMIN, xmax=XMAX, xjoin=XJOIN):
     x = np.r_[
         np.logspace(np.log10(xmin), np.log10(xjoin), N // 2, endpoint=False),
-        np.linspace(xjoin, 1.0, N - N // 2),
+        np.linspace(xjoin, xmax, N - N // 2),
     ]
     return np.unique(x)
 
@@ -65,6 +66,7 @@ def main():
     xt3_old = np.asarray(old["xt3_true"], float)
 
     print("xgrid min: ", x_fk.min())
+    print("xgrid len: ", len(x_fk))
 
     # extended grid → xT3 → interpolate back
     x_ext = make_xgrid()

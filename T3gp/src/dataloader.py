@@ -12,9 +12,16 @@ def load_dataset(cfg: Dict[str, Any]) -> Dict[str, Any]:
     target = cfg.get("target", "y_pseudo")
     d = np.load(path, allow_pickle=True)
 
+    # xgrid = np.asarray(d["xgrid"], float)
     xgrid = np.asarray(d["xgrid"], float)
     W = np.asarray(d["W"], float)
-    C = np.asarray(d["c_yy"], float)
+
+    scaling_cov = float(cfg.get("scaling_cov", 1.0))
+    if scaling_cov <= 0:
+        raise ValueError(f"Invalid scaling_cov={scaling_cov}. Covariance scaling must be > 0.")
+    if scaling_cov != 1.0:
+        print(f"[INFO] Scaling CY by factor {scaling_cov}")
+    C = np.asarray(d["c_yy"], float) * scaling_cov
 
     if target not in d:
         raise KeyError(f"target={target} not in npz keys: {list(d.keys())}")

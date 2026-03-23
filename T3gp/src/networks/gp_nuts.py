@@ -307,6 +307,13 @@ def run_from_config(cfg: dict):
         y_pred_mean = y_pred_members.mean(axis=0)
         sigma_ens2 = y_pred_members.var(axis=0, ddof=1) if replicas.shape[0] > 1 else np.zeros_like(y_pred_mean)
 
+        if y_pred_members.shape[0] > 1:
+            C_ens = np.cov(y_pred_members, rowvar=False, ddof=1)
+        else:
+            C_ens = np.zeros((n_data, n_data), dtype=np.float64)
+
+        C_ens = 0.5 * (C_ens + C_ens.T)  # symmetrize
+
         # Your sigma definition:
         sigma2_xg = sigma_ens2 + diagC**2
         sigma_xg = np.sqrt(np.maximum(sigma2_xg, 1e-18))
@@ -321,11 +328,13 @@ def run_from_config(cfg: dict):
             lo68=lo68, hi68=hi68,
             lo95=lo95, hi95=hi95,
             xt3_true_star=xt3_true_star if xt3_true_star is not None else np.array([]),
-            y_pseudo=y_pseudo,
+            y_target=y_pseudo,
             y_pred_mean=y_pred_mean,
             sigma_ens2=sigma_ens2,
             diagC=diagC,
+            ensC=C_ens,
             sigma_xg=sigma_xg,
+            y_pred_members = y_pred_members,
             replicas=replicas if save_replicas else np.array([]),
             means=means if save_replicas else np.array([]),
             vars_f=vars_f if save_replicas else np.array([]),

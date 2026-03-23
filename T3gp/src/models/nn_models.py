@@ -31,22 +31,29 @@ class MLPFModel(nn.Module):
         activation="tanh",
         dropout=0.0,
         out_dim=1.0,
-        use_preproc=True,
+        scaling=True,
         init_alpha=1.0,
         init_beta=1.0,
         transforms: dict = {},
     ):
         super().__init__()
-        act = {"tanh": nn.Tanh, "relu": nn.ReLU, "gelu": nn.GELU}.get(
+        act = {"tanh": nn.Tanh, "relu": nn.ReLU, "gelu": nn.GELU, "leakyrelu": nn.LeakyReLU}.get(
             activation.lower()
         )
         dropout = float(dropout)
         if act is None:
             raise ValueError(f"Unknown activation: {activation}")
-        self.use_preproc = bool(use_preproc)
+        if scaling is True:
+            self.scaling_mode = "scaling"
+        elif scaling:
+            self.scaling_mode = str(scaling).lower()
+        else:
+            self.scaling_mode = None
         self.logalpha = nn.Parameter(torch.log(torch.tensor(float(init_alpha))))
         self.logbeta = nn.Parameter(torch.log(torch.tensor(float(init_beta))))
         self.transforms = transforms or {}
+
+        # print("scaling mode: ", self.scaling_mode)
 
         layers: List[nn.Module] = []
         in_dim = 1
@@ -72,12 +79,19 @@ class MLPFModel(nn.Module):
         s = raw[:, 0].reshape(-1)  # latent mean (N,)
 
         # Endpoint factor (MUST use physical x)
-        if self.use_preproc:
+        if (self.scaling_mode is not None) and self.scaling_mode != "none":
             alpha = torch.exp(self.logalpha).clamp_min(ab_min)
-            beta = torch.exp(self.logbeta).clamp_min(ab_min)
-            pre = x_phys.pow(alpha) * (1.0 - x_phys).pow(beta)  # (N,)
+
+            if self.scaling_mode == "xalpha":
+                pre = x_phys.pow(alpha)
+                # print("scaling xalpha")
+            else:  # "scaling"
+                beta = torch.exp(self.logbeta).clamp_min(ab_min)
+                pre = x_phys.pow(alpha) * (1.0 - x_phys).pow(beta)
+                # print("nn scaling xalpha 1-xbeta")
         else:
             pre = None
+            # print("no scaling")
 
         # Mean transform (SoftplusOut if enabled)
         g = softplus_trafo(s, self.transforms)  # (N,)

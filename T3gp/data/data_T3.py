@@ -46,6 +46,7 @@ inp_d = {
 lcd_p = API.loaded_commondata_with_cuts(**inp_p)
 lcd_d = API.loaded_commondata_with_cuts(**inp_d)
 
+
 pdfset = lhapdf.getPDFSet(
     "NNPDF40_nnlo_as_01180"
 )  # This PDF can be changed to any toy underlying PDF set
@@ -203,6 +204,7 @@ t3_ref_int = np.trapz(xt3_true / xgrid, xgrid)  # noqa: NPY201
 
 y_theory = W @ (xt3_true)  # shape (N,)
 y_t3_theory = W @ (t3)  # shape (N,)
+# y_test, load different FK table to change basis to F3
 
 rng = np.random.default_rng(
     seed=451

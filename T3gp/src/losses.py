@@ -38,6 +38,41 @@ def _apply_Cinv(L: torch.Tensor, r: torch.Tensor) -> torch.Tensor:
     return x[:, 0]
 
 
+def _safe_cholesky(
+    A: torch.Tensor,
+    jitter_abs: float = 1e-12,
+    jitter_rel: float = 1e-8,
+    max_tries: int = 8,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    Robust Cholesky with adaptive diagonal jitter.
+    Returns (L, used_jitter).
+    """
+    A = 0.5 * (A + A.T)
+    n = A.shape[0]
+    eye = torch.eye(n, device=A.device, dtype=A.dtype)
+
+    diag_mean = torch.mean(torch.diag(A)).detach()
+    diag_mean = torch.nan_to_num(diag_mean, nan=1.0, posinf=1.0, neginf=1.0)
+    base = torch.tensor(
+        float(jitter_abs), device=A.device, dtype=A.dtype
+    ) + torch.tensor(float(jitter_rel), device=A.device, dtype=A.dtype) * torch.abs(
+        diag_mean
+    )
+    base = torch.clamp(base, min=torch.tensor(float(jitter_abs), device=A.device, dtype=A.dtype))
+
+    for k in range(max_tries):
+        jitter = base * (10.0**k)
+        L, info = torch.linalg.cholesky_ex(A + jitter * eye)
+        if int(info.max().item()) == 0:
+            return L, jitter
+
+    # Last attempt with a large jitter; surface the original linalg error if still failing.
+    jitter = base * (10.0**max_tries)
+    L = torch.linalg.cholesky(A + jitter * eye)
+    return L, jitter
+
+
 def make_loss(
     cfg: Dict[str, Any],
     ctx: LossContext,
@@ -106,6 +141,9 @@ def make_loss(
     if name == "mse_het":
         eps = float(lcfg.get("eps", 1e-12))
         logvar_clip = lcfg.get("logvar_clip", (-20.0, 5.0))  # tighter hi often helps
+        full_cov = bool(lcfg.get("full_cov", False))
+        full_cov_jitter_abs = float(lcfg.get("full_cov_jitter_abs", eps))
+        full_cov_jitter_rel = float(lcfg.get("full_cov_jitter_rel", 1e-8))
 
         y_true = ctx.y.to(device=device, dtype=dtype).reshape(-1)
         W = ctx.W.to(device=device, dtype=dtype)  # (Ntr, Ngrid)
@@ -135,13 +173,27 @@ def make_loss(
             f_logvar = f_logvar.clamp(lo, hi)
             var_f = torch.exp(f_logvar).clamp_min(eps)  # (Ngrid,)
 
-            # propagate grid variance to data variance
-            var_y = (W * W) @ var_f
-            var_y = var_y.clamp_min(eps)
-
-            r2 = (y_mu - y_true) ** 2
-            nll = 0.5 * (r2 / var_y + torch.log(var_y))
-            loss = nll.mean()
+            r = y_mu - y_true
+            if full_cov:
+                # Full y-space covariance from diagonal Sigma_f:
+                # Cov_y = W Sigma_f W^T, with Sigma_f = diag(var_f).
+                Cov_y = (W * var_f.unsqueeze(0)) @ W.T
+                L, _ = _safe_cholesky(
+                    Cov_y,
+                    jitter_abs=full_cov_jitter_abs,
+                    jitter_rel=full_cov_jitter_rel,
+                )
+                alpha = _apply_Cinv(L, r)
+                quad = r @ alpha
+                logdet = 2.0 * torch.sum(torch.log(torch.diag(L)))
+                loss = 0.5 * (quad + logdet) / y_true.numel()
+            else:
+                # diagonal approximation in y-space
+                var_y = (W * W) @ var_f
+                var_y = var_y.clamp_min(eps)
+                r2 = r * r
+                nll = 0.5 * (r2 / var_y + torch.log(var_y))
+                loss = nll.mean()
 
             # sum rule on f_mu
             if lambda_sr > 0.0:
@@ -158,7 +210,11 @@ def make_loss(
         y = ctx.y.to(device=device, dtype=dtype).reshape(-1)  # cache once
         xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)  # cache once
 
-        ref = torch.tensor(ctx.t3_ref_int, device=device, dtype=dtype)  # cache once
+        ref = (
+            torch.tensor(float(ctx.t3_ref_int), device=device, dtype=dtype)
+            if ctx.t3_ref_int is not None
+            else None
+        )
 
         if ctx.L is not None:
             L = ctx.L.to(device=device, dtype=dtype)
@@ -175,23 +231,23 @@ def make_loss(
                     raise ValueError("chi2+sumrule requires extra['f_mu'].")
                 f_raw = extra["f_mu"].reshape(-1)
                 I_mid = torch.trapz(f_raw / xg, xg)
+                loss_chi2 = loss_chi2 + lambda_sr * (I_mid - ref) ** 2
 
-            return loss_chi2 + lambda_sr * (I_mid - ref) ** 2
+            return loss_chi2
 
         return loss_fn, extra_params
 
-    if name == "chi_het":
+    if name == "chi2_het":
         eps = float(lcfg.get("eps", 1e-12))
         logvar_clip = lcfg.get("logvar_clip", (-20.0, 10.0))
+        full_cov_jitter_abs = float(lcfg.get("full_cov_jitter_abs", 1e-12))
+        full_cov_jitter_rel = float(lcfg.get("full_cov_jitter_rel", 1e-8))
+        normalize = bool(lcfg.get("normalize_by_ndata", True))
 
-        W = ctx.W.to(device=device, dtype=dtype)  # (Ntr, Ngrid)
-        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)  # (Ntr,)
+        W = ctx.W.to(device=device, dtype=dtype)  # (Ndat, Ngrid)
+        C = ctx.C.to(device=device, dtype=dtype)  # (Ndat, Ndat)
+        y = ctx.y.to(device=device, dtype=dtype).reshape(-1)  # (Ndat,)
         xg = ctx.xgrid.to(device=device, dtype=dtype).reshape(-1)
-
-        # baseline observational variance from diagonal of C (train block)
-        diagC = torch.diag(ctx.C.to(device=device, dtype=dtype)).clamp_min(
-            eps
-        )  # (Ntr,)
 
         ref = (
             torch.tensor(float(ctx.t3_ref_int), device=device, dtype=dtype)
@@ -200,41 +256,52 @@ def make_loss(
         )
 
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
-            # y_pred expected to be W @ f_mu (built by trainer)
-            y_pred = y_pred.reshape(-1)
-
             if "f_mu" not in extra:
-                raise ValueError("chi_het requires extra['f_mu'] (grid mean).")
+                raise ValueError("chi2_het requires extra['f_mu'].")
             if "f_logvar" not in extra:
                 raise ValueError(
-                    "chi_het requires extra['f_logvar'] (grid log-variance). Set out_dim=2."
+                    "chi2_het requires extra['f_logvar'] (grid log-variance). "
+                    "Set out_dim=2 or ensure the model returns log-variance."
                 )
 
             f_mu = extra["f_mu"].to(device=device, dtype=dtype).reshape(-1)  # (Ngrid,)
-            f_logvar = (
-                extra["f_logvar"].to(device=device, dtype=dtype).reshape(-1)
-            )  # (Ngrid,)
-
+            f_logvar = extra["f_logvar"].to(device=device, dtype=dtype).reshape(-1)
             lo, hi = float(logvar_clip[0]), float(logvar_clip[1])
             f_logvar = f_logvar.clamp(lo, hi)
             var_f = torch.exp(f_logvar).clamp_min(eps)  # (Ngrid,)
 
-            # propagate to y-space (diag approx) and add experimental diag(C)
-            var_y = diagC + (W * W) @ var_f  # (Ntr,)
-            var_y = var_y.clamp_min(eps)
 
-            r = y_pred - y
+            # Use a self-consistent predictive mean in data space
+            y_mu = W @ f_mu  # (Ndat,)
+            r = y_mu - y
 
-            # Gaussian NLL using var_y
-            data_term = 0.5 * torch.mean((r * r) / var_y + torch.log(var_y))
+            # Full propagated model covariance in data space:
+            # Cov_model = W diag(var_f) W^T
+            Cov_model = (W * var_f.unsqueeze(0)) @ W.T  # (Ndat, Ndat)
 
-            # sum rule penalty on f_mu
-            sumrule = torch.tensor(0.0, device=device, dtype=dtype)
+            # Total covariance = experimental + model
+            Cov_total = C + Cov_model
+            Cov_total = 0.5 * (Cov_total + Cov_total.T)
+
+            L, _ = _safe_cholesky(
+                Cov_total,
+                jitter_abs=full_cov_jitter_abs,
+                jitter_rel=full_cov_jitter_rel,
+            )
+
+            alpha = _apply_Cinv(L, r)
+            quad = r @ alpha
+            logdet = 2.0 * torch.sum(torch.log(torch.diag(L)))
+
+            loss = 0.5 * (quad + logdet)
+            if normalize:
+                loss = loss / y.numel()
+
             if lambda_sr > 0.0:
                 I_mid = torch.trapz(f_mu / xg, xg)
-                sumrule = lambda_sr * (I_mid - ref) ** 2
+                loss = loss + lambda_sr * (I_mid - ref) ** 2
 
-            return data_term + sumrule
+            return loss
 
         return loss_fn, extra_params
 

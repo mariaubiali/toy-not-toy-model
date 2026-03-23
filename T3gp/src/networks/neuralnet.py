@@ -29,13 +29,13 @@ def _train_ensemble(ds: dict, cfg: dict):
         mus = out["f_grid_mean"][None, :]
         vars_ = out.get("f_grid_var", None)
         vars_ = None if vars_ is None else vars_[None, :]
-        return x_star, mus, vars_, None
+        return x_star, mus, vars_, out
 
     out = train_nn_ensemble_forward(ds, cfg)
     x_star = out["xgrid"]
     mus = out["replicas"]
     vars_ = out.get("vars_replicas", None)
-    return x_star, mus, vars_, None
+    return x_star, mus, vars_, out
 
 
 def run_from_config(cfg: dict):
@@ -54,6 +54,11 @@ def run_from_config(cfg: dict):
     # Train NN ensemble -> replicas
     # ----------------------------
     xgrid, mus, vars_, out_ntk = _train_ensemble(ds, cfg)
+    loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
+    out_dim = int(cfg.get("nn", {}).get("out_dim", 1))
+    het_enabled_cfg = (loss_name in {"mse_het", "chi_het"}) and (out_dim == 2)
+    if not het_enabled_cfg:
+        vars_ = None
 
     mus_fk = np.empty((mus.shape[0], x_fk.size), dtype=np.float64)
     for s in range(mus.shape[0]):
@@ -68,13 +73,60 @@ def run_from_config(cfg: dict):
     else:
         C_ens = np.zeros((y_pred_members.shape[1], y_pred_members.shape[1]))
 
-    # If you still want the diagonal variance too:
-    sigma2_ens_xg = np.diag(C_ens)
-    # sigma2_ens_xg = y_pred_members.var(axis=0, ddof=1) if y_pred_members.shape[0] > 1 else np.zeros_like(y_pred_mean)
+    # ---------- NTK OVERRIDE: use GP predictive covariance ----------
+    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
+    if model_type == "ntk" and out_ntk is not None and "f_cov" in out_ntk:
+        print("in NTK override")
 
-    # Your sigma definition:
-    sigma2 = sigma2_ens_xg + diagC**2
+        f_cov = np.asarray(out_ntk["f_cov"], dtype=np.float64)
+        x_src = np.asarray(out_ntk.get("x_pred_used", xgrid), dtype=np.float64).ravel()
+
+        A_fk = interp_matrix_1d(x_src, x_fk)
+        f_cov_fk = A_fk @ f_cov @ A_fk.T
+
+        # Symmetrize after interpolation
+        f_cov_fk = 0.5 * (f_cov_fk + f_cov_fk.T)
+
+        C_ens = W_full @ f_cov_fk @ W_full.T
+        C_ens = 0.5 * (C_ens + C_ens.T)
+
+        # ---- Make SPD for downstream Cholesky inversions ----
+        # 1) PSD projection (clips small negative eigenvalues from numerics)
+        evals, evecs = np.linalg.eigh(C_ens)
+        evals = np.clip(evals, 0.0, None)
+        C_ens = (evecs * evals) @ evecs.T
+        C_ens = 0.5 * (C_ens + C_ens.T)
+
+        # 2) Add a small jitter scaled to the typical variance level
+        # (scale makes this robust across datasets)
+        diag_mean = float(np.mean(np.diag(C_ens))) if C_ens.size else 1.0
+        jitter = 1e-8 * max(diag_mean, 1.0)   # you can tune 1e-8 -> 1e-6 if needed
+        C_ens.flat[::C_ens.shape[0] + 1] += jitter
+
+
+    sigma2_ens_xg = np.diag(C_ens)
+
+    # Build heteroscedastic covariance in data-space:
+    # C_het = E_s[ W diag(var_f_s_fk) W^T ].
+    if vars_ is None:
+        C_het = np.zeros_like(C_ens)
+    else:
+        vars_fk = np.empty((vars_.shape[0], x_fk.size), dtype=np.float64)
+        for s in range(vars_.shape[0]):
+            vars_fk[s] = np.interp(x_fk, xgrid, vars_[s])
+        C_het = np.zeros_like(C_ens)
+        for s in range(vars_fk.shape[0]):
+            C_het += (W_full * vars_fk[s][None, :]) @ W_full.T
+        C_het /= float(vars_fk.shape[0])
+        C_het = 0.5 * (C_het + C_het.T)
+
+    sigma2_het_xg = np.diag(C_het)
+    C_tot = C_ens + C_het + diagC
+    C_tot = 0.5 * (C_tot + C_tot.T)
+    sigma2 = np.diag(C_tot)
     sigma_xg = np.sqrt(np.maximum(sigma2, 1e-18))
+
+    # print("C_het: ", C_het.shape, C_het)
 
     # ----------------------------
     # Bands + mean from ensemble
@@ -92,6 +144,11 @@ def run_from_config(cfg: dict):
 
     # total
     var_tot = var_ens + var_het
+
+    cov_ens_f = np.cov(mus, rowvar=False, ddof=1) if mus.shape[0] > 1 else np.zeros((mus.shape[1], mus.shape[1]), dtype=np.float64)
+    cov_het_f = np.diag(var_het)
+    cov_tot_f = cov_ens_f + cov_het_f
+    sigma_f = np.sqrt(np.maximum(np.diag(cov_tot_f), 1e-18))
 
     # Gaussian-approx bands for total/ens/het (simple & fast)
     std_ens = np.sqrt(np.maximum(var_ens, 0.0))
@@ -139,7 +196,7 @@ def run_from_config(cfg: dict):
     save_members = bool(
         cfg.get("nn", {}).get("ensemble", {}).get("save_member_preds", True)
     )
-
+    print("save results")
     np.savez(
         os.path.join(out, "nn_summary.npz"),
         xgrid=xgrid,
@@ -149,12 +206,20 @@ def run_from_config(cfg: dict):
         var_ens=var_ens,
         var_het=var_het,
         # Data space (for pull)
-        y_pseudo=y_pseudo,
+        y_target=y_pseudo,
         y_pred_mean=y_pred_mean,
         sigma2_ens_xg=sigma2_ens_xg,
+        sigma2_het_xg=sigma2_het_xg,
         diagC=diagC,
         ensC=C_ens,
+        hetC=C_het,
+        totalC=C_tot,
         sigma_xg=sigma_xg,
+        cov_ens_f=cov_ens_f,
+        cov_het_f=cov_het_f,
+        cov_tot_f=cov_tot_f,
+        sigma_f=sigma_f,
+        y_pred_members = y_pred_members,
         mus=mus if save_members else np.array([]),
         vars=vars_ if (save_members and vars_ is not None) else np.array([]),
     )
@@ -163,7 +228,6 @@ def run_from_config(cfg: dict):
     # Plot fig2
     # ----------------------------
     if cfg.get("eval", {}).get("make_fig2", True):
-        output_cfg = cfg.get("nn", {}).get("out_dim", {})
         het_enabled = (vars_ is not None)
 
         if het_enabled:
@@ -221,3 +285,28 @@ def run_from_config(cfg: dict):
         "xt3_true": xt3_true,
         "true_sigma": true_sigma,
     }
+
+
+def interp_matrix_1d(x_src, x_tgt):
+    """
+    Build A such that f(x_tgt) ≈ A f(x_src) using piecewise-linear interpolation.
+    x_src must be sorted ascending. Assumes x_tgt within [min(x_src), max(x_src)].
+    """
+    x_src = np.asarray(x_src, dtype=np.float64).ravel()
+    x_tgt = np.asarray(x_tgt, dtype=np.float64).ravel()
+    n_src = x_src.size
+    n_tgt = x_tgt.size
+
+    A = np.zeros((n_tgt, n_src), dtype=np.float64)
+
+    # indices i such that x_src[i-1] <= x < x_src[i]
+    idx = np.searchsorted(x_src, x_tgt, side="left")
+    idx = np.clip(idx, 1, n_src - 1)
+
+    x0 = x_src[idx - 1]
+    x1 = x_src[idx]
+    t = (x_tgt - x0) / (x1 - x0 + 1e-300)
+
+    A[np.arange(n_tgt), idx - 1] = (1.0 - t)
+    A[np.arange(n_tgt), idx]     = t
+    return A

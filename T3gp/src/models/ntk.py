@@ -9,7 +9,7 @@ nn_train.py, and using the NTK as a Gaussian Process (GP) / kernel ridge regress
 
 This module is designed to be called in two common regimes:
   1) "init":   linearize at random initialization (no training)
-  2) "post":   linearize at a trained model (after full training, or at a chosen epoch)
+  2) "post":   linearize at a trained model
 
 Core public entrypoints:
   - ntk_gp_predict(...): GP posterior mean/variance for f(x) from linearized model
@@ -135,6 +135,7 @@ def ntk_gp_predict(
     ridge: float = 1e-6,              # extra diagonal ridge for numerical stability
     max_train_points: Optional[int] = None,
     max_pred_points: Optional[int] = None,
+    return_full_cov: bool = True,
 ) -> Dict[str, Any]:
     """
     Compute GP posterior over f(x_pred) using the empirical NTK linearization of `model`.
@@ -163,6 +164,8 @@ def ntk_gp_predict(
     """
     device = xgrid_torch.device
     dtype = xgrid_torch.dtype
+    print("in ntk predict gp")
+    print("return_full_cov: ", return_full_cov)
 
     ntr_full = W_train.shape[0]
     idx_tr = _subsample_rows(ntr_full, max_train_points, device=device)
@@ -214,12 +217,22 @@ def ntk_gp_predict(
     diag_cond = (K_yf * sol).sum(dim=0)                 # (Npred,)
     f_var = (diag_Kff - diag_cond).clamp_min(0.0)       # (Npred,)
 
-    return {
+    out = {
         "f_mean": f_mean,
         "f_var": f_var,
         "train_sub_idx": idx_tr,
         "pred_sub_idx": idxp,
     }
+
+    if return_full_cov:
+        print("in return full cov")
+        K_ff = J_f @ J_f.T                              # (Npred, Npred)
+        K_cond = K_fy @ sol                             # (Npred, Npred) = K_fy A^{-1} K_yf
+        f_cov = K_ff - K_cond                           # posterior cov
+        f_cov = 0.5 * (f_cov + f_cov.T)                 # symmetrize for numerical safety
+        out["f_cov"] = f_cov
+
+    return out
 
 
 def ntk_diagnostics(
@@ -257,7 +270,7 @@ def ntk_diagnostics(
 
 def run_ntk_stage(
     *,
-    stage: str,                       # "init" | "mid" | "post"
+    stage: str,                       # "init" | "post"
     model: torch.nn.Module,
     xgrid_torch: torch.Tensor,
     xgrid_np: np.ndarray,
@@ -280,30 +293,27 @@ def run_ntk_stage(
     """
     print('in ntk')
     ntk_cfg = cfg.get("ntk", {})
-    gp_cfg = ntk_cfg.get("gp", {}) if isinstance(ntk_cfg.get("gp", {}), dict) else {}
 
     when = ntk_cfg.get("when", "none")
     when_s = str(when).lower() if not isinstance(when, (list, tuple, set)) else None
-    enabled = bool(gp_cfg.get("enabled", False)) or bool(ntk_cfg.get("enabled", False))
-    if not enabled:
+
+    if not bool(ntk_cfg.get("gp_eval", False)):
         return {}
 
     # stage gating
-    when_set = {str(x).lower() for x in when} if isinstance(when, (list, tuple, set)) else set()
-    do_init = (when_s == "init") or (when_s == "both") or (isinstance(when, (list, tuple, set)) and "init" in {str(x).lower() for x in when})
-    do_post = (when_s in ("post", "both", "epoch", "mid")) or (("post" in when_set) or ("mid" in when_set) or ("epoch" in when_set))
+    do_init = (when_s == "init")
+    do_post = (when_s == "post")
     
     if stage == "init" and not do_init:
         return {}
-    if stage in ("mid", "post") and not do_post:
+    if stage == "post" and not do_post:
         return {}
 
-    use_data_cov = bool(gp_cfg.get("use_data_cov", True))
-    ridge = float(gp_cfg.get("ridge", 1e-6))
-    lam = float(gp_cfg.get("lambda", 1e-6))
-    max_train_points = gp_cfg.get("max_train_points", ntk_cfg.get("max_train_points", None))
-    max_train_points = int(max_train_points) if max_train_points is not None else None
-    max_pred_points = gp_cfg.get("max_pred_points", None)
+    use_data_cov = bool(ntk_cfg.get("use_data_cov", True))
+    ridge = float(ntk_cfg.get("ridge", 1e-6))
+    lam = float(ntk_cfg.get("lambda", 1e-6))
+    max_train_points = ntk_cfg.get("max_train_points", None)
+    max_pred_points = ntk_cfg.get("max_pred_points", None)
     max_pred_points = int(max_pred_points) if max_pred_points is not None else None
 
     if use_data_cov:
@@ -382,11 +392,13 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     dtype = torch.float32
 
     meta = ds.get("meta", {})
+    print("NTK at init")
 
     # grid & operator
     xgrid = ds["xgrid"].astype(np.float32)                 # (Ngrid,)
     W = ds["W"].astype(np.float32)                         # (Ndat, Ngrid)
-    y = ds["y"].astype(np.float32)                         # (Ndat,)
+    y = ds["y"].astype(np.float32) 
+    xt3_true = np.asarray(meta.get("xt3_true", []), float).ravel()                        # (Ndat,)
 
     # data covariance optional
     C_np = ds.get("C", None)
@@ -420,7 +432,7 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         activation=str(nncfg.get("activation", "tanh")),
         dropout=float(nncfg.get("dropout", 0.0)),
         out_dim=int(nncfg.get("out_dim", 1)),
-        use_preproc=bool(nncfg.get("use_preproc", True)),
+        scaling=nncfg.get("scaling", True),
         init_alpha=float(nncfg.get("init_alpha", 1.0)),
         init_beta=float(nncfg.get("init_beta", 3.0)),
         transforms=cfg.get("transforms", {}),
@@ -431,23 +443,68 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     model.eval()
 
     # decide noise model
+    print('in ntk')
     ntk_cfg = cfg.get("ntk", {})
-    gp_cfg = ntk_cfg.get("gp", {}) if isinstance(ntk_cfg.get("gp", {}), dict) else {}
-    use_data_cov = bool(gp_cfg.get("use_data_cov", True))
-    ridge = float(gp_cfg.get("ridge", 1e-6))
-    lam = float(gp_cfg.get("lambda", 1e-6))
+    
+    use_data_cov = bool(ntk_cfg.get("use_data_cov", True))
+    ridge = float(ntk_cfg.get("ridge", 1e-6))
+    lam = float(ntk_cfg.get("lambda", 1e-6))
+    lambda_sr = float(cfg.get("loss", {}).get("lambda_sr", 0.0))
+    print("lambda_sr: ", lambda_sr)
+    t3_ref_int = float(np.trapz(xt3_true / xgrid, xgrid)) if xt3_true.size > 0 else None
 
+    sumrule_added = False
+    sigma2_sr = None
+
+    if not bool(ntk_cfg.get("gp_eval", False)):
+        return {}
+
+    if lambda_sr > 0.0 and (t3_ref_int is not None):
+        print("Using NTK init sum rules")
+        print("lambda: ", lambda_sr)
+
+        # x must be (Ngrid,), not (Ngrid,1)
+        x = xgrid_torch.squeeze(1)                     # (Ngrid,)
+        dx = x[1:] - x[:-1]                            # (Ngrid-1,)
+
+        w = torch.zeros_like(x)                        # (Ngrid,)
+        w[0] = 0.5 * dx[0] / x[0]
+        w[-1] = 0.5 * dx[-1] / x[-1]
+        w[1:-1] = 0.5 * (dx[:-1] + dx[1:]) / x[1:-1]   # trapezoid weights for ∫ f/x dx
+
+        # Append pseudo-observation: y_sr = ref, W_sr = w^T
+        W_torch = torch.cat([W_torch, w[None, :]], dim=0)  # (Ndat+1, Ngrid)
+        y_torch = torch.cat(
+            [y_torch, torch.as_tensor([t3_ref_int], device=y_torch.device, dtype=y_torch.dtype)],
+            dim=0,
+        )                                                  # (Ndat+1,)
+
+        # NN penalty lambda_sr*(I-ref)^2  ~  (I-ref)^2/(2*sigma^2)
+        sigma2_sr = 1.0 / (2.0 * lambda_sr)
+        sumrule_added = True
+
+        # If using data covariance as noise, extend it to (Ndat+1,Ndat+1)
+        if C_torch is not None:
+            C_torch = torch.block_diag(
+                C_torch,
+                torch.as_tensor([[sigma2_sr]], device=C_torch.device, dtype=C_torch.dtype),
+            )
+    
     if use_data_cov:
         if C_torch is None:
-            raise ValueError("NTK model: use_data_cov=True but ds has no C.")
+            raise ValueError("ntk.use_data_cov=True but C_train is None.")
         noise = C_torch
     else:
-        noise = lam * torch.eye(W_torch.shape[0], device=device, dtype=dtype)
+        n = W_torch.shape[0]  # IMPORTANT: updated if sumrule_added
+        noise = lam * torch.eye(n, device=W_torch.device, dtype=W_torch.dtype)
+        if sumrule_added and (sigma2_sr is not None):
+            noise[-1, -1] = sigma2_sr
+            
 
     # optional subsampling knobs
-    max_train_points = gp_cfg.get("max_train_points", ntk_cfg.get("max_train_points", None))
+    max_train_points = ntk_cfg.get("max_train_points", None)
     max_train_points = int(max_train_points) if max_train_points is not None else None
-    max_pred_points = gp_cfg.get("max_pred_points", None)
+    max_pred_points = ntk_cfg.get("max_pred_points", None)
     max_pred_points = int(max_pred_points) if max_pred_points is not None else None
 
     # run NTK-GP
@@ -478,12 +535,12 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         "f_grid_mean": f_mean,
         "f_grid_var": f_var,
         "f_grid_std": f_std,
-        "f_grid_lo68": f_mean - 1.0 * f_std,
-        "f_grid_hi68": f_mean + 1.0 * f_std,
-        "f_grid_lo95": f_mean - 1.96 * f_std,
-        "f_grid_hi95": f_mean + 1.96 * f_std,
         "ntk_used_data_cov": bool(use_data_cov),
         "ntk_lambda": float(lam),
         "ntk_ridge": float(ridge),
     }
+
+    if "f_cov" in pred and pred["f_cov"] is not None:
+        out["f_cov"] = pred["f_cov"].detach().cpu().numpy()
+
     return out
