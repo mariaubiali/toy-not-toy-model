@@ -147,7 +147,7 @@ W = wp_t3[entry_p_rel] - wd_t3[entry_d_rel]  # shape (n_data, n_grid)
 xgrid = fk_p.xgrid.copy()  # shape (n_grid,)
 print(np.min(xgrid), np.max(xgrid), len(xgrid))
 
-exit()
+# exit()
 
 
 idx_p_merge = merged_df["idx_p"].to_numpy()  # length = N (number of matched points)
@@ -201,9 +201,14 @@ t3 = (
 )  # Or here we can just input the true function directly for T3 or xT3
 
 t3_ref_int = np.trapz(xt3_true / xgrid, xgrid)  # noqa: NPY201
-
+print("q0:", (q2_vals))
+print("q2_vals shape:", (q2_vals.shape))
+print("xgrid shape: ", xgrid.shape)
+print("xt3_true shape; ", xt3_true.shape)
 y_theory = W @ (xt3_true)  # shape (N,)
 y_t3_theory = W @ (t3)  # shape (N,)
+
+print("y theory shape: ", y_theory.shape)
 # y_test, load different FK table to change basis to F3
 
 rng = np.random.default_rng(

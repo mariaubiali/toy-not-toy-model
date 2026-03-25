@@ -1,0 +1,12 @@
+[paths]
+ymldb = "data/yamldb"
+grids = "data/grids"
+theory_cards = "data/theory_cards"
+operator_cards = "data/operator_cards"
+ekos = "data/ekos"
+fktables = "data/fktables"
+operator_card_template_name = "operator_card_template.yaml"
+
+[paths.logs]
+eko = "logs/eko"
+fk = "logs/fk"

@@ -472,7 +472,7 @@ def plot_fig2(x_star, mean_curve, lo68, hi68, lo95, hi95, xt3_true_star=None,tru
     ax.vlines(x=0.069, ymin=-0.2, ymax=0.6, color="k", linestyle="dotted", lw=1)
     ax.set_ylabel(r"$xT_3(x)$")
     ax.set_xlim([0, 1.])
-    ax.set_ylim([-0.1, 0.5])
+    # ax.set_ylim([-0.1, 0.5])
     ax.legend(frameon=False, loc='upper right', ncol=2)
     ax.grid(True, alpha=0.3)
 
@@ -499,7 +499,7 @@ def plot_fig2(x_star, mean_curve, lo68, hi68, lo95, hi95, xt3_true_star=None,tru
     ax.vlines(x=0.069, ymin=-0.2, ymax=0.6, color="k", linestyle="dotted", lw=1)
     ax.set_xscale("log")
     ax.set_xlim([1e-5, 1.0])
-    ax.set_ylim([-0.1, 0.5])
+    # ax.set_ylim([-0.1, 0.5])
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$xT_3(x)$")
     ax.legend(frameon=False, loc='upper right', ncol=2)

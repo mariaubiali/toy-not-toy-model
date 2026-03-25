@@ -1,0 +1,12 @@
+Steps to produce the full FK tables etc for the F3
+For the CC just replace NC with CC.
+
+python3 scripts/build_observable_cards.py
+python3 scripts/build_pineko_yamldb.py
+python3 scripts/generate_grids.py
+pineko theory opcards 208 HERA_NC_318GEV_EM-SIGMARED
+pineko theory ekos 208 HERA_NC_318GEV_EM-SIGMARED
+pineko theory fks 208 HERA_NC_318GEV_EM-SIGMARED
+
+the pineko commads are also all in build_fks.sh
+scripts/ also contain compare_cc_fk_tables.py and analyze_one_fk.py to help with debugging and check if everything was generated correctly.

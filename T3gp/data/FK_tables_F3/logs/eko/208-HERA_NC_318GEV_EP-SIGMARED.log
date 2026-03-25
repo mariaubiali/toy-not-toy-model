@@ -1,0 +1,926 @@
+2026-03-23 15:13:02,968 pineko.theory/INFO: Start computation of HERA_NC_318GEV_EP-SIGMARED
+2026-03-23 15:13:02,976 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:02,994 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:02,994 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:02,994 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:02,994 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:03,074 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e+00, nf=4
+2026-03-23 15:13:03,074 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e+00
+2026-03-23 15:13:03,074 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.432928e-02
+2026-03-23 15:13:03,074 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:06,088 eko.evolution_operator/INFO: Evolution: Total time 3.014308 s
+2026-03-23 15:13:06,126 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:06,126 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:06,126 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:06,126 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:06,129 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.500000e+00, nf=4
+2026-03-23 15:13:06,129 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.500000e+00
+2026-03-23 15:13:06,129 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.023962e-02
+2026-03-23 15:13:06,129 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:09,210 eko.evolution_operator/INFO: Evolution: Total time 3.081314 s
+2026-03-23 15:13:09,249 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:09,249 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:09,249 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:09,249 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:09,251 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+02, nf=4
+2026-03-23 15:13:09,251 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+02
+2026-03-23 15:13:09,251 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.219713e-02
+2026-03-23 15:13:09,251 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:12,240 eko.evolution_operator/INFO: Evolution: Total time 2.988160 s
+2026-03-23 15:13:12,278 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:12,278 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:12,278 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:12,278 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:12,280 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.500000e+02, nf=4
+2026-03-23 15:13:12,280 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.500000e+02
+2026-03-23 15:13:12,280 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.244642e-02
+2026-03-23 15:13:12,280 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:15,302 eko.evolution_operator/INFO: Evolution: Total time 3.021980 s
+2026-03-23 15:13:15,341 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:15,341 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:15,341 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:15,341 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:15,343 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 9.000000e+01, nf=4
+2026-03-23 15:13:15,343 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 9.000000e+01
+2026-03-23 15:13:15,343 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.406474e-02
+2026-03-23 15:13:15,343 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:18,338 eko.evolution_operator/INFO: Evolution: Total time 2.994701 s
+2026-03-23 15:13:18,375 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:18,375 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:18,375 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:18,375 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:18,377 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+04, nf=4
+2026-03-23 15:13:18,377 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+04
+2026-03-23 15:13:18,377 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.380484e-03
+2026-03-23 15:13:18,378 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:21,486 eko.evolution_operator/INFO: Evolution: Total time 3.108142 s
+2026-03-23 15:13:21,524 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:21,524 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:21,524 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:21,524 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:21,527 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+00, nf=4
+2026-03-23 15:13:21,527 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+00
+2026-03-23 15:13:21,527 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.791740e-02
+2026-03-23 15:13:21,527 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:24,683 eko.evolution_operator/INFO: Evolution: Total time 3.155854 s
+2026-03-23 15:13:24,721 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:24,721 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:24,721 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:24,721 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:24,723 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.000000e+01, nf=4
+2026-03-23 15:13:24,723 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.000000e+01
+2026-03-23 15:13:24,723 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.963874e-02
+2026-03-23 15:13:24,723 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:27,855 eko.evolution_operator/INFO: Evolution: Total time 3.131807 s
+2026-03-23 15:13:27,894 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:27,894 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:27,894 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:27,894 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:27,896 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e-01, nf=4
+2026-03-23 15:13:27,896 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e-01
+2026-03-23 15:13:27,896 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.978859e-02
+2026-03-23 15:13:27,896 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:31,158 eko.evolution_operator/INFO: Evolution: Total time 3.262204 s
+2026-03-23 15:13:31,196 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:31,196 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:31,196 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:31,196 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:31,198 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+02, nf=4
+2026-03-23 15:13:31,198 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+02
+2026-03-23 15:13:31,198 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.320453e-02
+2026-03-23 15:13:31,198 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:34,300 eko.evolution_operator/INFO: Evolution: Total time 3.101524 s
+2026-03-23 15:13:34,339 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:34,339 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:34,339 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:34,339 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:34,341 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+03, nf=4
+2026-03-23 15:13:34,341 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+03
+2026-03-23 15:13:34,341 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.010543e-02
+2026-03-23 15:13:34,341 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:37,451 eko.evolution_operator/INFO: Evolution: Total time 3.110182 s
+2026-03-23 15:13:37,489 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:37,489 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:37,489 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:37,489 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:37,491 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.000000e+03, nf=4
+2026-03-23 15:13:37,491 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.000000e+03
+2026-03-23 15:13:37,491 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.989173e-03
+2026-03-23 15:13:37,491 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:40,566 eko.evolution_operator/INFO: Evolution: Total time 3.074826 s
+2026-03-23 15:13:40,604 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:40,604 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:40,604 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:40,604 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:40,606 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+01, nf=4
+2026-03-23 15:13:40,606 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+01
+2026-03-23 15:13:40,606 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.900697e-02
+2026-03-23 15:13:40,607 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:43,708 eko.evolution_operator/INFO: Evolution: Total time 3.101120 s
+2026-03-23 15:13:43,745 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:43,745 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:43,745 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:43,745 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:43,748 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+03, nf=4
+2026-03-23 15:13:43,748 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+03
+2026-03-23 15:13:43,748 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.059250e-02
+2026-03-23 15:13:43,748 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:46,867 eko.evolution_operator/INFO: Evolution: Total time 3.119686 s
+2026-03-23 15:13:46,906 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:46,906 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:46,906 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:46,906 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:46,908 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+04, nf=4
+2026-03-23 15:13:46,908 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+04
+2026-03-23 15:13:46,908 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.708969e-03
+2026-03-23 15:13:46,908 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:50,039 eko.evolution_operator/INFO: Evolution: Total time 3.131011 s
+2026-03-23 15:13:50,078 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:50,078 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:50,078 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:50,078 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:50,080 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.000000e-01, nf=4
+2026-03-23 15:13:50,080 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.000000e-01
+2026-03-23 15:13:50,080 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 4.873876e-02
+2026-03-23 15:13:50,080 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:53,415 eko.evolution_operator/INFO: Evolution: Total time 3.335521 s
+2026-03-23 15:13:53,453 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:53,453 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:53,453 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:53,454 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:53,456 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 7.000000e+01, nf=4
+2026-03-23 15:13:53,456 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 7.000000e+01
+2026-03-23 15:13:53,456 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.453200e-02
+2026-03-23 15:13:53,456 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:56,561 eko.evolution_operator/INFO: Evolution: Total time 3.105295 s
+2026-03-23 15:13:56,599 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:56,599 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:56,599 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:56,599 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:56,601 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.000000e+03, nf=4
+2026-03-23 15:13:56,601 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.000000e+03
+2026-03-23 15:13:56,601 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.077828e-02
+2026-03-23 15:13:56,601 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:13:59,673 eko.evolution_operator/INFO: Evolution: Total time 3.071822 s
+2026-03-23 15:13:59,716 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:13:59,716 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:13:59,716 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:13:59,716 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:13:59,719 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e+01, nf=4
+2026-03-23 15:13:59,719 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e+01
+2026-03-23 15:13:59,719 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.600495e-02
+2026-03-23 15:13:59,719 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:02,820 eko.evolution_operator/INFO: Evolution: Total time 3.101151 s
+2026-03-23 15:14:02,864 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:02,864 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:02,864 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:02,864 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:02,867 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e-01, nf=4
+2026-03-23 15:14:02,867 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e-01
+2026-03-23 15:14:02,867 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 5.193621e-02
+2026-03-23 15:14:02,867 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:06,399 eko.evolution_operator/INFO: Evolution: Total time 3.532308 s
+2026-03-23 15:14:06,443 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:06,443 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:06,443 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:06,443 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:06,446 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.000000e+01, nf=4
+2026-03-23 15:14:06,446 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.000000e+01
+2026-03-23 15:14:06,446 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.483485e-02
+2026-03-23 15:14:06,446 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:09,640 eko.evolution_operator/INFO: Evolution: Total time 3.193912 s
+2026-03-23 15:14:09,686 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:09,686 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:09,686 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:09,686 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:09,688 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e+02, nf=4
+2026-03-23 15:14:09,688 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e+02
+2026-03-23 15:14:09,688 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.124515e-02
+2026-03-23 15:14:09,688 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:12,884 eko.evolution_operator/INFO: Evolution: Total time 3.195636 s
+2026-03-23 15:14:12,928 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:12,928 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:12,928 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:12,928 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:12,931 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.200000e+01, nf=4
+2026-03-23 15:14:12,931 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.200000e+01
+2026-03-23 15:14:12,931 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.717795e-02
+2026-03-23 15:14:12,931 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:16,138 eko.evolution_operator/INFO: Evolution: Total time 3.207247 s
+2026-03-23 15:14:16,186 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:16,186 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:16,186 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:16,186 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:16,188 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+02, nf=4
+2026-03-23 15:14:16,188 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+02
+2026-03-23 15:14:16,188 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.356655e-02
+2026-03-23 15:14:16,188 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:19,343 eko.evolution_operator/INFO: Evolution: Total time 3.154891 s
+2026-03-23 15:14:19,387 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:19,388 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:19,388 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:19,388 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:19,390 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.700000e+00, nf=4
+2026-03-23 15:14:19,390 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.700000e+00
+2026-03-23 15:14:19,390 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.586848e-02
+2026-03-23 15:14:19,390 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:22,910 eko.evolution_operator/INFO: Evolution: Total time 3.520145 s
+2026-03-23 15:14:22,954 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:22,954 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:22,954 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:22,954 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:22,957 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+02, nf=4
+2026-03-23 15:14:22,957 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+02
+2026-03-23 15:14:22,957 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.276624e-02
+2026-03-23 15:14:22,957 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:26,116 eko.evolution_operator/INFO: Evolution: Total time 3.159425 s
+2026-03-23 15:14:26,161 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:26,161 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:26,161 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:26,161 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:26,163 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+04, nf=4
+2026-03-23 15:14:26,163 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+04
+2026-03-23 15:14:26,163 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.137303e-03
+2026-03-23 15:14:26,163 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:29,333 eko.evolution_operator/INFO: Evolution: Total time 3.169983 s
+2026-03-23 15:14:29,378 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:29,378 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:29,378 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:29,378 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:29,380 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e-01, nf=4
+2026-03-23 15:14:29,380 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e-01
+2026-03-23 15:14:29,380 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 7.127593e-02
+2026-03-23 15:14:29,380 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:32,928 eko.evolution_operator/INFO: Evolution: Total time 3.547922 s
+2026-03-23 15:14:32,972 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:32,972 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:32,972 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:32,972 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:32,975 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.800000e+01, nf=4
+2026-03-23 15:14:32,975 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.800000e+01
+2026-03-23 15:14:32,975 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.774191e-02
+2026-03-23 15:14:32,975 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:36,233 eko.evolution_operator/INFO: Evolution: Total time 3.258288 s
+2026-03-23 15:14:36,277 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:36,277 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:36,277 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:36,277 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:36,280 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.500000e+01, nf=4
+2026-03-23 15:14:36,280 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.500000e+01
+2026-03-23 15:14:36,280 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.543646e-02
+2026-03-23 15:14:36,280 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:39,390 eko.evolution_operator/INFO: Evolution: Total time 3.110397 s
+2026-03-23 15:14:39,434 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:39,434 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:39,434 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:39,434 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:39,436 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.000000e+02, nf=4
+2026-03-23 15:14:39,436 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.000000e+02
+2026-03-23 15:14:39,437 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.101501e-02
+2026-03-23 15:14:39,437 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:42,935 eko.evolution_operator/INFO: Evolution: Total time 3.498874 s
+2026-03-23 15:14:42,982 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:42,982 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:42,982 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:42,982 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:42,984 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+00, nf=4
+2026-03-23 15:14:42,984 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+00
+2026-03-23 15:14:42,984 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.021872e-02
+2026-03-23 15:14:42,984 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:46,284 eko.evolution_operator/INFO: Evolution: Total time 3.299918 s
+2026-03-23 15:14:46,329 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:46,329 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:46,329 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:46,329 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:46,332 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e+02, nf=4
+2026-03-23 15:14:46,332 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e+02
+2026-03-23 15:14:46,332 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.155053e-02
+2026-03-23 15:14:46,332 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:49,591 eko.evolution_operator/INFO: Evolution: Total time 3.259114 s
+2026-03-23 15:14:49,636 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:49,636 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:49,636 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:49,636 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:49,638 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.500000e-01, nf=4
+2026-03-23 15:14:49,638 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.500000e-01
+2026-03-23 15:14:49,638 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.611602e-02
+2026-03-23 15:14:49,638 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:53,178 eko.evolution_operator/INFO: Evolution: Total time 3.540205 s
+2026-03-23 15:14:53,222 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:53,222 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:53,222 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:53,223 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:53,225 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.500000e+00, nf=4
+2026-03-23 15:14:53,225 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.500000e+00
+2026-03-23 15:14:53,225 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.300752e-02
+2026-03-23 15:14:53,225 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:56,350 eko.evolution_operator/INFO: Evolution: Total time 3.125471 s
+2026-03-23 15:14:56,396 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:56,396 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:56,396 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:56,396 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:56,398 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.500000e-01, nf=4
+2026-03-23 15:14:56,398 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.500000e-01
+2026-03-23 15:14:56,398 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 6.212898e-02
+2026-03-23 15:14:56,398 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:14:59,671 eko.evolution_operator/INFO: Evolution: Total time 3.272933 s
+2026-03-23 15:14:59,716 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:14:59,716 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:14:59,716 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:14:59,716 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:14:59,718 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.000000e+02, nf=4
+2026-03-23 15:14:59,718 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.000000e+02
+2026-03-23 15:14:59,718 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.182407e-02
+2026-03-23 15:14:59,718 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:02,769 eko.evolution_operator/INFO: Evolution: Total time 3.050573 s
+2026-03-23 15:15:02,811 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:02,812 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:02,812 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:02,812 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:02,814 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e-01, nf=4
+2026-03-23 15:15:02,814 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e-01
+2026-03-23 15:15:02,814 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.754907e-02
+2026-03-23 15:15:02,814 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:06,341 eko.evolution_operator/INFO: Evolution: Total time 3.527484 s
+2026-03-23 15:15:06,388 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:06,388 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:06,388 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:06,388 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:06,390 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e-01, nf=4
+2026-03-23 15:15:06,390 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e-01
+2026-03-23 15:15:06,390 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 4.417799e-02
+2026-03-23 15:15:06,390 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:10,278 eko.evolution_operator/INFO: Evolution: Total time 3.887485 s
+2026-03-23 15:15:10,322 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:10,322 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:10,322 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:10,323 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:10,325 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+03, nf=4
+2026-03-23 15:15:10,325 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+03
+2026-03-23 15:15:10,325 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 9.750440e-03
+2026-03-23 15:15:10,325 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:13,401 eko.evolution_operator/INFO: Evolution: Total time 3.076059 s
+2026-03-23 15:15:13,442 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:13,442 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:13,442 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:13,442 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:13,445 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.700000e+01, nf=4
+2026-03-23 15:15:13,445 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.700000e+01
+2026-03-23 15:15:13,445 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.663934e-02
+2026-03-23 15:15:13,445 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:16,461 eko.evolution_operator/INFO: Evolution: Total time 3.015700 s
+2026-03-23 15:15:16,500 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:16,500 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:16,500 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:16,500 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:16,502 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+03, nf=4
+2026-03-23 15:15:16,502 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+03
+2026-03-23 15:15:16,503 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.037390e-02
+2026-03-23 15:15:16,503 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:19,567 eko.evolution_operator/INFO: Evolution: Total time 3.063932 s
+2026-03-23 15:15:19,606 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:19,606 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:19,606 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:19,606 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:19,608 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e+00, nf=4
+2026-03-23 15:15:19,608 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e+00
+2026-03-23 15:15:19,608 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.131908e-02
+2026-03-23 15:15:19,608 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:22,614 eko.evolution_operator/INFO: Evolution: Total time 3.006363 s
+2026-03-23 15:15:22,655 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:22,655 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:22,655 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:22,655 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:22,657 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+00, nf=4
+2026-03-23 15:15:22,657 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+00
+2026-03-23 15:15:22,657 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.228781e-02
+2026-03-23 15:15:22,657 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:25,961 eko.evolution_operator/INFO: Evolution: Total time 3.303775 s
+2026-03-23 15:15:26,003 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:26,003 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:26,003 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:26,003 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:26,005 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+01, nf=4
+2026-03-23 15:15:26,005 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+01
+2026-03-23 15:15:26,005 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.828857e-02
+2026-03-23 15:15:26,005 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:29,232 eko.evolution_operator/INFO: Evolution: Total time 3.226441 s
+2026-03-23 15:15:29,273 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:29,273 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-23 15:15:29,273 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-23 15:15:29,273 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-23 15:15:29,275 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e+03, nf=4
+2026-03-23 15:15:29,275 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e+03
+2026-03-23 15:15:29,275 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 9.338117e-03
+2026-03-23 15:15:29,275 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-23 15:15:32,277 eko.evolution_operator/INFO: Evolution: Total time 3.001464 s
+2026-03-23 15:15:32,313 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,326 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,338 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,349 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,360 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,372 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,384 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,396 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,408 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,420 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,431 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,443 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,454 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,466 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,478 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,489 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,501 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,512 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,524 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,535 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,545 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,556 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,567 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,578 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,589 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,600 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,612 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,624 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,635 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,646 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,657 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,669 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,679 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,690 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,701 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,712 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,723 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,734 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,745 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,755 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,766 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,777 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,788 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,799 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,810 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,821 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-23 15:15:32,925 pineko.theory/INFO: Finished computation of HERA_NC_318GEV_EP-SIGMARED - took 149.956275 s
+2026-03-24 12:52:53,781 pineko.theory/INFO: Start computation of HERA_NC_318GEV_EP-SIGMARED
+2026-03-24 12:52:53,789 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:52:53,805 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:52:53,805 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:52:53,805 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:52:53,805 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:52:53,881 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e+00, nf=4
+2026-03-24 12:52:53,881 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e+00
+2026-03-24 12:52:53,881 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.432928e-02
+2026-03-24 12:52:53,881 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:52:56,973 eko.evolution_operator/INFO: Evolution: Total time 3.091609 s
+2026-03-24 12:52:57,012 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:52:57,012 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:52:57,012 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:52:57,012 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:52:57,014 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.500000e+00, nf=4
+2026-03-24 12:52:57,014 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.500000e+00
+2026-03-24 12:52:57,014 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.023962e-02
+2026-03-24 12:52:57,014 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:52:59,840 eko.evolution_operator/INFO: Evolution: Total time 2.826402 s
+2026-03-24 12:52:59,878 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:52:59,878 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:52:59,878 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:52:59,878 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:52:59,880 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+02, nf=4
+2026-03-24 12:52:59,880 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+02
+2026-03-24 12:52:59,880 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.219713e-02
+2026-03-24 12:52:59,880 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:02,699 eko.evolution_operator/INFO: Evolution: Total time 2.818805 s
+2026-03-24 12:53:02,737 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:02,737 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:02,737 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:02,737 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:02,740 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.500000e+02, nf=4
+2026-03-24 12:53:02,740 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.500000e+02
+2026-03-24 12:53:02,740 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.244642e-02
+2026-03-24 12:53:02,740 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:05,626 eko.evolution_operator/INFO: Evolution: Total time 2.885745 s
+2026-03-24 12:53:05,664 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:05,664 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:05,664 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:05,664 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:05,666 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 9.000000e+01, nf=4
+2026-03-24 12:53:05,666 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 9.000000e+01
+2026-03-24 12:53:05,666 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.406474e-02
+2026-03-24 12:53:05,666 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:08,572 eko.evolution_operator/INFO: Evolution: Total time 2.905586 s
+2026-03-24 12:53:08,610 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:08,610 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:08,610 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:08,610 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:08,612 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+04, nf=4
+2026-03-24 12:53:08,612 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+04
+2026-03-24 12:53:08,612 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.380484e-03
+2026-03-24 12:53:08,612 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:11,499 eko.evolution_operator/INFO: Evolution: Total time 2.887227 s
+2026-03-24 12:53:11,538 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:11,538 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:11,538 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:11,538 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:11,540 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+00, nf=4
+2026-03-24 12:53:11,540 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+00
+2026-03-24 12:53:11,540 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.791740e-02
+2026-03-24 12:53:11,540 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:14,560 eko.evolution_operator/INFO: Evolution: Total time 3.019537 s
+2026-03-24 12:53:14,598 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:14,598 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:14,598 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:14,598 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:14,600 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.000000e+01, nf=4
+2026-03-24 12:53:14,600 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.000000e+01
+2026-03-24 12:53:14,600 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.963874e-02
+2026-03-24 12:53:14,600 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:17,651 eko.evolution_operator/INFO: Evolution: Total time 3.050830 s
+2026-03-24 12:53:17,690 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:17,690 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:17,690 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:17,690 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:17,692 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e-01, nf=4
+2026-03-24 12:53:17,692 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e-01
+2026-03-24 12:53:17,692 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.978859e-02
+2026-03-24 12:53:17,692 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:20,873 eko.evolution_operator/INFO: Evolution: Total time 3.180020 s
+2026-03-24 12:53:20,912 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:20,912 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:20,912 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:20,912 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:20,915 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+02, nf=4
+2026-03-24 12:53:20,915 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+02
+2026-03-24 12:53:20,915 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.320453e-02
+2026-03-24 12:53:20,915 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:23,914 eko.evolution_operator/INFO: Evolution: Total time 2.999292 s
+2026-03-24 12:53:23,953 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:23,953 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:23,953 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:23,953 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:23,955 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+03, nf=4
+2026-03-24 12:53:23,955 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+03
+2026-03-24 12:53:23,955 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.010543e-02
+2026-03-24 12:53:23,955 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:26,988 eko.evolution_operator/INFO: Evolution: Total time 3.032500 s
+2026-03-24 12:53:27,027 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:27,027 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:27,027 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:27,027 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:27,029 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.000000e+03, nf=4
+2026-03-24 12:53:27,029 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.000000e+03
+2026-03-24 12:53:27,029 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.989173e-03
+2026-03-24 12:53:27,029 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:30,048 eko.evolution_operator/INFO: Evolution: Total time 3.018117 s
+2026-03-24 12:53:30,086 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:30,086 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:30,086 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:30,086 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:30,088 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+01, nf=4
+2026-03-24 12:53:30,088 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+01
+2026-03-24 12:53:30,088 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.900697e-02
+2026-03-24 12:53:30,088 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:33,102 eko.evolution_operator/INFO: Evolution: Total time 3.013638 s
+2026-03-24 12:53:33,140 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:33,140 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:33,140 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:33,140 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:33,142 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+03, nf=4
+2026-03-24 12:53:33,142 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+03
+2026-03-24 12:53:33,142 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.059250e-02
+2026-03-24 12:53:33,142 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:36,284 eko.evolution_operator/INFO: Evolution: Total time 3.141640 s
+2026-03-24 12:53:36,323 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:36,323 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:36,323 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:36,323 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:36,325 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+04, nf=4
+2026-03-24 12:53:36,325 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+04
+2026-03-24 12:53:36,325 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.708969e-03
+2026-03-24 12:53:36,325 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:39,498 eko.evolution_operator/INFO: Evolution: Total time 3.172344 s
+2026-03-24 12:53:39,540 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:39,540 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:39,540 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:39,540 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:39,542 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.000000e-01, nf=4
+2026-03-24 12:53:39,542 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.000000e-01
+2026-03-24 12:53:39,542 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 4.873876e-02
+2026-03-24 12:53:39,542 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:43,265 eko.evolution_operator/INFO: Evolution: Total time 3.723034 s
+2026-03-24 12:53:43,308 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:43,308 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:43,308 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:43,308 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:43,310 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 7.000000e+01, nf=4
+2026-03-24 12:53:43,310 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 7.000000e+01
+2026-03-24 12:53:43,310 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.453200e-02
+2026-03-24 12:53:43,310 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:46,484 eko.evolution_operator/INFO: Evolution: Total time 3.173943 s
+2026-03-24 12:53:46,523 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:46,523 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:46,523 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:46,523 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:46,525 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.000000e+03, nf=4
+2026-03-24 12:53:46,525 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.000000e+03
+2026-03-24 12:53:46,525 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.077828e-02
+2026-03-24 12:53:46,525 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:49,599 eko.evolution_operator/INFO: Evolution: Total time 3.073232 s
+2026-03-24 12:53:49,637 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:49,637 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:49,637 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:49,637 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:49,639 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e+01, nf=4
+2026-03-24 12:53:49,639 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e+01
+2026-03-24 12:53:49,639 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.600495e-02
+2026-03-24 12:53:49,639 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:52,751 eko.evolution_operator/INFO: Evolution: Total time 3.111037 s
+2026-03-24 12:53:52,788 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:52,788 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:52,788 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:52,788 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:52,790 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.500000e-01, nf=4
+2026-03-24 12:53:52,790 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.500000e-01
+2026-03-24 12:53:52,790 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 5.193621e-02
+2026-03-24 12:53:52,790 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:56,167 eko.evolution_operator/INFO: Evolution: Total time 3.376189 s
+2026-03-24 12:53:56,205 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:56,205 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:56,205 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:56,205 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:56,207 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.000000e+01, nf=4
+2026-03-24 12:53:56,207 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.000000e+01
+2026-03-24 12:53:56,207 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.483485e-02
+2026-03-24 12:53:56,207 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:53:59,530 eko.evolution_operator/INFO: Evolution: Total time 3.322884 s
+2026-03-24 12:53:59,572 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:53:59,573 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:53:59,573 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:53:59,573 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:53:59,575 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e+02, nf=4
+2026-03-24 12:53:59,575 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e+02
+2026-03-24 12:53:59,575 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.124515e-02
+2026-03-24 12:53:59,575 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:02,754 eko.evolution_operator/INFO: Evolution: Total time 3.179218 s
+2026-03-24 12:54:02,793 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:02,793 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:02,793 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:02,793 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:02,796 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.200000e+01, nf=4
+2026-03-24 12:54:02,796 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.200000e+01
+2026-03-24 12:54:02,796 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.717795e-02
+2026-03-24 12:54:02,796 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:06,045 eko.evolution_operator/INFO: Evolution: Total time 3.249501 s
+2026-03-24 12:54:06,089 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:06,090 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:06,090 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:06,090 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:06,092 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+02, nf=4
+2026-03-24 12:54:06,092 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+02
+2026-03-24 12:54:06,092 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.356655e-02
+2026-03-24 12:54:06,092 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:09,339 eko.evolution_operator/INFO: Evolution: Total time 3.246849 s
+2026-03-24 12:54:09,377 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:09,377 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:09,377 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:09,377 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:09,379 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.700000e+00, nf=4
+2026-03-24 12:54:09,379 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.700000e+00
+2026-03-24 12:54:09,379 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.586848e-02
+2026-03-24 12:54:09,379 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:12,895 eko.evolution_operator/INFO: Evolution: Total time 3.516010 s
+2026-03-24 12:54:12,936 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:12,936 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:12,936 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:12,936 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:12,938 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e+02, nf=4
+2026-03-24 12:54:12,938 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e+02
+2026-03-24 12:54:12,938 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.276624e-02
+2026-03-24 12:54:12,938 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:16,546 eko.evolution_operator/INFO: Evolution: Total time 3.608190 s
+2026-03-24 12:54:16,588 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:16,588 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:16,588 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:16,588 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:16,590 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+04, nf=4
+2026-03-24 12:54:16,590 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+04
+2026-03-24 12:54:16,590 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.137303e-03
+2026-03-24 12:54:16,590 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:20,029 eko.evolution_operator/INFO: Evolution: Total time 3.438156 s
+2026-03-24 12:54:20,078 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:20,078 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:20,078 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:20,078 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:20,081 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.000000e-01, nf=4
+2026-03-24 12:54:20,081 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.000000e-01
+2026-03-24 12:54:20,081 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 7.127593e-02
+2026-03-24 12:54:20,081 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:24,094 eko.evolution_operator/INFO: Evolution: Total time 4.013019 s
+2026-03-24 12:54:24,145 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:24,145 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:24,145 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:24,145 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:24,148 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.800000e+01, nf=4
+2026-03-24 12:54:24,148 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.800000e+01
+2026-03-24 12:54:24,148 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.774191e-02
+2026-03-24 12:54:24,148 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:27,766 eko.evolution_operator/INFO: Evolution: Total time 3.618020 s
+2026-03-24 12:54:27,813 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:27,813 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:27,813 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:27,813 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:27,815 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.500000e+01, nf=4
+2026-03-24 12:54:27,815 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.500000e+01
+2026-03-24 12:54:27,815 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.543646e-02
+2026-03-24 12:54:27,815 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:31,001 eko.evolution_operator/INFO: Evolution: Total time 3.185321 s
+2026-03-24 12:54:31,045 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:31,045 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:31,045 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:31,045 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:31,047 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.000000e+02, nf=4
+2026-03-24 12:54:31,047 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.000000e+02
+2026-03-24 12:54:31,047 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.101501e-02
+2026-03-24 12:54:31,048 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:34,113 eko.evolution_operator/INFO: Evolution: Total time 3.065434 s
+2026-03-24 12:54:34,158 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:34,158 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:34,158 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:34,158 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:34,160 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+00, nf=4
+2026-03-24 12:54:34,160 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+00
+2026-03-24 12:54:34,160 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.021872e-02
+2026-03-24 12:54:34,160 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:37,399 eko.evolution_operator/INFO: Evolution: Total time 3.238840 s
+2026-03-24 12:54:37,443 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:37,443 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:37,443 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:37,443 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:37,446 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e+02, nf=4
+2026-03-24 12:54:37,446 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e+02
+2026-03-24 12:54:37,446 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.155053e-02
+2026-03-24 12:54:37,446 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:40,580 eko.evolution_operator/INFO: Evolution: Total time 3.134158 s
+2026-03-24 12:54:40,625 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:40,625 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:40,625 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:40,625 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:40,627 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 8.500000e-01, nf=4
+2026-03-24 12:54:40,627 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 8.500000e-01
+2026-03-24 12:54:40,627 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.611602e-02
+2026-03-24 12:54:40,627 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:43,888 eko.evolution_operator/INFO: Evolution: Total time 3.260937 s
+2026-03-24 12:54:43,934 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:43,934 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:43,934 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:43,934 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:43,936 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.500000e+00, nf=4
+2026-03-24 12:54:43,936 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.500000e+00
+2026-03-24 12:54:43,936 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.300752e-02
+2026-03-24 12:54:43,936 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:46,979 eko.evolution_operator/INFO: Evolution: Total time 3.042510 s
+2026-03-24 12:54:47,022 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:47,022 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:47,022 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:47,022 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:47,025 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.500000e-01, nf=4
+2026-03-24 12:54:47,025 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.500000e-01
+2026-03-24 12:54:47,025 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 6.212898e-02
+2026-03-24 12:54:47,025 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:50,291 eko.evolution_operator/INFO: Evolution: Total time 3.266298 s
+2026-03-24 12:54:50,335 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:50,335 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:50,335 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:50,335 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:50,337 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 4.000000e+02, nf=4
+2026-03-24 12:54:50,337 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 4.000000e+02
+2026-03-24 12:54:50,337 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.182407e-02
+2026-03-24 12:54:50,337 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:53,316 eko.evolution_operator/INFO: Evolution: Total time 2.978369 s
+2026-03-24 12:54:53,359 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:53,360 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:53,360 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:53,360 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:53,362 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e-01, nf=4
+2026-03-24 12:54:53,362 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e-01
+2026-03-24 12:54:53,362 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 8.754907e-02
+2026-03-24 12:54:53,362 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:56,601 eko.evolution_operator/INFO: Evolution: Total time 3.238607 s
+2026-03-24 12:54:56,645 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:56,646 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:56,646 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:56,646 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:56,648 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e-01, nf=4
+2026-03-24 12:54:56,648 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e-01
+2026-03-24 12:54:56,648 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 4.417799e-02
+2026-03-24 12:54:56,648 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:54:59,922 eko.evolution_operator/INFO: Evolution: Total time 3.274205 s
+2026-03-24 12:54:59,965 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:54:59,965 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:54:59,965 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:54:59,966 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:54:59,968 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 3.000000e+03, nf=4
+2026-03-24 12:54:59,968 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 3.000000e+03
+2026-03-24 12:54:59,968 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 9.750440e-03
+2026-03-24 12:54:59,968 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:02,940 eko.evolution_operator/INFO: Evolution: Total time 2.972108 s
+2026-03-24 12:55:02,985 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:02,985 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:02,985 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:02,985 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:02,987 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 2.700000e+01, nf=4
+2026-03-24 12:55:02,987 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 2.700000e+01
+2026-03-24 12:55:02,987 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.663934e-02
+2026-03-24 12:55:02,987 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:05,968 eko.evolution_operator/INFO: Evolution: Total time 2.980517 s
+2026-03-24 12:55:06,011 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:06,011 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:06,011 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:06,011 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:06,014 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+03, nf=4
+2026-03-24 12:55:06,014 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+03
+2026-03-24 12:55:06,014 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.037390e-02
+2026-03-24 12:55:06,014 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:08,988 eko.evolution_operator/INFO: Evolution: Total time 2.974310 s
+2026-03-24 12:55:09,032 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:09,032 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:09,032 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:09,032 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:09,034 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 6.500000e+00, nf=4
+2026-03-24 12:55:09,034 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 6.500000e+00
+2026-03-24 12:55:09,034 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 2.131908e-02
+2026-03-24 12:55:09,034 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:11,979 eko.evolution_operator/INFO: Evolution: Total time 2.944451 s
+2026-03-24 12:55:12,024 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:12,024 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:12,024 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:12,024 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:12,026 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.200000e+00, nf=4
+2026-03-24 12:55:12,026 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.200000e+00
+2026-03-24 12:55:12,026 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 3.228781e-02
+2026-03-24 12:55:12,026 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:15,109 eko.evolution_operator/INFO: Evolution: Total time 3.082330 s
+2026-03-24 12:55:15,152 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:15,152 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:15,152 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:15,153 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:15,155 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 1.500000e+01, nf=4
+2026-03-24 12:55:15,155 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 1.500000e+01
+2026-03-24 12:55:15,155 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 1.828857e-02
+2026-03-24 12:55:15,155 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:18,084 eko.evolution_operator/INFO: Evolution: Total time 2.928767 s
+2026-03-24 12:55:18,126 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:18,126 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=8315.178393760001 @ 5
+2026-03-24 12:55:18,126 eko.couplings/INFO: Strong Coupling: a_s(µ_R^2=8315.178394)^(nf=5)=0.009390=0.118000/(4π)
+2026-03-24 12:55:18,126 eko.interpolation/INFO: Interpolation: number of points = 50, polynomial degree = 4, logarithmic = True
+2026-03-24 12:55:18,128 eko.evolution_operator/INFO: Evolution: computing operators 2.722500e+00 -> 5.000000e+03, nf=4
+2026-03-24 12:55:18,128 eko.evolution_operator/INFO: Evolution: µ_R^2 distance: 2.722500e+00 -> 5.000000e+03
+2026-03-24 12:55:18,128 eko.evolution_operator/INFO: Evolution: a_s distance: 2.581618e-02 -> 9.338117e-03
+2026-03-24 12:55:18,128 eko.evolution_operator/INFO: Evolution: order: (2, 0), solution strategy: truncated, use fhmruvv: True
+2026-03-24 12:55:21,035 eko.evolution_operator/INFO: Evolution: Total time 2.906090 s
+2026-03-24 12:55:21,074 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,087 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,099 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,112 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,124 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,137 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,148 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,160 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,171 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,183 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,194 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,205 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,216 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,227 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,238 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,248 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,260 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,271 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,282 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,293 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,304 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,315 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,326 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,337 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,347 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,358 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,370 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,381 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,393 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,404 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,415 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,427 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,438 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,449 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,460 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,470 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,481 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,493 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,504 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,515 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,528 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,539 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,549 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,560 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,572 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,583 eko.matchings/INFO: Atlas [0.00e+00 - 2.28e+00 - 2.42e+01 - 2.98e+04 - inf], ref=2.7224999999999997 @ 4
+2026-03-24 12:55:21,658 pineko.theory/INFO: Finished computation of HERA_NC_318GEV_EP-SIGMARED - took 147.874532 s
