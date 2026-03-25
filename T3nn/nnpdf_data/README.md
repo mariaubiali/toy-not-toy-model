@@ -1,2 +1,0 @@
-NNPDF data package
-==================
