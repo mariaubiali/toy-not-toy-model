@@ -1,8 +1,7 @@
-T3nn/
 Dataset/
 notebooks/figs/
 T3gp/plots
 T3gp/results/
-.DS_Store
 T3gp/src/models/__pycache__/
 T3gp/src/__pycache__/
+T3gp/data/FK_tables_F3/commondata/
