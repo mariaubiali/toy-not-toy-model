@@ -65,6 +65,7 @@ def select_truth_and_band(ds: dict, x_model: np.ndarray, lam: float | None = Non
     if "xgrid_ext" in meta and "xt3_ext" in meta:
         x_plot = np.asarray(meta["xgrid_ext"], float).ravel()
         xt3_true_plot = np.asarray(meta["xt3_ext"], float).ravel()
+        print("Using extended xgrid")
     else:
         x_plot = np.asarray(x_model, float).ravel()
         xt3_true_plot = np.asarray(meta["xt3_true"], float).ravel() if "xt3_true" in meta else None

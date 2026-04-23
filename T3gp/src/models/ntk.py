@@ -7,13 +7,13 @@ Utilities for computing empirical Neural Tangent Kernels (NTKs) for the model us
 nn_train.py, and using the NTK as a Gaussian Process (GP) / kernel ridge regression
 (KRR) predictor.
 
-This module is designed to be called in two common regimes:
+This module is designed to be called in two explicit regimes:
   1) "init":   linearize at random initialization (no training)
-  2) "post":   linearize at a trained model
+  2) "post":   linearize at a trained model after optimization
 
 Core public entrypoints:
   - ntk_gp_predict(...): GP posterior mean/variance for f(x) from linearized model
-  - maybe_run_ntk_from_training_state(...): convenience wrapper used by nn_train.py
+  - run_ntk_stage(...): stage-aware wrapper used by nn_train.py
 """
 
 from typing import Any, Dict, Optional, Tuple
@@ -164,8 +164,8 @@ def ntk_gp_predict(
     """
     device = xgrid_torch.device
     dtype = xgrid_torch.dtype
-    print("in ntk predict gp")
-    print("return_full_cov: ", return_full_cov)
+    # print("in ntk predict gp")
+    # print("return_full_cov: ", return_full_cov)
 
     ntr_full = W_train.shape[0]
     idx_tr = _subsample_rows(ntr_full, max_train_points, device=device)
@@ -225,7 +225,7 @@ def ntk_gp_predict(
     }
 
     if return_full_cov:
-        print("in return full cov")
+        # print("in return full cov")
         K_ff = J_f @ J_f.T                              # (Npred, Npred)
         K_cond = K_fy @ sol                             # (Npred, Npred) = K_fy A^{-1} K_yf
         f_cov = K_ff - K_cond                           # posterior cov
@@ -285,28 +285,26 @@ def run_ntk_stage(
     Convenience wrapper used by nn_train.py.
 
     Handles config knobs for:
-      - enabling/disabling at different stages
+      - enabling/disabling at explicit stages ("init" or "post")
       - choosing noise model: data covariance C vs lambda*I
       - ridge stabilization
       - subsampling train/pred points
       - returning mean/var + metadata
     """
-    print('in ntk')
     ntk_cfg = cfg.get("ntk", {})
-
-    when = ntk_cfg.get("when", "none")
-    when_s = str(when).lower() if not isinstance(when, (list, tuple, set)) else None
 
     if not bool(ntk_cfg.get("gp_eval", False)):
         return {}
 
-    # stage gating
-    do_init = (when_s == "init")
-    do_post = (when_s == "post")
-    
-    if stage == "init" and not do_init:
-        return {}
-    if stage == "post" and not do_post:
+    stage = str(stage).lower()
+    if stage not in {"init", "post"}:
+        raise ValueError(f"run_ntk_stage only supports stage='init' or 'post', got {stage!r}.")
+
+    when = str(ntk_cfg.get("when", "none")).lower()
+    if when not in {"none", "init", "post"}:
+        raise ValueError(f"ntk.when must be one of 'none', 'init', or 'post', got {when!r}.")
+
+    if stage != when:
         return {}
 
     use_data_cov = bool(ntk_cfg.get("use_data_cov", True))
@@ -358,6 +356,8 @@ def run_ntk_stage(
         f"{stage}_ntk_lambda": float(lam),
         f"{stage}_ntk_ridge": float(ridge),
     }
+    if "f_cov" in pred and pred["f_cov"] is not None:
+        out[f"{stage}_ntk_f_cov"] = pred["f_cov"].detach().cpu().numpy().astype(np.float64)
     if pred["train_sub_idx"] is not None:
         out[f"{stage}_ntk_train_sub_idx"] = pred["train_sub_idx"].detach().cpu().numpy()
     if pred["pred_sub_idx"] is not None:
@@ -382,10 +382,8 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     Standalone NTK model mode.
     Called by your pipeline when cfg["model"]["type"] == "ntk".
 
-    Returns:
-      - xgrid
-      - f_grid_mean
-      - f_grid_var (+ optional bands)
+    Returns NN-summary-style keys directly so downstream code can treat the
+    standalone NTK route like a GP/kernel-regression run.
     """
 
     device = torch.device(cfg.get("nn", {}).get("device", "cpu"))
@@ -443,7 +441,7 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     model.eval()
 
     # decide noise model
-    print('in ntk')
+    # print('in ntk')
     ntk_cfg = cfg.get("ntk", {})
     
     use_data_cov = bool(ntk_cfg.get("use_data_cov", True))
@@ -530,17 +528,44 @@ def run_ntk(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
     # store bands too (optional but useful)
     f_std = np.sqrt(np.maximum(f_var, 0.0))
+    f_lo68 = f_mean - 1.0  * f_std
+    f_hi68 = f_mean + 1.0  * f_std
+    f_lo95 = f_mean - 1.96 * f_std
+    f_hi95 = f_mean + 1.96 * f_std
+    f_cov = None
+    if "f_cov" in pred and pred["f_cov"] is not None:
+        f_cov = pred["f_cov"].detach().cpu().numpy().astype(np.float64)
+        f_cov = 0.5 * (f_cov + f_cov.T)
+    else:
+        f_cov = np.diag(f_var)
+
     out = {
-        "xgrid": x_pred_np,
+        "xgrid": x_pred_np.astype(np.float64),
+        "mean_curve": f_mean,
+        "var_ens": f_var,
+        "var_het": np.zeros_like(f_var),
+        "lo68": f_lo68,
+        "hi68": f_hi68,
+        "lo95": f_lo95,
+        "hi95": f_hi95,
+        "cov_ens_f": f_cov,
+        "cov_het_f": np.zeros_like(f_cov),
+        "cov_tot_f": f_cov.copy(),
+        "sigma_f": f_std,
+        "xgrid_cov_ens_f": x_pred_np.astype(np.float64),
+        # Backward-compatible aliases used elsewhere in the codebase
         "f_grid_mean": f_mean,
         "f_grid_var": f_var,
         "f_grid_std": f_std,
+        "f_grid_lo68": f_lo68,
+        "f_grid_hi68": f_hi68,
+        "f_grid_lo95": f_lo95,
+        "f_grid_hi95": f_hi95,
+        "f_cov": f_cov,
+        "x_pred_used": x_pred_np.astype(np.float64),
         "ntk_used_data_cov": bool(use_data_cov),
         "ntk_lambda": float(lam),
         "ntk_ridge": float(ridge),
     }
-
-    if "f_cov" in pred and pred["f_cov"] is not None:
-        out["f_cov"] = pred["f_cov"].detach().cpu().numpy()
 
     return out

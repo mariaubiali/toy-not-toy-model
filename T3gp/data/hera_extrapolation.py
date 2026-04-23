@@ -1,19 +1,57 @@
 #!/usr/bin/env python3
+
+from pathlib import Path
 import numpy as np
 import lhapdf
 import matplotlib.pyplot as plt
 
-from validphys.loader import Loader
+from validphys.api import API
 from validphys.fkparser import load_fktable
+
 
 # =========================
 # CONFIG (edit here only)
 # =========================
-NPZ_PATH = "Dataset/data_208_proj5.npz"
-THEORYID = 208
-FKSET = "BCDMSP"
 PDFSET = "NNPDF40_nnlo_as_01180"
 MEMBER = 0
+
+SETS = [
+    # {
+    #     "dataset": "HERA_NC_318GEV_EM-SIGMARED",
+    #     "theoryid": 208,
+    #     "npz_in": "Dataset/hera_data_nc_em.npz",
+    # },
+    # {
+    #     "dataset": "HERA_CC_318GEV_EP-SIGMARED",
+    #     "theoryid": 208,
+    #     "npz_in": "Dataset/hera_data_cc_ep.npz",
+    # },
+    # {
+    #     "dataset": "HERA_CC_318GEV_EM-SIGMARED",
+    #     "theoryid": 208,
+    #     "npz_in": "Dataset/hera_data_cc_em.npz",
+    # },
+    {
+        "dataset": "HERA_NC_225GEV_EP-SIGMARED",
+        "theoryid": 208,
+        "npz_in": "Dataset/hera_data_nc_ep460.npz",
+    },
+    {
+        "dataset": "HERA_NC_251GEV_EP-SIGMARED",
+        "theoryid": 208,
+        "npz_in": "Dataset/hera_data_nc_ep575.npz",
+    },
+    {
+        "dataset": "HERA_NC_300GEV_EP-SIGMARED",
+        "theoryid": 208,
+        "npz_in": "Dataset/hera_data_nc_ep820.npz",
+    },
+    {
+        "dataset": "HERA_NC_318GEV_EP-SIGMARED",
+        "theoryid": 208,
+        "npz_in": "Dataset/hera_data_nc_ep920.npz",
+    },
+]
 
 N_X = 400
 XMIN = 1e-6
@@ -21,8 +59,6 @@ XMAX = 1.0
 XJOIN = 1e-1
 
 DO_PLOT = True
-OUT_PATH = "Dataset/data_208_5pts_extended.npz"
-ADD_EXTENDED_TO_NPZ = True
 # =========================
 
 
@@ -43,23 +79,26 @@ def xT3(pdf, x, Q):
     return (u + ub) - (d + db)
 
 
-def Q0_from_fk(theoryid=THEORYID, fkset=FKSET):
-    loader = Loader()
-    fk = load_fktable(loader.check_fktable(setname=fkset, theoryID=theoryid, cfac=()))
+def Q0_from_dataset_fk(dataset_name, theoryid):
+    ds = API.dataset(
+        dataset_input={"dataset": dataset_name},
+        use_cuts="internal",
+        theoryid=theoryid,
+    )
+    fk = load_fktable(ds.fkspecs[0])
     return float(fk.Q0)
 
 
-def main():
-    old = np.load(NPZ_PATH)
-    out = OUT_PATH or NPZ_PATH.replace(".npz", "_extended.npz")
+def extend_one(entry):
+    npz_in = entry["npz_in"]
+    dataset = entry["dataset"]
+    theoryid = entry["theoryid"]
 
-    # q and q2 from dataset
-    q2 = old["q2_vals"] if "q2_vals" in old.files else old["kinematics"][:, 1]
-    q2 = np.asarray(q2, float)
-    q = np.sqrt(q2)
+    old = np.load(npz_in)
+    out = str(Path(npz_in).with_name(Path(npz_in).stem + "_extended.npz"))
 
-    # Q0 from FK
-    Q0 = Q0_from_fk()
+    # Q0 from dataset FK
+    Q0 = Q0_from_dataset_fk(dataset, theoryid)
 
     # FK grid reference
     x_fk = np.asarray(old["xgrid"], float)
@@ -68,7 +107,7 @@ def main():
     print("xgrid min: ", x_fk.min())
     print("xgrid len: ", len(x_fk))
 
-    # extended grid → xT3 → interpolate back
+    # extended grid -> xT3 -> interpolate back
     x_ext = make_xgrid()
     pdf = lhapdf.mkPDF(PDFSET, MEMBER)
     xt3_ext = xT3(pdf, x_ext, Q0)
@@ -76,11 +115,12 @@ def main():
 
     # save
     payload = {k: old[k] for k in old.files}
-
-    # 2) store extended grid + truth as top-level keys
     payload["xgrid_ext"] = x_ext
     payload["xt3_ext"] = xt3_ext
+    payload["xt3_interp_on_xgrid"] = xt3_new_fk
+    payload["q0"] = np.array([Q0], dtype=float)
 
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
     np.savez(out, **payload)
 
     print(f"Saved: {out}")
@@ -90,7 +130,8 @@ def main():
     diff = xt3_new_fk - xt3_old
     print(f"max |Δ| on FK grid: {np.max(np.abs(diff)):.3e}")
     print(
-        f"max |Δ/old| on FK grid: {np.max(np.abs(diff) / np.maximum(np.abs(xt3_old), 1e-30)):.3e}"
+        f"max |Δ/old| on FK grid: "
+        f"{np.max(np.abs(diff) / np.maximum(np.abs(xt3_old), 1e-30)):.3e}"
     )
 
     if DO_PLOT:
@@ -110,7 +151,6 @@ def main():
         plt.ylabel("xT3(x, Q0)")
         plt.legend()
         plt.tight_layout()
-        plt.show()
 
         plt.figure()
         plt.plot(x_fk, xt3_old, "o", ms=3, label="old xt3_true (FK)")
@@ -121,6 +161,11 @@ def main():
         plt.legend()
         plt.tight_layout()
         plt.show()
+
+
+def main():
+    for entry in SETS:
+        extend_one(entry)
 
 
 if __name__ == "__main__":

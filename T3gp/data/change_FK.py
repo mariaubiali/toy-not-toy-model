@@ -4,7 +4,8 @@ import numpy as np
 
 INPUT_NPZ = "Dataset/data_208.npz"
 
-OUTPUT_20 = "Dataset/data_208_proj5.npz"
+OUTPUT_5 = "Dataset/data_208_proj5.npz"
+OUTPUT_20 = "Dataset/data_208_proj20.npz"
 OUTPUT_50 = "Dataset/data_208_proj50.npz"
 OUTPUT_200 = "Dataset/data_208_proj200.npz"
 
@@ -147,7 +148,9 @@ print("c_yy shape:", c_yy.shape)
 # -----------------------------
 # 2. Define target grids
 # -----------------------------
-xgrid_20 = np.geomspace(xgrid_bench.min(), xgrid_bench.max(), 5)
+xgrid_5 = np.geomspace(xgrid_bench.min(), xgrid_bench.max(), 5)
+
+xgrid_20 = np.geomspace(xgrid_bench.min(), xgrid_bench.max(), 20)
 
 # For the 50-point check, use the SAME benchmark grid exactly
 xgrid_50 = xgrid_bench.copy()
@@ -155,6 +158,7 @@ xgrid_50 = xgrid_bench.copy()
 xgrid_200 = np.geomspace(xgrid_bench.min(), xgrid_bench.max(), 200)
 
 print("\nTarget grids:")
+print("5-point grid length:", len(xgrid_5))
 print("20-point grid length:", len(xgrid_20))
 print("50-point grid length:", len(xgrid_50))
 print("200-point grid length:", len(xgrid_200))
@@ -163,8 +167,8 @@ print("200-point grid length:", len(xgrid_200))
 # 3. Build and save projected datasets
 # -----------------------------
 proj5 = save_projected_dataset(
-    OUTPUT_20,
-    xgrid_20,
+    OUTPUT_5,
+    xgrid_5,
     xgrid_bench,
     W_bench,
     xt3_bench,
@@ -175,6 +179,20 @@ proj5 = save_projected_dataset(
     y_vals,
     kinematics,
 )
+
+# proj20 = save_projected_dataset(
+#     OUTPUT_20,
+#     xgrid_20,
+#     xgrid_bench,
+#     W_bench,
+#     xt3_bench,
+#     y_theory_bench,
+#     y_pseudo_bench,
+#     c_yy,
+#     q2_vals,
+#     y_vals,
+#     kinematics,
+# )
 
 # proj50 = save_projected_dataset(
 #     OUTPUT_50,
@@ -207,21 +225,25 @@ proj5 = save_projected_dataset(
 # -----------------------------
 # 4. Diagnostics
 # -----------------------------
+print_diffs("5 vs benchmark theory", y_theory_bench, proj5["y_theory"])
 # print_diffs("20 vs benchmark theory", y_theory_bench, proj20["y_theory"])
 # print_diffs("50 vs benchmark theory", y_theory_bench, proj50["y_theory"])
 # print_diffs("200 vs benchmark theory", y_theory_bench, proj200["y_theory"])
 
-# noise_bench = y_pseudo_bench - y_theory_bench
+noise_bench = y_pseudo_bench - y_theory_bench
+noise_5 = proj5["y_pseudo"] - proj5["y_theory"]
 # noise_20 = proj20["y_pseudo"] - proj20["y_theory"]
 # noise_50 = proj50["y_pseudo"] - proj50["y_theory"]
 # noise_200 = proj200["y_pseudo"] - proj200["y_theory"]
 
-# print("\nNoise reuse checks:")
+print("\nNoise reuse checks:")
+print("max |noise_5 - noise_bench| :", np.max(np.abs(noise_5 - noise_bench)))
 # print("max |noise_20 - noise_bench| :", np.max(np.abs(noise_20 - noise_bench)))
 # print("max |noise_50 - noise_bench| :", np.max(np.abs(noise_50 - noise_bench)))
 # print("max |noise_200 - noise_bench|:", np.max(np.abs(noise_200 - noise_bench)))
 
-# print("\nSaved:")
+print("\nSaved:")
+print(" ", OUTPUT_5)
 # print(" ", OUTPUT_20)
 # print(" ", OUTPUT_50)
 # print(" ", OUTPUT_200)

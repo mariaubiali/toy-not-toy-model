@@ -44,12 +44,9 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     jitter = float(cfg.get("kernel", {}).get("jitter", 1e-10))
     replica = int(cfg.get("replica", 0))
 
-    # NTK config (init + mid/post)
+    # NTK config (explicit init or post)
     ntk_cfg = cfg.get("ntk", {})
     ntk_when = ntk_cfg.get("when", "none")
-    # Optional: compute at an intermediate epoch (0-indexed).
-    ntk_epoch = ntk_cfg.get("epoch", None)
-    ntk_epoch = int(ntk_epoch) if ntk_epoch is not None else None
 
     # reproducibility for model init+split
     torch.manual_seed(seed)
@@ -150,12 +147,9 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     res: Dict[str, Any] = {}
 
     # ----------------------------
-    # NTK at initialization (optional)
+    # NTK-GP at initialization (optional)
     # ----------------------------
-    if str(ntk_when).lower() in ("init", "both") or (isinstance(ntk_when, (list, tuple, set)) and "init" in {str(x).lower() for x in ntk_when}):
-        if C_tr is None and bool(ntk_cfg.get("gp", {}).get("use_data_cov", True)):
-            # If user wants C as noise but dataset has no C, they'll get a clear error.
-            pass
+    if str(ntk_when).lower() == "init":
         res.update(
             run_ntk_stage(
                 stage="init",
@@ -269,31 +263,10 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
 
-        # ----------------------------
-        # NTK at a chosen epoch (optional)
-        # Linearize at the current weights after this epoch's update.
-        # ----------------------------
-        if ntk_epoch is not None and ep == ntk_epoch and str(ntk_when).lower() in ("both"):
-            res.update(
-                run_ntk_stage(
-                    stage="mid",
-                    model=model,
-                    xgrid_torch=x_torch,
-                    xgrid_np=xgrid.astype(np.float64),
-                    W_train=W_tr,
-                    y_train=y_tr,
-                    C_train=C_tr,
-                    x_pred_torch=x_pred_torch,
-                    x_pred_np=x_pred_np,
-                    cfg=cfg,
-                )
-            )
-
     # ----------------------------
-    # NTK after full training (optional)
+    # NTK-GP after full training (optional)
     # ----------------------------
-    if str(ntk_when).lower() in ("post", "both") or ((isinstance(ntk_when, (list, tuple, set)) and "post" in {str(x).lower() for x in ntk_when})):
-        print("ntk post mode")
+    if str(ntk_when).lower() == "post":
         res.update(
             run_ntk_stage(
                 stage="post",
@@ -308,6 +281,19 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
                 cfg=cfg,
             )
         )
+
+        # Promote post-NTK outputs to the primary curve summary so downstream
+        # consumers see the empirical NTK GP rather than the raw trained NN.
+        if "post_ntk_f_mean" in res:
+            res["xgrid"] = np.asarray(res.get("post_ntk_xgrid", x_pred_np), dtype=np.float64)
+            res["f_grid_mean"] = np.asarray(res["post_ntk_f_mean"], dtype=np.float64)
+            res["f_grid_var"] = np.asarray(res.get("post_ntk_f_var", np.zeros_like(res["f_grid_mean"])), dtype=np.float64)
+            if "post_ntk_f_cov" in res:
+                res["f_grid_cov"] = np.asarray(res["post_ntk_f_cov"], dtype=np.float64)
+            res["f_grid_sigma"] = np.asarray(
+                res.get("post_ntk_f_std", np.sqrt(np.maximum(res["f_grid_var"], 0.0))),
+                dtype=np.float64,
+            )
 
     # ----------------------------
     # Return full-grid prediction
@@ -347,19 +333,20 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
 
         f_mean = f_mu_full.detach().cpu().numpy().astype(np.float64)
 
+        if "f_grid_mean" not in res:
+            res["xgrid"] = x_pred_np
+            res["f_grid_mean"] = f_mean
         res.update({
-            "xgrid": x_pred_np,
-            "f_grid_mean": f_mean,
             "loss_history": np.array(loss_hist, dtype=np.float64),
             "train_idx": train_idx,
             "val_idx": val_idx,
         })
 
-        if f_var is not None:
+        if f_var is not None and "f_grid_var" not in res:
             res["f_grid_var"] = f_var
-        if f_cov is not None:
+        if f_cov is not None and "f_grid_cov" not in res:
             res["f_grid_cov"] = f_cov
-        if f_sigma is not None:
+        if f_sigma is not None and "f_grid_sigma" not in res:
             res["f_grid_sigma"] = f_sigma
 
         assert res["xgrid"].shape[0] == res["f_grid_mean"].shape[0]
@@ -421,6 +408,12 @@ def train_nn_ensemble_forward(
     have_all_post = all(v is not None for v in member_post_ntk_means) and all(v is not None for v in member_post_ntk_vars)
     post_ntk_replicas = np.stack(member_post_ntk_means, axis=0) if have_all_post else None
     post_ntk_vars     = np.stack(member_post_ntk_vars,  axis=0) if have_all_post else None
+
+    # If the user requested post-NTK evaluation, make the ensemble summary operate
+    # on the post-NTK GP curves rather than the raw trained NN curves.
+    if str(cfg.get("ntk", {}).get("when", "none")).lower() == "post" and have_all_post:
+        replicas = post_ntk_replicas
+        vars_replicas = post_ntk_vars
 
     # OPTIONAL SUBSAMPLING OF MEMBERS
     if subsample_members is not None and replicas.shape[0] > subsample_members:

@@ -1,9 +1,0 @@
-2026-03-23 15:16:49,226 pineko.theory/INFO: Start computation of HERA_NC_318GEV_EM-SIGMARED
-2026-03-23 15:16:49,226 pineko.theory/INFO: max_as=2, max_al=0, xir=1.000000, xif=1.000000, xia=1.000000
-2026-03-23 15:16:49,701 pineko.theory/INFO: Finished computation of HERA_NC_318GEV_EM-SIGMARED - took 0.475281 s
-2026-03-24 12:51:38,125 pineko.theory/INFO: Start computation of HERA_NC_318GEV_EM-SIGMARED
-2026-03-24 12:51:38,125 pineko.theory/INFO: max_as=2, max_al=0, xir=1.000000, xif=1.000000, xia=1.000000
-2026-03-24 12:51:38,614 pineko.theory/INFO: Finished computation of HERA_NC_318GEV_EM-SIGMARED - took 0.489367 s
-2026-03-24 12:59:08,177 pineko.theory/INFO: Start computation of HERA_NC_318GEV_EM-SIGMARED
-2026-03-24 12:59:08,177 pineko.theory/INFO: max_as=2, max_al=0, xir=1.000000, xif=1.000000, xia=1.000000
-2026-03-24 12:59:08,667 pineko.theory/INFO: Finished computation of HERA_NC_318GEV_EM-SIGMARED - took 0.489460 s

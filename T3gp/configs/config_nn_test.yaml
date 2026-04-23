@@ -1,8 +1,8 @@
 seed: 123
-output_dir: results/nn/chi_het_th_full
+output_dir: results/testing_hera_nc_data_extended
 data:
-  path: data/Dataset/data_208_extended.npz
-  target: y_theory
+  path: data/Dataset/hera_data_nc_em_extended.npz
+  target: y_pseudo
 
   rescale:
     enabled: true
@@ -14,7 +14,7 @@ model:
 nn:
   hidden: [32, 32, 32]
   activation: gelu
-  out_dim: 2
+  out_dim: 1
   dropout: 0.001
   epochs: 5000
   lr: 5.0e-4
@@ -30,12 +30,12 @@ nn:
 
   ensemble:
     enabled: true
-    n_members: 100
+    n_members: 20
     seed_offset: 1000        # member i uses seed = seed + seed_offset + i
     save_member_preds: false # if true saves each member curve  
 
 loss:
-  name: chi2_het              # mse | weighted_mse | chi2_het | chi2 | mse_het
+  name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
   lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
   full_cov: false

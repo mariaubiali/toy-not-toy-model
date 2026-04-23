@@ -62,12 +62,12 @@ if theoryid in {200, 208}:
 elif theoryid == 40001000:
     ds_p = API.dataset(
         dataset_input={"dataset": "BCDMS_NC_NOTFIXED_P_EM-F2"},
-        theoryID=theoryid,
+        theoryid=theoryid,
         use_cuts="internal",
     )
     ds_d = API.dataset(
         dataset_input={"dataset": "BCDMS_NC_NOTFIXED_D_EM-F2"},
-        theoryID=theoryid,
+        theoryid=theoryid,
         use_cuts="internal",
     )
 
@@ -194,7 +194,7 @@ for i, x in enumerate(xgrid):
     ub = pdf0.xfxQ(-2, x, Q0)
     d = pdf0.xfxQ(1, x, Q0)
     db = pdf0.xfxQ(-1, x, Q0)
-    xt3_true[i] = (u - ub) - (d - db)
+    xt3_true[i] = (u + ub) - (d + db)
 
 t3 = (
     xt3_true / xgrid
@@ -223,15 +223,16 @@ y_pseudo = y_theory + noise
 # Saving data
 theoryid = str(theoryid)
 
-# np.savez(
-#     f"Dataset/data_{theoryid}.npz",
-#     q2_vals=q2_vals,
-#     y_vals=y_vals,
-#     y_pseudo=y_pseudo,
-#     W=W,
-#     xgrid=xgrid,
-#     y_theory=y_theory,
-#     xt3_true=xt3_true,
-#     c_yy=c_yy,
-#     kinematics=kinematics,
-# )
+np.savez(
+    f"Dataset/data_{theoryid}.npz",
+    q2_vals=q2_vals,
+    y_vals=y_vals,
+    y_pseudo=y_pseudo,
+    W=W,
+    xgrid=xgrid,
+    y_theory=y_theory,
+    xt3_true=xt3_true,
+    c_yy=c_yy,
+    kinematics=kinematics,
+)
+print(f"Saved as Dataset/data_{theoryid}.npz")

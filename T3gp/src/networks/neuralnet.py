@@ -14,10 +14,9 @@ def _train_ensemble(ds: dict, cfg: dict):
     model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
     if model_type == "ntk":
         out = run_ntk(ds, cfg)
-        x_star = out["xgrid"]
-        mus = out["f_grid_mean"][None, :]
-        vars_ = out.get("f_grid_var", None)
-        vars_ = None if vars_ is None else vars_[None, :]
+        x_star = np.asarray(out["xgrid"], dtype=np.float64)
+        mus = np.asarray(out["mean_curve"], dtype=np.float64)[None, :]
+        vars_ = np.asarray(out.get("var_ens", np.zeros_like(mus[0])), dtype=np.float64)[None, :]
         return x_star, mus, vars_, out
     
     ens = cfg.get("nn", {}).get("ensemble", {})
@@ -37,6 +36,64 @@ def _train_ensemble(ds: dict, cfg: dict):
     vars_ = out.get("vars_replicas", None)
     return x_star, mus, vars_, out
 
+def ensure_symmetric(C):
+    C = np.asarray(C, dtype=np.float64)
+    return 0.5 * (C + C.T)
+
+
+def _collect_ntk_stage_summary(out_ntk: dict, stage: str) -> dict:
+    """Map staged NTK outputs onto the same label schema used by nn_summary.npz."""
+    prefix = f"{stage}_ntk_"
+    mean = out_ntk.get(f"{stage}_ntk_f_mean", None)
+    if mean is None:
+        return {}
+
+    block = {
+        f"{prefix}xgrid": np.asarray(out_ntk[f"{stage}_ntk_xgrid"], dtype=np.float64),
+        f"{prefix}mean_curve": np.asarray(mean, dtype=np.float64),
+        f"{prefix}var_ens": np.asarray(out_ntk.get(f"{stage}_ntk_f_var", np.zeros_like(mean)), dtype=np.float64),
+        f"{prefix}var_het": np.zeros_like(np.asarray(mean, dtype=np.float64)),
+        f"{prefix}lo68": np.asarray(out_ntk[f"{stage}_ntk_f_lo68"], dtype=np.float64),
+        f"{prefix}hi68": np.asarray(out_ntk[f"{stage}_ntk_f_hi68"], dtype=np.float64),
+        f"{prefix}lo95": np.asarray(out_ntk[f"{stage}_ntk_f_lo95"], dtype=np.float64),
+        f"{prefix}hi95": np.asarray(out_ntk[f"{stage}_ntk_f_hi95"], dtype=np.float64),
+        f"{prefix}sigma_f": np.asarray(out_ntk.get(f"{stage}_ntk_f_std", np.zeros_like(mean)), dtype=np.float64),
+    }
+
+    f_cov = out_ntk.get(f"{stage}_ntk_f_cov", None)
+    xgrid = block[f"{prefix}xgrid"]
+    if f_cov is not None:
+        cov = ensure_symmetric(np.asarray(f_cov, dtype=np.float64))
+    else:
+        var = block[f"{prefix}var_ens"]
+        cov = np.diag(np.asarray(var, dtype=np.float64))
+    block[f"{prefix}cov_ens_f"] = cov
+    block[f"{prefix}cov_het_f"] = np.zeros_like(cov)
+    block[f"{prefix}cov_tot_f"] = cov.copy()
+    block[f"{prefix}xgrid_cov_ens_f"] = xgrid.copy()
+    return block
+
+
+def _promote_post_ntk_to_primary(save_dict: dict, out_ntk: dict) -> None:
+    """Overwrite primary summary keys with post-training NTK GP outputs."""
+    block = _collect_ntk_stage_summary(out_ntk, "post")
+    if not block:
+        return
+
+    save_dict["xgrid"] = block["post_ntk_xgrid"]
+    save_dict["mean_curve"] = block["post_ntk_mean_curve"]
+    save_dict["var_ens"] = block["post_ntk_var_ens"]
+    save_dict["var_het"] = block["post_ntk_var_het"]
+    save_dict["lo68"] = block["post_ntk_lo68"]
+    save_dict["hi68"] = block["post_ntk_hi68"]
+    save_dict["lo95"] = block["post_ntk_lo95"]
+    save_dict["hi95"] = block["post_ntk_hi95"]
+    save_dict["cov_ens_f"] = block["post_ntk_cov_ens_f"]
+    save_dict["xgrid_cov_ens_f"] = block["post_ntk_xgrid_cov_ens_f"]
+    save_dict["cov_het_f"] = block["post_ntk_cov_het_f"]
+    save_dict["cov_tot_f"] = block["post_ntk_cov_tot_f"]
+    save_dict["sigma_f"] = block["post_ntk_sigma_f"]
+
 
 def run_from_config(cfg: dict):
     out = cfg.get("output_dir", "outputs/run")
@@ -44,6 +101,8 @@ def run_from_config(cfg: dict):
 
     ds = load_dataset(cfg["data"])
     meta = ds.get("meta", {})
+    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
+    ntk_when = str(cfg.get("ntk", {}).get("when", "none")).lower()
     W_full = np.asarray(ds["W"], dtype=np.float64)         # (Ndat, Ngrid)
     y_pseudo = np.asarray(ds['y'], dtype=np.float64).ravel()
     C_full = np.asarray(ds["C"], dtype=np.float64) 
@@ -74,7 +133,6 @@ def run_from_config(cfg: dict):
         C_ens = np.zeros((y_pred_members.shape[1], y_pred_members.shape[1]))
 
     # ---------- NTK OVERRIDE: use GP predictive covariance ----------
-    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
     if model_type == "ntk" and out_ntk is not None and "f_cov" in out_ntk:
         print("in NTK override")
 
@@ -142,10 +200,24 @@ def run_from_config(cfg: dict):
     else:
         var_het = vars_.mean(axis=0)
 
-    # total
     var_tot = var_ens + var_het
+    # cov_ens_f is the x-space covariance to be used later for chi2.
+    # NN: empirical covariance of trained ensemble replicas on xgrid.
+    # NTK: GP/NTK predictive covariance at initialization.
+    cov_ens_f = (
+        np.cov(mus, rowvar=False, ddof=1)
+        if mus.shape[0] > 1
+        else np.zeros((mus.shape[1], mus.shape[1]), dtype=np.float64)
+    )
+    cov_ens_f = ensure_symmetric(cov_ens_f)
+    xgrid_cov_ens_f = np.asarray(xgrid, dtype=np.float64).ravel()
 
-    cov_ens_f = np.cov(mus, rowvar=False, ddof=1) if mus.shape[0] > 1 else np.zeros((mus.shape[1], mus.shape[1]), dtype=np.float64)
+    if model_type == "ntk" and out_ntk is not None and "f_cov" in out_ntk:
+        print("Using NTK f_cov as cov_ens_f for chi2.")
+        cov_ens_f = np.asarray(out_ntk["f_cov"], dtype=np.float64)
+        cov_ens_f = ensure_symmetric(cov_ens_f)
+        xgrid_cov_ens_f = np.asarray(out_ntk.get("x_pred_used", xgrid), dtype=np.float64).ravel()
+
     cov_het_f = np.diag(var_het)
     cov_tot_f = cov_ens_f + cov_het_f
     sigma_f = np.sqrt(np.maximum(np.diag(cov_tot_f), 1e-18))
@@ -164,16 +236,21 @@ def run_from_config(cfg: dict):
     lo68_het, hi68_het = mean_curve - 1.0 * std_het, mean_curve + 1.0 * std_het
     lo95_het, hi95_het = mean_curve - 1.96 * std_het, mean_curve + 1.96 * std_het
 
-    model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
     if model_type == "ntk" and out_ntk is not None:
-        print("plot Ntk error")
-        # If run_ntk stored bands, prefer them
-        if "f_grid_lo68" in out_ntk and "f_grid_hi68" in out_ntk:
-            lo68_tot = out_ntk["f_grid_lo68"]
-            hi68_tot = out_ntk["f_grid_hi68"]
-        if "f_grid_lo95" in out_ntk and "f_grid_hi95" in out_ntk:
-            lo95_tot = out_ntk["f_grid_lo95"]
-            hi95_tot = out_ntk["f_grid_hi95"]
+        print("plot NTK error")
+        # Prefer primary summary keys if present on the standalone NTK route.
+        if "lo68" in out_ntk and "hi68" in out_ntk:
+            lo68_tot = np.asarray(out_ntk["lo68"], dtype=np.float64)
+            hi68_tot = np.asarray(out_ntk["hi68"], dtype=np.float64)
+        elif "f_grid_lo68" in out_ntk and "f_grid_hi68" in out_ntk:
+            lo68_tot = np.asarray(out_ntk["f_grid_lo68"], dtype=np.float64)
+            hi68_tot = np.asarray(out_ntk["f_grid_hi68"], dtype=np.float64)
+        if "lo95" in out_ntk and "hi95" in out_ntk:
+            lo95_tot = np.asarray(out_ntk["lo95"], dtype=np.float64)
+            hi95_tot = np.asarray(out_ntk["hi95"], dtype=np.float64)
+        elif "f_grid_lo95" in out_ntk and "f_grid_hi95" in out_ntk:
+            lo95_tot = np.asarray(out_ntk["f_grid_lo95"], dtype=np.float64)
+            hi95_tot = np.asarray(out_ntk["f_grid_hi95"], dtype=np.float64)
 
     # ----------------------------
     # True curve (NNPDF)
@@ -197,32 +274,65 @@ def run_from_config(cfg: dict):
         cfg.get("nn", {}).get("ensemble", {}).get("save_member_preds", True)
     )
     print("save results")
-    np.savez(
-        os.path.join(out, "nn_summary.npz"),
-        xgrid=xgrid,
-        mean_curve=mean_curve,
-        xt3_true_star=xt3_true if xt3_true is not None else np.array([]),
-        true_sigma=true_sigma if true_sigma is not None else np.array([]),
-        var_ens=var_ens,
-        var_het=var_het,
+    save_dict = {
+        "xgrid": xgrid,
+        "mean_curve": mean_curve,
+        "lo68": lo68_tot,
+        "hi68": hi68_tot,
+        "lo95": lo95_tot,
+        "hi95": hi95_tot,
+        "xt3_true_star": xt3_true if xt3_true is not None else np.array([]),
+        "true_sigma": true_sigma if true_sigma is not None else np.array([]),
+        "var_ens": var_ens,
+        "var_het": var_het,
         # Data space (for pull)
-        y_target=y_pseudo,
-        y_pred_mean=y_pred_mean,
-        sigma2_ens_xg=sigma2_ens_xg,
-        sigma2_het_xg=sigma2_het_xg,
-        diagC=diagC,
-        ensC=C_ens,
-        hetC=C_het,
-        totalC=C_tot,
-        sigma_xg=sigma_xg,
-        cov_ens_f=cov_ens_f,
-        cov_het_f=cov_het_f,
-        cov_tot_f=cov_tot_f,
-        sigma_f=sigma_f,
-        y_pred_members = y_pred_members,
-        mus=mus if save_members else np.array([]),
-        vars=vars_ if (save_members and vars_ is not None) else np.array([]),
-    )
+        "y_target": y_pseudo,
+        "y_pred_mean": y_pred_mean,
+        "sigma2_ens_xg": sigma2_ens_xg,
+        "sigma2_het_xg": sigma2_het_xg,
+        "diagC": diagC,
+        "ensC": C_ens,
+        "hetC": C_het,
+        "totalC": C_tot,
+        "sigma_xg": sigma_xg,
+        "cov_ens_f": cov_ens_f,
+        "xgrid_cov_ens_f": xgrid_cov_ens_f,
+        "cov_het_f": cov_het_f,
+        "cov_tot_f": cov_tot_f,
+        "sigma_f": sigma_f,
+        "y_pred_members": y_pred_members,
+        "mus": mus if save_members else np.array([]),
+        "vars": vars_ if (save_members and vars_ is not None) else np.array([]),
+    }
+
+    if out_ntk is not None:
+        save_dict.update(_collect_ntk_stage_summary(out_ntk, "init"))
+        save_dict.update(_collect_ntk_stage_summary(out_ntk, "post"))
+
+    if model_type == "nn" and ntk_when == "post" and out_ntk is not None:
+        _promote_post_ntk_to_primary(save_dict, out_ntk)
+
+    np.savez(os.path.join(out, "nn_summary.npz"), **save_dict)
+
+    # Promote post-NTK to the primary plotting variables for the trained-NN route.
+    if model_type == "nn" and ntk_when == "post" and out_ntk is not None:
+        post_block = _collect_ntk_stage_summary(out_ntk, "post")
+        if post_block:
+            xgrid = np.asarray(post_block["post_ntk_xgrid"], dtype=np.float64)
+            mean_curve = np.asarray(post_block["post_ntk_mean_curve"], dtype=np.float64)
+            lo68_tot = np.asarray(post_block["post_ntk_lo68"], dtype=np.float64)
+            hi68_tot = np.asarray(post_block["post_ntk_hi68"], dtype=np.float64)
+            lo95_tot = np.asarray(post_block["post_ntk_lo95"], dtype=np.float64)
+            hi95_tot = np.asarray(post_block["post_ntk_hi95"], dtype=np.float64)
+
+    # For the standalone NTK route, prefer the direct summary keys if available.
+    if model_type == "ntk" and out_ntk is not None:
+        xgrid = np.asarray(out_ntk.get("xgrid", xgrid), dtype=np.float64)
+        mean_curve = np.asarray(out_ntk.get("mean_curve", mean_curve), dtype=np.float64)
+        lo68_tot = np.asarray(out_ntk.get("lo68", lo68_tot), dtype=np.float64)
+        hi68_tot = np.asarray(out_ntk.get("hi68", hi68_tot), dtype=np.float64)
+        lo95_tot = np.asarray(out_ntk.get("lo95", lo95_tot), dtype=np.float64)
+        hi95_tot = np.asarray(out_ntk.get("hi95", hi95_tot), dtype=np.float64)
 
     # ----------------------------
     # Plot fig2
