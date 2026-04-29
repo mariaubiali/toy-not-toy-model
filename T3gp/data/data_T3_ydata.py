@@ -130,6 +130,7 @@ merged_df = merged_df.groupby(["x", "q2", "F2_d", "entry_d"]).first().reset_inde
 # Extract q2_vals and y_real for later use
 q2_vals = merged_df["q2"].to_numpy()
 y_vals = merged_df["y_val"].to_numpy()
+x_data = merged_df["x"].to_numpy()
 
 kinematics = np.column_stack((merged_df["x"].to_numpy(), merged_df["q2"].to_numpy()))
 
@@ -211,40 +212,59 @@ y_t3_theory = W @ (t3)  # shape (N,)
 print("y theory shape: ", y_theory.shape)
 # y_test, load different FK table to change basis to F3
 
-# L1 data
-rng = np.random.default_rng(seed=451)  # you can set seed if you want reproducible “data”
-noise = rng.multivariate_normal(mean=np.zeros(len(y_theory)), cov=c_yy)
+# ------------------------------------------------------------
+# L1 data: independent pseudo-data samples around y_theory
+# ------------------------------------------------------------
 
-y_pseudo = y_theory + noise
+l1_seeds = np.arange(451, 461)
+n_l1_replicas = len(l1_seeds)
 
-# L2 data (MC replicas around L1 data)
-n_l2_replicas = 20
-rng_l2 = np.random.default_rng(seed=452)
+y_l1_samples = []
 
-# use same cov as for L1, experimental unc matrix in this case
-noise_l2 = rng_l2.multivariate_normal(
-    mean=np.zeros(len(y_pseudo)),
-    cov=c_yy,
-    size=n_l2_replicas,
+for seed in l1_seeds:
+    rng_l1 = np.random.default_rng(seed)
+
+    noise_l1 = rng_l1.multivariate_normal(
+        mean=np.zeros(len(y_theory)),
+        cov=c_yy,
     )
 
-y_l2 = y_pseudo + noise_l2
+    y_l1_samples.append(y_theory + noise_l1)
+
+y_l1_samples = np.asarray(y_l1_samples)
+# shape: (n_l1_replicas, n_data)
+
+y_l1_mean = np.mean(y_l1_samples, axis=0)
+y_l1_std = np.std(y_l1_samples, axis=0, ddof=1)
+
+print("y_l1_samples shape:", y_l1_samples.shape)
 
 
-# Saving data
+# ------------------------------------------------------------
+# Save data
+# ------------------------------------------------------------
+
 theoryid = str(theoryid)
 
 np.savez(
-    f"Dataset/data_{theoryid}_L2.npz",
+    f"Dataset/data_{theoryid}_l1_samples.npz",
+
+    # core quantities
     q2_vals=q2_vals,
     y_vals=y_vals,
-    y_pseudo=y_pseudo,
+    x_data=x_data,
     W=W,
     xgrid=xgrid,
     y_theory=y_theory,
     xt3_true=xt3_true,
     c_yy=c_yy,
     kinematics=kinematics,
-    y_l2=y_l2,
+
+    # L1 ensemble
+    l1_seeds=l1_seeds,
+    y_l1_samples=y_l1_samples,
+    y_l1_mean=y_l1_mean,
+    y_l1_std=y_l1_std,
 )
-print(f"Saved as Dataset/data_{theoryid}.npz")
+
+print(f"Saved as Dataset/data_{theoryid}_l1_samples.npz")

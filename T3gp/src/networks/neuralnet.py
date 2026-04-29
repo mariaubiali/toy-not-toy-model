@@ -22,18 +22,22 @@ def _train_ensemble(ds: dict, cfg: dict):
     ens = cfg.get("nn", {}).get("ensemble", {})
     enabled = bool(ens.get("enabled", False))
 
-    if not enabled:
-        out = train_nn_forward(ds, cfg)
+    y_loaded = np.asarray(ds["y"])
+    has_l2_replicas = y_loaded.ndim == 2
+
+    if enabled or has_l2_replicas:
+        out = train_nn_ensemble_forward(ds, cfg)
         x_star = out["xgrid"]
-        mus = out["f_grid_mean"][None, :]
-        vars_ = out.get("f_grid_var", None)
-        vars_ = None if vars_ is None else vars_[None, :]
+        mus = out["replicas"]
+        vars_ = out.get("vars_replicas", None)
         return x_star, mus, vars_, out
 
-    out = train_nn_ensemble_forward(ds, cfg)
+    out = train_nn_forward(ds, cfg)
     x_star = out["xgrid"]
-    mus = out["replicas"]
-    vars_ = out.get("vars_replicas", None)
+    mus = out["f_grid_mean"][None, :]
+    vars_ = out.get("f_grid_var", None)
+    vars_ = None if vars_ is None else vars_[None, :]
+
     return x_star, mus, vars_, out
 
 def ensure_symmetric(C):
@@ -104,7 +108,11 @@ def run_from_config(cfg: dict):
     model_type = str(cfg.get("model", {}).get("type", "nn")).lower()
     ntk_when = str(cfg.get("ntk", {}).get("when", "none")).lower()
     W_full = np.asarray(ds["W"], dtype=np.float64)         # (Ndat, Ngrid)
-    y_pseudo = np.asarray(ds['y'], dtype=np.float64).ravel()
+    y_loaded = np.asarray(ds["y"], dtype=np.float64)
+    if y_loaded.ndim == 1:
+        y_pseudo = y_loaded
+    else:
+        y_pseudo = y_loaded.mean(axis=1)
     C_full = np.asarray(ds["C"], dtype=np.float64) 
     diagC = np.diag(C_full)
     x_fk  = np.asarray(ds["xgrid"], dtype=np.float64).ravel()  

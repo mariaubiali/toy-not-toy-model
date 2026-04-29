@@ -1,8 +1,8 @@
 seed: 123
-output_dir: results/testing_hera_nc_data_extended
+output_dir: results/testing_L2_cv
 data:
-  path: data/Dataset/hera_data_nc_em_extended.npz
-  target: y_pseudo
+  path: data/Dataset/data_208_L2_extended.npz
+  target: y_l2
 
   rescale:
     enabled: true
@@ -29,10 +29,15 @@ nn:
   init_beta: 3.0
 
   ensemble:
-    enabled: true
+    enabled: false
     n_members: 20
     seed_offset: 1000        # member i uses seed = seed + seed_offset + i
     save_member_preds: false # if true saves each member curve  
+  
+  cross_validation:
+    enabled: true
+    val_fraction: 0.2
+    seed_offset: 2000
 
 loss:
   name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het

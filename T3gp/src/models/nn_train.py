@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Any, Dict
+import copy
 
 import numpy as np
 import torch
@@ -9,6 +10,53 @@ from tqdm import trange
 from losses import LossContext, make_loss, _cholesky_C, _apply_Cinv, _safe_cholesky
 from models.nn_models import MLPFModel
 from models.ntk import run_ntk_stage
+
+def select_training_target(ds: Dict[str, Any], cfg: Dict[str, Any]) -> np.ndarray:
+    y = np.asarray(ds["y"], dtype=np.float32)
+    target = str(ds.get("target", cfg.get("data", {}).get("target", "y")))
+
+    # L1 case: y_pseudo, y_theory, etc.
+    if y.ndim == 1:
+        return y
+
+    # L2 case: y_l2 with shape (Ndata, N_l2_replicas)
+    if y.ndim == 2:
+        replica_l2 = int(cfg.get("replica_l2", 0))
+        n_l2_replicas = y.shape[1]
+
+        if replica_l2 < 0 or replica_l2 >= n_l2_replicas:
+            raise ValueError(
+                f"replica_l2={replica_l2} requested, but target={target} "
+                f"has only {n_l2_replicas} replicas."
+            )
+
+        return y[:, replica_l2]
+
+    raise ValueError(
+        f"Target {target} must have shape (Ndata,) or "
+        f"(Ndata, N_l2_replicas), got {y.shape}"
+    )
+
+
+def _use_l2_cross_validation(ds: Dict[str, Any], cfg: Dict[str, Any]) -> bool:
+    """
+    Enable cross validation only for the L2 chi2 case.
+
+    The default is False, so existing runcards keep the old behavior.
+    """
+    cv_cfg = cfg.get("nn", {}).get("cross_validation", {})
+    if not bool(cv_cfg.get("enabled", False)):
+        return False
+
+    loss_name = str(cfg.get("loss", {}).get("name", "")).lower()
+    target = str(ds.get("target", cfg.get("data", {}).get("target", "y"))).lower()
+    y_loaded = np.asarray(ds["y"])
+
+    return (
+        target == "y_l2"
+        and y_loaded.ndim == 2
+        and loss_name == "chi2"
+    )
 
 
 def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
@@ -41,8 +89,19 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
     out_dim = int(nncfg.get("out_dim", 1.0))
     use_het = (loss_name in {"mse_het", "chi2_het"}) and (out_dim == 2)
-    jitter = float(cfg.get("kernel", {}).get("jitter", 1e-10))
+    jitter = float(cfg.get("kernel", {}).get("jitter", cfg.get("loss", {}).get("jitter", 1e-10)))
     replica = int(cfg.get("replica", 0))
+
+    # Cross validation is opt-in and restricted to the L2 chi2 case.
+    # If disabled, the old split seed and old test_size=0.2 are preserved.
+    cv_cfg = nncfg.get("cross_validation", {})
+    cv_enabled = _use_l2_cross_validation(ds, cfg)
+    val_fraction = float(cv_cfg.get("val_fraction", 0.2))
+    if not (0.0 < val_fraction < 1.0):
+        raise ValueError(f"nn.cross_validation.val_fraction must be between 0 and 1, got {val_fraction}")
+    cv_seed = seed + int(cv_cfg.get("seed_offset", 2000))
+    patience = int(nncfg.get("patience", 500))
+    min_delta = float(nncfg.get("min_delta", 0.0))
 
     # NTK config (explicit init or post)
     ntk_cfg = cfg.get("ntk", {})
@@ -55,7 +114,7 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     xgrid = ds["xgrid"].astype(np.float32)  # (Ngrid,)
     W = ds["W"].astype(np.float32)  # (Ndat, Ngrid)
     C = ds["C"].astype(np.float32)  # (Ndat, Ndat)
-    y = ds["y"].astype(np.float32)  # (Ndat,)
+    y = select_training_target(ds, cfg).astype(np.float32)  # (Ndat,)
 
     n_data = W.shape[0]
     n_grid = xgrid.shape[0]
@@ -98,10 +157,12 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     # Proper train/val split over DATA points (rows of W)
     # ----------------------------
     idx_all = np.arange(n_data)
+    split_test_size = val_fraction if cv_enabled else 0.2
+    split_seed = cv_seed if cv_enabled else (seed + replica * 1000)
     train_idx, val_idx = train_test_split(
         idx_all,
-        test_size=0.2,
-        random_state=seed + replica * 1000,
+        test_size=split_test_size,
+        random_state=split_seed,
     )
 
     train_idx_t = torch.tensor(train_idx, dtype=torch.long, device=device)
@@ -136,7 +197,15 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     opt = torch.optim.Adam(params, lr=lr, weight_decay=weight_decay)
 
     loss_hist = []
+    val_chi2_hist = []
     log_every = max(1, epochs // 20)
+
+    best_val_chi2 = float("inf")
+    best_epoch = -1
+    best_state = None
+    epochs_without_improvement = 0
+    stopped_early = False
+    stopped_epoch = epochs - 1
 
     # ----------------------------
     # Prediction grid selection
@@ -260,8 +329,36 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
                     nll_val = 0.5 * ((r_val * r_val) / var_y_val + torch.log(var_y_val))
                     nll_val_mean = float(nll_val.mean().detach().cpu().item())
 
+        val_chi2_hist.append(float(chi2_val_pt))
+
+        if cv_enabled:
+            # Strict improvement by at least min_delta.
+            if chi2_val_pt < best_val_chi2 - min_delta:
+                best_val_chi2 = float(chi2_val_pt)
+                best_epoch = ep
+                best_state = copy.deepcopy(model.state_dict())
+                epochs_without_improvement = 0
+            else:
+                epochs_without_improvement += 1
+
+            if epochs_without_improvement >= patience:
+                stopped_early = True
+                stopped_epoch = ep
+                break
+
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
+
+    if cv_enabled and best_state is not None:
+        model.load_state_dict(best_state)
+    
+    # if hasattr(model, "logalpha"):
+    #     alpha = float(torch.exp(model.logalpha).detach().cpu())
+    #     print(f"[NN scaling] final alpha = {alpha:.6f}")
+
+    # if hasattr(model, "logbeta"):
+    #     beta = float(torch.exp(model.logbeta).detach().cpu())
+    #     print(f"[NN scaling] final beta  = {beta:.6f}")
 
     # ----------------------------
     # NTK-GP after full training (optional)
@@ -340,6 +437,18 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
             "loss_history": np.array(loss_hist, dtype=np.float64),
             "train_idx": train_idx,
             "val_idx": val_idx,
+            "cv": {
+                "enabled": bool(cv_enabled),
+                "val_fraction": float(split_test_size),
+                "split_seed": int(split_seed),
+                "patience": int(patience),
+                "min_delta": float(min_delta),
+                "best_epoch": int(best_epoch),
+                "best_val_chi2_per_point": float(best_val_chi2) if np.isfinite(best_val_chi2) else None,
+                "stopped_early": bool(stopped_early),
+                "stopped_epoch": int(stopped_epoch),
+                "val_chi2_history": np.array(val_chi2_hist, dtype=np.float64),
+            },
         })
 
         if f_var is not None and "f_grid_var" not in res:
@@ -358,14 +467,23 @@ def train_nn_ensemble_forward(
     ds: Dict[str, Any], cfg: Dict[str, Any]
 ) -> Dict[str, Any]:
     ens = cfg.get("nn", {}).get("ensemble", {})
-    if not bool(ens.get("enabled", True)):
+
+    y_loaded = np.asarray(ds["y"])
+    has_l2_replicas = y_loaded.ndim == 2
+    n_l2_replicas = y_loaded.shape[1] if has_l2_replicas else 1
+    ensemble_enabled = bool(ens.get("enabled", True))
+    if (not ensemble_enabled) and (not has_l2_replicas):
         return train_nn_forward(ds, cfg)
     
     member_post_ntk_means = []
     member_post_ntk_vars  = []
 
     # Treat ensemble size as replicas
-    n_members = int(ens.get("n_members", 20))
+    if ensemble_enabled:
+        n_members = int(ens.get("n_members", 20))
+    else:
+        n_members = 1
+
     seed_offset = int(ens.get("seed_offset", 1000))
     save_member_preds = bool(ens.get("save_member_preds", False))
     subsample_members = ens.get("subsample_members", None)
@@ -378,32 +496,51 @@ def train_nn_ensemble_forward(
     member_means = []
     member_vars = []
     member_losses = []
+    member_replica_ids = []
+    member_l2_ids = []
     out_last = None
 
-    for i in trange(n_members, desc="Training ensemble members"):
-        cfg_i = dict(cfg)
-        # make both init and split different per member
-        cfg_i["seed"] = base_seed + seed_offset + i
-        cfg_i["replica"] = i  # controls train/val split random_state
+    for replica_l2 in range(n_l2_replicas):
+        for i in trange(n_members, desc=f"Training L2 replica {replica_l2}"):
+            cfg_i = dict(cfg)
+            # Existing NN ensemble/member index
+            cfg_i["replica"] = i
+            # New independent L2 data-replica index
+            cfg_i["replica_l2"] = replica_l2
+            # Unique seed for every combination
+            fit_id = replica_l2 * n_members + i
+            cfg_i["seed"] = base_seed + seed_offset + fit_id
 
-        out_i = train_nn_forward(ds, cfg_i)
-        out_last = out_i
+            out_i = train_nn_forward(ds, cfg_i)
+            out_last = out_i
 
-        member_means.append(out_i["f_grid_mean"])
-        member_losses.append(out_i["loss_history"])
-        member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
-        member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
+            member_means.append(out_i["f_grid_mean"])
+            member_losses.append(out_i["loss_history"])
+            member_replica_ids.append(i)
+            member_l2_ids.append(replica_l2)
+            member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
+            member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
 
-        # might be zero, depending on loss type
-        v = out_i.get("f_grid_var", None)
-        member_vars.append(v)
+            # might be zero, depending on loss type
+            v = out_i.get("f_grid_var", None)
+            member_vars.append(v)
 
     replicas = np.stack(member_means, axis=0)  # (S, Ngrid)
     xgrid = out_last["xgrid"]
+    l2_member_replicas = replicas.reshape(
+        n_l2_replicas,
+        n_members,
+        replicas.shape[-1],
+    )
 
     # Only keep vars if EVERY member provided them
     have_all_vars = all(v is not None for v in member_vars)
     vars_replicas = np.stack(member_vars, axis=0) if have_all_vars else None
+
+    if vars_replicas is not None:
+        l2_member_vars = vars_replicas.reshape(n_l2_replicas,n_members,vars_replicas.shape[-1],)
+    else:
+        l2_member_vars = None
 
     have_all_post = all(v is not None for v in member_post_ntk_means) and all(v is not None for v in member_post_ntk_vars)
     post_ntk_replicas = np.stack(member_post_ntk_means, axis=0) if have_all_post else None
@@ -415,32 +552,62 @@ def train_nn_ensemble_forward(
         replicas = post_ntk_replicas
         vars_replicas = post_ntk_vars
 
+        l2_member_replicas = replicas.reshape(n_l2_replicas,n_members,replicas.shape[-1],)
+        if vars_replicas is not None:
+            l2_member_vars = vars_replicas.reshape(n_l2_replicas,n_members,vars_replicas.shape[-1],)
+        else:
+            l2_member_vars = None
+
     # OPTIONAL SUBSAMPLING OF MEMBERS
     if subsample_members is not None and replicas.shape[0] > subsample_members:
         rng = np.random.default_rng(base_seed + seed_offset)
         keep = rng.choice(replicas.shape[0], subsample_members, replace=False)
         replicas = replicas[keep]
-
-        # optionally subsample losses too (keeps alignment)
         member_losses = [member_losses[k] for k in keep.tolist()]
+        member_replica_ids = [member_replica_ids[k] for k in keep.tolist()]
+        member_l2_ids = [member_l2_ids[k] for k in keep.tolist()]
+
         if save_member_preds:
             member_means = [member_means[k] for k in keep.tolist()]
         if vars_replicas is not None:
             vars_replicas = vars_replicas[keep]
+        
+        # After arbitrary subsampling, rectangular L2/member structure is invalid
+        l2_member_replicas = None
+        l2_member_vars = None
 
     res = {
         "xgrid": xgrid,
-        "replicas": replicas,  # (S, Ngrid)
-        "vars_replicas": vars_replicas,  # (S, Ngrid) or None
+        # Flat ensemble over all trained networks
+        "replicas": replicas,  # (n_l2_replicas * n_members, Ngrid)
+        # Structured ensemble
+        "l2_member_replicas": l2_member_replicas,
+        # (n_l2_replicas, n_members, Ngrid), or None after subsampling
+        "replica_ids": np.asarray(member_replica_ids, dtype=int),
+        "replica_l2_ids": np.asarray(member_l2_ids, dtype=int),
+        "n_members": n_members,
+        "n_l2_replicas": n_l2_replicas,
+        # Variance replicas if available
+        "vars_replicas": vars_replicas,
+        "l2_member_vars": l2_member_vars,
+        # Global summaries over all flattened replicas
         "mean_curve": replicas.mean(axis=0),
         "lo68": np.percentile(replicas, 16.0, axis=0),
         "hi68": np.percentile(replicas, 84.0, axis=0),
         "lo95": np.percentile(replicas, 2.5, axis=0),
         "hi95": np.percentile(replicas, 97.5, axis=0),
         "member_losses": member_losses,
+        "post_ntk_replicas": post_ntk_replicas,
+        "post_ntk_vars_replicas": post_ntk_vars,
     }
 
-    # Nice-to-have: percentiles for aleatoric var too (if present)
+    # L2-separated summaries
+    if l2_member_replicas is not None:
+        res["mean_per_l2_replica"] = l2_member_replicas.mean(axis=1)
+        res["std_per_l2_replica"] = l2_member_replicas.std(axis=1)
+        res["lo68_per_l2_replica"] = np.percentile(l2_member_replicas, 16.0, axis=1)
+        res["hi68_per_l2_replica"] = np.percentile(l2_member_replicas, 84.0, axis=1)
+
     if vars_replicas is not None:
         res["var_mean_curve"] = vars_replicas.mean(axis=0)
         res["var_lo68"] = np.percentile(vars_replicas, 16.0, axis=0)
@@ -450,7 +617,5 @@ def train_nn_ensemble_forward(
         res["member_means"] = member_means
         if vars_replicas is not None:
             res["member_vars"] = vars_replicas
-    res["post_ntk_replicas"] = post_ntk_replicas
-    res["post_ntk_vars_replicas"] = post_ntk_vars
-    
+
     return res
