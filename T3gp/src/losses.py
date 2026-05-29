@@ -72,6 +72,88 @@ def _safe_cholesky(
     L = torch.linalg.cholesky(A + jitter * eye)
     return L, jitter
 
+def pointwise_loss_members(
+    y_pred_members: torch.Tensor,
+    y: torch.Tensor,
+    *,
+    loss_name: str,
+    C: Optional[torch.Tensor] = None,
+    L: Optional[torch.Tensor] = None,
+    jitter: float = 1e-10,
+    eps: float = 1e-12,
+) -> torch.Tensor:
+    """
+    Return per-member, per-data-point loss profiles for ensemble methods.
+
+    Parameters
+    ----------
+    y_pred_members:
+        Tensor with shape (K, Ndat), where K is the number of ensemble members.
+    y:
+        Tensor with shape (Ndat,).
+    loss_name:
+        One of ``"mse"``, ``"weighted_mse"``, or ``"chi2"``.
+    C:
+        Experimental covariance matrix with shape (Ndat, Ndat). Required for
+        ``weighted_mse`` and ``chi2`` unless an appropriate Cholesky factor is
+        supplied for ``chi2``.
+    L:
+        Optional Cholesky factor of C, with C = L L^T. Used for ``chi2``.
+
+    Returns
+    -------
+    per_point_loss:
+        Tensor with shape (K, Ndat). For ``chi2`` this is the squared whitened
+        residual, so summing along axis 1 gives each member's chi-square.
+    """
+    loss_name = str(loss_name).lower()
+
+    if y_pred_members.ndim != 2:
+        raise ValueError(
+            "y_pred_members must have shape (K, Ndat), "
+            f"got {tuple(y_pred_members.shape)}"
+        )
+
+    y = y.to(device=y_pred_members.device, dtype=y_pred_members.dtype).reshape(-1)
+    if y_pred_members.shape[1] != y.numel():
+        raise ValueError(
+            "y_pred_members and y have inconsistent data dimensions: "
+            f"{y_pred_members.shape[1]} vs {y.numel()}"
+        )
+
+    residual = y_pred_members - y[None, :]
+
+    if loss_name == "mse":
+        return residual.square()
+
+    if loss_name == "weighted_mse":
+        if C is None:
+            raise ValueError("weighted_mse pointwise loss requires C.")
+        C = C.to(device=y_pred_members.device, dtype=y_pred_members.dtype)
+        var = torch.diag(C).clamp_min(float(eps))
+        return residual.square() / var[None, :]
+
+    if loss_name == "chi2":
+        if L is None:
+            if C is None:
+                raise ValueError("chi2 pointwise loss requires C or precomputed L.")
+            C = C.to(device=y_pred_members.device, dtype=y_pred_members.dtype)
+            L = _cholesky_C(C, jitter)
+        else:
+            L = L.to(device=y_pred_members.device, dtype=y_pred_members.dtype)
+
+        z = torch.linalg.solve_triangular(
+            L,
+            residual.T,
+            upper=False,
+        ).T
+        return z.square()
+
+    raise NotImplementedError(
+        "Pointwise member losses currently support loss.name in "
+        "{'mse', 'weighted_mse', 'chi2'}. "
+        f"Got loss.name={loss_name!r}."
+    )
 
 def make_loss(
     cfg: Dict[str, Any],
@@ -114,12 +196,12 @@ def make_loss(
             r = y_pred - y
             loss = torch.mean(r * r)
 
-            if lambda_sr > 0.0:
-                if "f_mu" not in extra:
-                    raise ValueError("chi2+sumrule requires extra['f_mu'].")
-                f_raw = extra["f_mu"].reshape(-1)
-                I_mid = torch.trapz(f_raw / xg, xg)
-                loss = loss + lambda_sr * (I_mid - ref) ** 2
+            # if lambda_sr > 0.0:
+            #     if "f_mu" not in extra:
+            #         raise ValueError("chi2+sumrule requires extra['f_mu'].")
+            #     f_raw = extra["f_mu"].reshape(-1)
+            #     I_mid = torch.trapz(f_raw / xg, xg)
+            #     loss = loss + lambda_sr * (I_mid - ref) ** 2
 
             return loss
 
@@ -196,9 +278,9 @@ def make_loss(
                 loss = nll.mean()
 
             # sum rule on f_mu
-            if lambda_sr > 0.0:
-                I_mid = torch.trapz(f_mu / xg, xg)
-                loss = loss + lambda_sr * (I_mid - ref) ** 2
+            # if lambda_sr > 0.0:
+            #     I_mid = torch.trapz(f_mu / xg, xg)
+            #     loss = loss + lambda_sr * (I_mid - ref) ** 2
 
             return loss
 
@@ -226,12 +308,12 @@ def make_loss(
             resid = y_pred - y
             loss_chi2 = resid @ _apply_Cinv(L, resid)
 
-            if lambda_sr > 0.0:
-                if "f_mu" not in extra:
-                    raise ValueError("chi2+sumrule requires extra['f_mu'].")
-                f_raw = extra["f_mu"].reshape(-1)
-                I_mid = torch.trapz(f_raw / xg, xg)
-                loss_chi2 = loss_chi2 + lambda_sr * (I_mid - ref) ** 2
+            # if lambda_sr > 0.0:
+            #     if "f_mu" not in extra:
+            #         raise ValueError("chi2+sumrule requires extra['f_mu'].")
+            #     f_raw = extra["f_mu"].reshape(-1)
+            #     I_mid = torch.trapz(f_raw / xg, xg)
+            #     loss_chi2 = loss_chi2 + lambda_sr * (I_mid - ref) ** 2
 
             return loss_chi2
 
@@ -256,6 +338,8 @@ def make_loss(
         )
 
         def loss_fn(y_pred: torch.Tensor, extra: dict) -> torch.Tensor:
+            y_pred = y_pred.reshape(-1)
+            resid = y_pred - y
             if "f_mu" not in extra:
                 raise ValueError("chi2_het requires extra['f_mu'].")
             if "f_logvar" not in extra:
@@ -271,7 +355,7 @@ def make_loss(
             var_f = torch.exp(f_logvar).clamp_min(eps)  # (Ngrid,)
 
 
-            # Use a self-consistent predictive mean in data space
+            # # Use a self-consistent predictive mean in data space
             y_mu = W @ f_mu  # (Ndat,)
             r = y_mu - y
 
@@ -297,9 +381,9 @@ def make_loss(
             if normalize:
                 loss = loss / y.numel()
 
-            if lambda_sr > 0.0:
-                I_mid = torch.trapz(f_mu / xg, xg)
-                loss = loss + lambda_sr * (I_mid - ref) ** 2
+            # if lambda_sr > 0.0:
+            #     I_mid = torch.trapz(f_mu / xg, xg)
+            #     loss = loss + lambda_sr * (I_mid - ref) ** 2
 
             return loss
 

@@ -1,5 +1,5 @@
 seed: 123
-output_dir: results/ntk/init_testing_none
+output_dir: results/ntk/post_full
 
 data:
   path: data/Dataset/data_208_extended.npz
@@ -10,7 +10,7 @@ data:
     eps: 1e-12
 
 model:
-  type: ntk  # gp | nn | ntk
+  type: nn  # gp | nn | ntk
 
 nn:
   hidden: [32, 32, 32]
@@ -30,7 +30,7 @@ nn:
   init_beta: 3.0
 
   ensemble:
-    enabled: false
+    enabled: true
     n_members: 1
     seed_offset: 1000
     save_member_preds: false
@@ -38,21 +38,18 @@ nn:
 loss:
   name: chi2
   jitter: 1.0e-10
-  lambda_sr: 1000.0
+  lambda_sr: 0.0
 
 transforms:
   Logx: {}
-  Softplus: {}
 
 ntk:
-  # when: post
-  mode: analytic_inf
-  fallback_to_empirical_ref: false
+  when: post
+  # mode: analytic_inf
+  # fallback_to_empirical_ref: false
   gp_eval: true
   use_data_cov: true
   ridge: 1e-6
   lambda: 1e-3
   max_train_points: 256
   max_pred_points: 512
-  apply_scaling: false
-  apply_sumrule: false

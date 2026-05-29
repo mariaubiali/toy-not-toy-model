@@ -233,7 +233,7 @@ def Kxx_matern_pytensor(
 
     K0 = sigma2 * base
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     # ---- alpha scaling --------------------------------
@@ -243,7 +243,7 @@ def Kxx_matern_pytensor(
     if amp == "legacy":
 
         scale = (x_safe**alpha) * (y_safe**alpha)
-        return scale * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:
@@ -302,7 +302,7 @@ def Kxy_matern_numpy(
 
     K0 = sigma2 * base
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     # ---- alpha scaling --------------------------------
@@ -314,7 +314,7 @@ def Kxy_matern_numpy(
         log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
         log_scale = np.clip(log_scale, -700.0, 700.0)
 
-        return np.exp(log_scale) * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:

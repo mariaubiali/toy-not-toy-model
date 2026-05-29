@@ -130,6 +130,9 @@ merged_df = merged_df.groupby(["x", "q2", "F2_d", "entry_d"]).first().reset_inde
 # Extract q2_vals and y_real for later use
 q2_vals = merged_df["q2"].to_numpy()
 y_vals = merged_df["y_val"].to_numpy()
+x_data = merged_df["x"].to_numpy()
+
+print(np.unique(q2_vals))
 
 kinematics = np.column_stack((merged_df["x"].to_numpy(), merged_df["q2"].to_numpy()))
 
@@ -218,7 +221,7 @@ noise = rng.multivariate_normal(mean=np.zeros(len(y_theory)), cov=c_yy)
 y_pseudo = y_theory + noise
 
 # L2 data (MC replicas around L1 data)
-n_l2_replicas = 20
+n_l2_replicas = 100
 rng_l2 = np.random.default_rng(seed=452)
 
 # use same cov as for L1, experimental unc matrix in this case
@@ -234,17 +237,18 @@ y_l2 = y_pseudo + noise_l2
 # Saving data
 theoryid = str(theoryid)
 
-np.savez(
-    f"Dataset/data_{theoryid}_L2.npz",
-    q2_vals=q2_vals,
-    y_vals=y_vals,
-    y_pseudo=y_pseudo,
-    W=W,
-    xgrid=xgrid,
-    y_theory=y_theory,
-    xt3_true=xt3_true,
-    c_yy=c_yy,
-    kinematics=kinematics,
-    y_l2=y_l2,
-)
-print(f"Saved as Dataset/data_{theoryid}.npz")
+# np.savez(
+#     f"Dataset/data_{theoryid}_L2.npz",
+#     q2_vals=q2_vals,
+#     y_vals=y_vals,
+#     y_pseudo=y_pseudo,
+#     W=W,
+#     xgrid=xgrid,
+#     y_theory=y_theory,
+#     xt3_true=xt3_true,
+#     c_yy=c_yy,
+#     kinematics=kinematics,
+#     y_l2=y_l2,
+#     x_data=x_data,
+# )
+# print(f"Saved as Dataset/data_{theoryid}.npz")

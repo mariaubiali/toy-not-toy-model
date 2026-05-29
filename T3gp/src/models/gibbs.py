@@ -165,7 +165,7 @@ def Kxx_gibbs_pytensor(
     expo = pt.exp(-diff2 / denom)
     K0 = sigma2 * pref * expo
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     x_safe = pt.maximum(x, x_floor)
@@ -175,7 +175,7 @@ def Kxx_gibbs_pytensor(
         # original GP paper behaviour
         scale = (x_safe**alpha) * (y_safe**alpha)
 
-        return scale * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:
@@ -221,7 +221,7 @@ def Kxy_gibbs_numpy(
     expo = np.exp(-d2 / denom_safe)
     K0 = sigma2 * pref * expo
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     x_safe = np.maximum(x, x_floor)
@@ -232,7 +232,7 @@ def Kxy_gibbs_numpy(
         log_scale = alpha * (np.log(x_safe) + np.log(y_safe))
         log_scale = np.clip(log_scale, -700.0, 700.0)
 
-        return np.exp(log_scale) * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:

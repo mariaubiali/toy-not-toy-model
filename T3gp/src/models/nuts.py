@@ -11,6 +11,7 @@ import arviz as az
 from models.gibbs import Kxx_gibbs_pytensor, build_log_marginal_likelihood_pt
 from models.rbf import Kxx_rbf_pytensor
 from models.matern import Kxx_matern_pytensor
+from transforms import log_x_gp
 
 
 def _prior(name: str, spec: Dict[str, Any]):
@@ -31,41 +32,52 @@ def _trapz_weights(x: np.ndarray) -> np.ndarray:
 
 
 def _pre_pt(
-    xgrid_t: pt.TensorVariable,
+    x_phys_t: pt.TensorVariable,
     alpha: pt.TensorVariable,
     beta: pt.TensorVariable | float,
     x_clip: float = 1e-12,
     x_floor: float = 1e-12,
 ) -> pt.TensorVariable:
+    """
+    Physical prefactor
+
+        pre(x) = x^alpha (1 - x)^beta
+
+    This must always be evaluated on physical Bjorken-x values, not on
+    transformed kernel coordinates such as log(x).
+    """
     if beta is None:
         raise ValueError("_pre_pt got beta=None but prefactor mode requires beta.")
 
     if not isinstance(beta, pt.TensorVariable):
         beta = pt.constant(float(beta))
 
-    # ensure numeric beta becomes a TensorVariable
-    if not isinstance(beta, pt.TensorVariable):
-        beta = pt.constant(float(beta))
-
-    # Keep within (0,1) like NN
-    x = pt.clip(xgrid_t, x_clip, 1.0 - x_clip)
-
-    # Stable x^alpha at tiny x
+    x = pt.clip(x_phys_t, x_clip, 1.0 - x_clip)
     x_s = pt.maximum(x, x_floor)
 
-    # pre(x)
     return pt.power(x_s, alpha) * pt.power(1.0 - x, beta)
 
 
 def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
-    xgrid = dataset["xgrid"]
-    W = dataset["W"]
-    C = dataset["C"]
-    y = dataset["y"]
+    # Physical Bjorken-x grid. This is the grid used for the prefactor
+    # pre(x) = x^alpha (1-x)^beta.
+    xgrid_phys = np.asarray(dataset["xgrid"], dtype=np.float64).reshape(-1)
 
-    xgrid_t = pt.constant(xgrid)
+    # Kernel-coordinate grid. This may be physical x or transformed x, e.g. log(x),
+    # depending on cfg["transforms"].
+    transforms = cfg.get("transforms", {})
+    xgrid_kernel = log_x_gp(xgrid_phys, transforms)
+
+    W = np.asarray(dataset["W"], dtype=np.float64)
+    C = np.asarray(dataset["C"], dtype=np.float64)
+    y = np.asarray(dataset["y"], dtype=np.float64).reshape(-1)
+
+    xgrid_t = pt.constant(xgrid_kernel)
+    xgrid_phys_t = pt.constant(xgrid_phys)
+
     W_t = pt.constant(W)
     C_t = pt.constant(C)
+    y_t = pt.constant(y)
     y_t = pt.constant(y)
 
     kcfg = cfg["kernel"]
@@ -79,7 +91,7 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
     nu = float(kcfg.get("nu", 1.5))  # only for matern kernel
     lambda_sr = float(kcfg.get("lambda_sr", 0.0))
     pcfg = cfg.get("gp_prefactor", {})
-    pref_mode = str(pcfg.get("mode", "legacy")).lower()
+    pref_mode = str(pcfg.get("mode", "prefactor")).lower()
 
     if pref_mode not in ("legacy", "prefactor", "none"):
         raise ValueError(
@@ -89,39 +101,39 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
     # ----------------------------
     # Optional sumrule pseudo-observation (matches NN penalty)
     # ----------------------------
-    if lambda_sr > 0.0:
-        meta = dataset.get("meta", {})
-        xt3_true = np.asarray(meta.get("xt3_true", []), float).ravel()
-        if xt3_true.size != xgrid.shape[0]:
-            raise ValueError(
-                "Need meta['xt3_true'] defined on full xgrid for sumrule ref integral."
-            )
+    # if lambda_sr > 0.0:
+    #     meta = dataset.get("meta", {})
+    #     xt3_true = np.asarray(meta.get("xt3_true", []), float).ravel()
+    #     if xt3_true.size != xgrid.shape[0]:
+    #         raise ValueError(
+    #             "Need meta['xt3_true'] defined on full xgrid for sumrule ref integral."
+    #         )
 
-        # ref = ∫ (xt3_true/x) dx on full grid (same as NN)
-        ref = float(np.trapz(xt3_true / xgrid, xgrid))
+    #     # ref = ∫ (xt3_true/x) dx on full grid (same as NN)
+    #     ref = float(np.trapz(xt3_true / xgrid, xgrid))
 
-        # I(f) ≈ sum_i w_i * (f_i / x_i) = a^T f
-        w = _trapz_weights(xgrid)
-        a = (w / xgrid).astype(np.float64)  # (Ngrid,)
-        # tau^2 chosen so 0.5*(I-ref)^2/tau^2 == lambda_sr*(I-ref)^2
-        tau2 = 1.0 / (2.0 * lambda_sr)
+    #     # I(f) ≈ sum_i w_i * (f_i / x_i) = a^T f
+    #     w = _trapz_weights(xgrid)
+    #     a = (w / xgrid).astype(np.float64)  # (Ngrid,)
+    #     # tau^2 chosen so 0.5*(I-ref)^2/tau^2 == lambda_sr*(I-ref)^2
+    #     tau2 = 1.0 / (2.0 * lambda_sr)
 
-        a_t = pt.constant(a)
-        ref_t = pt.constant(np.array([ref], dtype=np.float64))
-        tau2_t = pt.constant(float(tau2))
+    #     a_t = pt.constant(a)
+    #     ref_t = pt.constant(np.array([ref], dtype=np.float64))
+    #     tau2_t = pt.constant(float(tau2))
 
-        # augment W: (Ndat+1, Ngrid)
-        W_t = pt.concatenate([W_t, a_t[None, :]], axis=0)
+    #     # augment W: (Ndat+1, Ngrid)
+    #     W_t = pt.concatenate([W_t, a_t[None, :]], axis=0)
 
-        # augment y: (Ndat+1,)
-        y_t = pt.concatenate([y_t, ref_t], axis=0)
+    #     # augment y: (Ndat+1,)
+    #     y_t = pt.concatenate([y_t, ref_t], axis=0)
 
-        # augment C: blockdiag(C, tau2)
-        n = C_t.shape[0]
-        C_aug = pt.zeros((n + 1, n + 1), dtype=C_t.dtype)
-        C_aug = pt.set_subtensor(C_aug[:n, :n], C_t)
-        C_aug = pt.set_subtensor(C_aug[n, n], tau2_t)
-        C_t = C_aug
+    #     # augment C: blockdiag(C, tau2)
+    #     n = C_t.shape[0]
+    #     C_aug = pt.zeros((n + 1, n + 1), dtype=C_t.dtype)
+    #     C_aug = pt.set_subtensor(C_aug[:n, :n], C_t)
+    #     C_aug = pt.set_subtensor(C_aug[n, n], tau2_t)
+    #     C_t = C_aug
 
     pri = cfg["priors"]
     nuts = cfg["nuts"]
@@ -150,18 +162,43 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
             beta_rv = _prior("beta", pri["beta"])
 
         def _K0(xgrid_t_, l0_, sigma2_):
-            """Base kernel with NO internal x^alpha y^alpha scaling."""
+            """
+            Base kernel with no external prefactor.
+
+            The input xgrid_t_ is the kernel coordinate, e.g. log(x) if enabled.
+            """
             alpha0 = pt.constant(0.0)
+
             if kname == "gibbs":
                 return Kxx_gibbs_pytensor(
-                    xgrid_t_, alpha0, l0_, sigma2_, delta=delta, x_floor=x_floor
+                    xgrid_t_,
+                    alpha0,
+                    l0_,
+                    sigma2_,
+                    delta=delta,
+                    x_floor=x_floor,
                 )
+
             elif kname == "rbf":
-                return Kxx_rbf_pytensor(xgrid_t_, alpha0, l0_, sigma2_, x_floor=x_floor)
+                return Kxx_rbf_pytensor(
+                    xgrid_t_,
+                    alpha0,
+                    l0_,
+                    sigma2_,
+                    amp="none",
+                    x_floor=x_floor,
+                )
+
             elif kname == "matern":
                 return Kxx_matern_pytensor(
-                    xgrid_t_, alpha0, l0_, sigma2_, nu=nu, x_floor=x_floor
+                    xgrid_t_,
+                    alpha0,
+                    l0_,
+                    sigma2_,
+                    nu=nu,
+                    x_floor=x_floor,
                 )
+
             else:
                 raise ValueError(f"Unknown kernel.name={kname!r}")
 
@@ -170,26 +207,28 @@ def sample_hyperparams_nuts(dataset: Dict[str, Any], cfg: Dict[str, Any]):
                 return _K0(xgrid_t_, l0_, sigma2_)
 
             if pref_mode == "legacy":
-                # legacy scaling is inside the kernel: use alpha_
-                if kname == "gibbs":
-                    return Kxx_gibbs_pytensor(
-                        xgrid_t_, alpha_, l0_, sigma2_, delta=delta, x_floor=x_floor
-                    )
-                elif kname == "rbf":
-                    return Kxx_rbf_pytensor(
-                        xgrid_t_, alpha_, l0_, sigma2_, x_floor=x_floor
-                    )
-                elif kname == "matern":
-                    return Kxx_matern_pytensor(
-                        xgrid_t_, alpha_, l0_, sigma2_, nu=nu, x_floor=x_floor
-                    )
+                raise ValueError(
+                    "gp_prefactor.mode='legacy' is disabled for this setup. "
+                    "Use gp_prefactor.mode='prefactor' for "
+                    "K(x,y)=pre(x)pre(y)K0(x,y), with pre(x)=x^alpha(1-x)^beta."
+                )
 
-            # prefactor scaling: apply pre(x) on BOTH sides (covariance)
-            K0 = _K0(xgrid_t_, l0_, sigma2_)
-            pre = _pre_pt(
-                xgrid_t_, alpha_, beta_rv, x_clip=1e-12, x_floor=x_floor
-            )  # (N,)
-            return (pre[:, None] * K0) * pre[None, :]
+            if pref_mode == "prefactor":
+                # Base kernel is evaluated in kernel-coordinate space, e.g. log(x).
+                K0 = _K0(xgrid_t_, l0_, sigma2_)
+
+                # The prefactor is evaluated in physical x-space.
+                pre = _pre_pt(
+                    xgrid_phys_t,
+                    alpha_,
+                    beta_rv,
+                    x_clip=1e-12,
+                    x_floor=x_floor,
+                )
+
+                return (pre[:, None] * K0) * pre[None, :]
+
+            raise ValueError(f"Unknown gp_prefactor.mode={pref_mode!r}")
 
         lml = build_log_marginal_likelihood_pt(
             xgrid_t, W_t, C_t, y_t, Kxx_fn, jitter=jitter

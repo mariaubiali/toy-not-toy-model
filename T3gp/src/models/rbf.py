@@ -167,7 +167,7 @@ def Kxx_rbf_pytensor(
 
     K0 = sigma2 * pt.exp(-0.5 * diff2 / ell2)
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     # small-x rescaling (stable)
@@ -178,7 +178,7 @@ def Kxx_rbf_pytensor(
         # original GP paper behaviour
         scale = (x_safe**alpha) * (y_safe**alpha)
 
-        return scale * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:
@@ -218,7 +218,7 @@ def Kxy_rbf_numpy(
 
     K0 = float(sigma2) * np.exp(-0.5 * diff2 / ell2)
 
-    if amp == "None":
+    if amp == "none":
         return K0
 
     x_safe = np.maximum(x, x_floor)
@@ -228,7 +228,7 @@ def Kxy_rbf_numpy(
         # original GP paper behaviour
         scale = (x_safe ** float(alpha)) * (y_safe ** float(alpha))
 
-        return scale * K0
+        return K0
 
     if amp == "prefactor":
         if beta is None:

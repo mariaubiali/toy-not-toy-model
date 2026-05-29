@@ -1,8 +1,10 @@
 seed: 123
-output_dir: results/testing_L2_cv
+output_dir: results/chi2_L1_scan_var/a08_b20
+seed: 123
+
 data:
-  path: data/Dataset/data_208_L2_extended.npz
-  target: y_l2
+  path: data/Dataset/data_208_extended.npz
+  target: y_pseudo
 
   rescale:
     enabled: true
@@ -14,7 +16,7 @@ model:
 nn:
   hidden: [32, 32, 32]
   activation: gelu
-  out_dim: 1
+  out_dim: 2
   dropout: 0.001
   epochs: 5000
   lr: 5.0e-4
@@ -25,38 +27,23 @@ nn:
   device: cpu             # or cpu
   dtype: float32
   scaling: true    # true: nn scaling, false or none: no scaling, xalpha: GP scaling
-  init_alpha: 1.0
-  init_beta: 3.0
+  init_alpha: 0.8
+  init_beta: 2.0
 
   ensemble:
-    enabled: false
-    n_members: 20
+    enabled: true
+    n_members: 100
     seed_offset: 1000        # member i uses seed = seed + seed_offset + i
     save_member_preds: false # if true saves each member curve  
-  
-  cross_validation:
-    enabled: true
-    val_fraction: 0.2
-    seed_offset: 2000
 
 loss:
   name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
-  lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
+  lambda_sr: 0.0          # set 0.0 to disable sum-rule penalty
   full_cov: false
   full_cov_jitter_abs: 1e-12
   full_cov_jitter_rel: 1e-8
 
 transforms:
   Logx: {}
-  Softplus: {}
 
-ntk:
-  when: "none"          # "none" | "init" | "post"
-  gp_eval: false
-
-  use_data_cov: true     # if true, uses C_tr as noise; else uses lambda * I
-  lambda: 1e-3           # only used when use_data_cov=false
-  ridge: 1e-6            # always added to stabilize Cholesky
-  max_train_points: 256
-  max_pred_points: 512

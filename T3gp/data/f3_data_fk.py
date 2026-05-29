@@ -370,13 +370,14 @@ def main():
         x_channel_theory=xt3_true,
         W_channel=W_t3,
         c_exp=c_exp,
+        x_data=df["x"].to_numpy(dtype=float),
     )
 
     print(f"Wrote {out}")
 
     # use this for training data generation
     np.savez(
-        f"Dataset/hera_data_nc_ep920.npz",
+        f"Dataset/hera_data_nc_ep.npz",
         dataset=np.array([args.dataset]),
         q2_vals=df["q2"].to_numpy(dtype=float),
         y_vals=df["y"].to_numpy(dtype=float),
@@ -388,7 +389,9 @@ def main():
         c_yy=c_exp,
         Yplus=df["Yplus"].to_numpy(dtype=float),
         Yminus=df["Yminus"].to_numpy(dtype=float),
+        x_data=df["x"].to_numpy(dtype=float),
     )
+    print("SAVED Dataset/hera_data_nc_ep.npz")
 
 
 

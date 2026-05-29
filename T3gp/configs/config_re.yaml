@@ -1,7 +1,5 @@
 seed: 123
-output_dir: results/chi2_L1_scan_var/a10_b30
-seed: 123
-
+output_dir: results/re_full
 data:
   path: data/Dataset/data_208_extended.npz
   target: y_pseudo
@@ -16,34 +14,36 @@ model:
 nn:
   hidden: [32, 32, 32]
   activation: gelu
-  out_dim: 2
+  out_dim: 1
   dropout: 0.001
   epochs: 5000
   lr: 5.0e-4
   weight_decay: 0.0
   patience: 500
-  min_delta: 0.0
-  grad_clip: null         # or e.g. 1.0
-  device: cpu             # or cpu
-  dtype: float32
   scaling: true    # true: nn scaling, false or none: no scaling, xalpha: GP scaling
   init_alpha: 1.0
   init_beta: 3.0
 
   ensemble:
     enabled: true
+    kind: repulsive
     n_members: 100
-    seed_offset: 1000        # member i uses seed = seed + seed_offset + i
-    save_member_preds: false # if true saves each member curve  
+    seed_offset: 1000 
+    save_member_preds: true
+
+  repulsive:
+    beta: 10.0
+    prior_width: 1.0
+    h: null
+    init: kaiming
+    kernel_space: xt3
+    debug: false
 
 loss:
-  name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het
+  name: chi2             # mse | weighted_mse | chi2_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
-  lambda_sr: 0.0          # set 0.0 to disable sum-rule penalty
-  full_cov: false
-  full_cov_jitter_abs: 1e-12
-  full_cov_jitter_rel: 1e-8
+  lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
 
 transforms:
   Logx: {}
-
+  Softplus: {}

@@ -5,7 +5,7 @@ import numpy as np
 
 from dataloader import load_dataset
 from plotting import plot_fig2, plot_fig2_unc, select_truth_and_band
-from models.nn_train import train_nn_forward, train_nn_ensemble_forward
+from models.nn_train import train_nn_forward, train_nn_ensemble_forward, train_l2_replicas_forward
 from models.ntk import run_ntk
 
 
@@ -25,7 +25,13 @@ def _train_ensemble(ds: dict, cfg: dict):
     y_loaded = np.asarray(ds["y"])
     has_l2_replicas = y_loaded.ndim == 2
 
-    if enabled or has_l2_replicas:
+    if has_l2_replicas:
+        out = train_l2_replicas_forward(ds, cfg)
+        x_star = out["xgrid"]
+        mus = out["replicas"]
+        vars_ = out.get("vars_replicas", None)
+        return x_star, mus, vars_, out
+    elif enabled:
         out = train_nn_ensemble_forward(ds, cfg)
         x_star = out["xgrid"]
         mus = out["replicas"]
@@ -124,7 +130,7 @@ def run_from_config(cfg: dict):
     loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
     out_dim = int(cfg.get("nn", {}).get("out_dim", 1))
     het_enabled_cfg = (loss_name in {"mse_het", "chi_het"}) and (out_dim == 2)
-    if not het_enabled_cfg:
+    if not het_enabled_cfg and not (model_type == "nn" and ntk_when == "post"):
         vars_ = None
 
     mus_fk = np.empty((mus.shape[0], x_fk.size), dtype=np.float64)

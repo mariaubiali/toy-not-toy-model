@@ -1,8 +1,7 @@
 seed: 123
-output_dir: results/gp/matern_nu25_scaling3
-
+output_dir: results/hera/rbf_nc_ep575_extended
 data:
-  path: data/Dataset/data_208_extended.npz
+  path: data/Dataset/hera_data_nc_ep575_extended.npz
   target: y_pseudo
 
   rescale:
@@ -13,20 +12,20 @@ model:
   type: gp   # gp | nn
 
 kernel:
-  name: matern     #gibbs, rbf, matern
+  name: rbf     #gibbs, rbf, matern
   delta: 1e-5
   x_floor: 1e-12
   jitter: 1e-10
-  nu: 2.5        # only for matern kernel, 0.5, 1.5, 2.5 supported
-  lambda_sr: 0.0 
+  nu: 1.5        # only for matern kernel, 0.5, 1.5, 2.5 supported
+  lambda_sr: 1000.0 
 
 gp_prefactor:
   mode: prefactor     # legacy | prefactor | None
 
 priors:
   # NN-like: positive α,β
-  alpha:  { dist: uniform, low: 0.1, high: 1.1 }    #for NN like
-  beta:   { dist: uniform, low: 1.7, high: 3.5 }   
+  alpha:  { dist: uniform, low: 0.1, high: 4.0 }    #for NN like
+  beta:   { dist: uniform, low: 0.01, high: 2.0 }   # used only if mode=prefactor_infer_beta
 
   # alpha:  { dist: uniform, low: -1.0, high: 0.0 } # for legacy
   l0:     { dist: uniform, low: 1e-6, high: 10.0 } 
@@ -45,7 +44,7 @@ eval:
   # x_star_n: 400
   make_fig1: true
   make_fig2: true
-  fstar_kernel: matern         # optional: gibbs|rbf|matern
+  fstar_kernel: rbf         # optional: gibbs|rbf|matern
   save_fstar_replicas: true 
 
 transforms:

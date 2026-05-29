@@ -51,7 +51,7 @@ def posterior_fstar(
     sr_a: np.ndarray | None = None,
     sr_ref: float | None = None,
     sr_tau2: float | None = None,
-    pref_mode: str = "legacy",  # legacy | prefactor_fixed_beta | prefactor_infer_beta
+    pref_mode: str = "prefactor",  # legacy | prefactor_fixed_beta | prefactor_infer_beta
     x_train_phys: np.ndarray | None = None,  # (Ngrid,)
     x_star_phys: np.ndarray | None = None,  # (N*,)
 ):
@@ -114,9 +114,33 @@ def posterior_fstar(
             X_star, X_star, alpha_kernel, l0, sigma2, delta=delta, x_floor=x_floor
         )
     elif kernel == "rbf":
-        K0_xx = Kxy_rbf_numpy(X_train, X_train, alpha_kernel, l0, sigma2)
-        K0_sx = Kxy_rbf_numpy(X_star, X_train, alpha_kernel, l0, sigma2)
-        K0_ss = Kxy_rbf_numpy(X_star, X_star, alpha_kernel, l0, sigma2)
+        K0_xx = Kxy_rbf_numpy(
+            X_train,
+            X_train,
+            alpha_kernel,
+            l0,
+            sigma2,
+            amp="none" if pmode == "prefactor" else "legacy",
+            x_floor=x_floor,
+        )
+        K0_sx = Kxy_rbf_numpy(
+            X_star,
+            X_train,
+            alpha_kernel,
+            l0,
+            sigma2,
+            amp="none" if pmode == "prefactor" else "legacy",
+            x_floor=x_floor,
+        )
+        K0_ss = Kxy_rbf_numpy(
+            X_star,
+            X_star,
+            alpha_kernel,
+            l0,
+            sigma2,
+            amp="none" if pmode == "prefactor" else "legacy",
+            x_floor=x_floor,
+        )
     elif kernel == "matern":
         K0_xx = Kxy_matern_numpy(
             X_train, X_train, alpha_kernel, l0, sigma2, nu=nu, x_floor=x_floor

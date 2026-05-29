@@ -70,7 +70,7 @@ def run_from_config(cfg: dict):
     idata = sample_hyperparams_nuts(ds_tr, cfg)
 
     pcfg = cfg.get("gp_prefactor", {})
-    pref_mode = str(pcfg.get("mode", "legacy")).lower()  # legacy | prefactor | none
+    pref_mode = str(pcfg.get("mode", "prefactor")).lower()  # legacy | prefactor | none
 
     if pref_mode == "prefactor":
         var_names = ["alpha", "beta", "l0", "sigma"]
@@ -138,7 +138,8 @@ def run_from_config(cfg: dict):
         else:
             x_star_phys = x_train_phys.copy()
 
-        X_star = x_star_phys.reshape(-1, 1)
+        x_star_t = log_x_gp(x_star_phys, transforms)
+        X_star = x_star_t.reshape(-1, 1)
 
         # ---- kernel / numeric params ----
         kcfg = cfg.get("kernel", {})
@@ -161,21 +162,21 @@ def run_from_config(cfg: dict):
         lambda_sr = float(kcfg.get("lambda_sr", 0.0))
 
         sr_a = sr_ref = sr_tau2 = None
-        if lambda_sr > 0.0:
-            xt3_true = np.asarray(ds["meta"]["xt3_true"], float).ravel()
-            if xt3_true.size != xgrid.size:
-                raise ValueError("meta['xt3_true'] must be defined on the full xgrid.")
+        # if lambda_sr > 0.0:
+        #     xt3_true = np.asarray(ds["meta"]["xt3_true"], float).ravel()
+        #     if xt3_true.size != xgrid.size:
+        #         raise ValueError("meta['xt3_true'] must be defined on the full xgrid.")
 
-            # ref = ∫ (xt3_true/x) dx  (same as NN)
-            sr_ref = float(np.trapz(xt3_true / xgrid, xgrid))
+        #     # ref = ∫ (xt3_true/x) dx  (same as NN)
+        #     sr_ref = float(np.trapz(xt3_true / xgrid, xgrid))
 
-            # I(f) ≈ sum_i w_i * f_i/x_i = a^T f
-            w = _trapz_weights(xgrid)
-            sr_a = (w / xgrid).astype(float)
+        #     # I(f) ≈ sum_i w_i * f_i/x_i = a^T f
+        #     w = _trapz_weights(xgrid)
+        #     sr_a = (w / xgrid).astype(float)
 
-            # tau^2 is the noise variance of the pseudo-observation
-            # matching NN penalty: 0.5*(I-ref)^2/tau^2 == lambda_sr*(I-ref)^2
-            sr_tau2 = 1.0 / (2.0 * lambda_sr)
+        #     # tau^2 is the noise variance of the pseudo-observation
+        #     # matching NN penalty: 0.5*(I-ref)^2/tau^2 == lambda_sr*(I-ref)^2
+        #     sr_tau2 = 1.0 / (2.0 * lambda_sr)
 
         # ----------------------------
         # Sample f* posterior conditioned on TRAIN (+ sumrule)

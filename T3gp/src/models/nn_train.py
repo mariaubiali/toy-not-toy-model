@@ -1,14 +1,22 @@
 from __future__ import annotations
 from typing import Any, Dict
 import copy
+import math
 
 import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 from tqdm import trange
 
-from losses import LossContext, make_loss, _cholesky_C, _apply_Cinv, _safe_cholesky
-from models.nn_models import MLPFModel
+from losses import (
+    LossContext,
+    make_loss,
+    pointwise_loss_members,
+    _cholesky_C,
+    _apply_Cinv,
+    _safe_cholesky,
+)
+from models.nn_models import MLPFModel, RepulsiveMLPFModel
 from models.ntk import run_ntk_stage
 
 def select_training_target(ds: Dict[str, Any], cfg: Dict[str, Any]) -> np.ndarray:
@@ -153,6 +161,38 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         transforms=transforms,
     ).to(device=device, dtype=dtype)
 
+    # ------------------------------------------------------------
+    # Optional L2 chi2 scan mode:
+    # Freeze endpoint-scaling exponents alpha and beta.
+    #
+    # This keeps alpha=nn.init_alpha and beta=nn.init_beta fixed during
+    # training, which is useful when scanning fixed alpha/beta values for
+    # L2 chi2 fits.
+    #
+    # Comment out this block if alpha and beta should again be learned
+    # as ordinary hyperparameters/fit parameters in future runs.
+    # ------------------------------------------------------------
+    # if loss_name == "chi2":
+    #     print("Freezing alpha and beta")
+
+    #     # alpha is now stored directly, so negative values are allowed.
+    #     if hasattr(model, "alpha"):
+    #         model.alpha.requires_grad_(False)
+
+    #     # fallback for old model versions
+    #     if hasattr(model, "logalpha"):
+    #         model.logalpha.requires_grad_(False)
+
+    #     # beta is still stored logarithmically to keep beta positive.
+    #     if hasattr(model, "logbeta"):
+    #         model.logbeta.requires_grad_(False)
+
+    #     print(
+    #         f"[L2 chi2 scan] fixed alpha={init_alpha:.6f}, "
+    #         f"fixed beta={init_beta:.6f}"
+    #     )
+
+
     # ----------------------------
     # Proper train/val split over DATA points (rows of W)
     # ----------------------------
@@ -193,7 +233,8 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     )
     loss_fn, extra_params = make_loss(cfg, ctx, device=device, dtype=dtype)
 
-    params = list(model.parameters()) + list(extra_params.parameters())
+    params = [p for p in model.parameters() if p.requires_grad]
+    params += [p for p in extra_params.parameters() if p.requires_grad]
     opt = torch.optim.Adam(params, lr=lr, weight_decay=weight_decay)
 
     loss_hist = []
@@ -352,13 +393,18 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     if cv_enabled and best_state is not None:
         model.load_state_dict(best_state)
     
-    # if hasattr(model, "logalpha"):
-    #     alpha = float(torch.exp(model.logalpha).detach().cpu())
-    #     print(f"[NN scaling] final alpha = {alpha:.6f}")
+    if hasattr(model, "alpha") and hasattr(model, "beta"):
+        with torch.no_grad():
+            final_alpha = float(model.alpha.detach().cpu())
+            final_beta = float(model.beta.detach().cpu())
 
-    # if hasattr(model, "logbeta"):
-    #     beta = float(torch.exp(model.logbeta).detach().cpu())
-    #     print(f"[NN scaling] final beta  = {beta:.6f}")
+        alpha_status = "trained" if model.alpha.requires_grad else "fixed"
+        beta_status = "trained" if model.beta.requires_grad else "fixed"
+
+        print(
+            f"[NN scaling] final alpha={final_alpha:.6f} ({alpha_status}), "
+            f"final beta={final_beta:.6f} ({beta_status})"
+        )
 
     # ----------------------------
     # NTK-GP after full training (optional)
@@ -462,151 +508,369 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         # print("f_var: ", f_var)
     return res
 
+def _repulsive_rbf_kernel(
+    x: torch.Tensor,
+    y: torch.Tensor | None = None,
+    sigma=None,
+) -> torch.Tensor:
+    """
+    RBF kernel between ensemble members, using the same two-argument
+    structure as the previous-project implementation.
 
-def train_nn_ensemble_forward(
-    ds: Dict[str, Any], cfg: Dict[str, Any]
-) -> Dict[str, Any]:
-    ens = cfg.get("nn", {}).get("ensemble", {})
+    x:
+        Tensor with shape (K, Nloss).
+    y:
+        Optional tensor with shape (K, Nloss). If omitted, uses x.detach(),
+        matching kernel(loss, loss.detach()).
+    """
+    if x.ndim != 2:
+        raise ValueError(f"Expected x with shape (K,Nloss), got {tuple(x.shape)}")
 
-    y_loaded = np.asarray(ds["y"])
-    has_l2_replicas = y_loaded.ndim == 2
-    n_l2_replicas = y_loaded.shape[1] if has_l2_replicas else 1
-    ensemble_enabled = bool(ens.get("enabled", True))
-    if (not ensemble_enabled) and (not has_l2_replicas):
-        return train_nn_forward(ds, cfg)
-    
-    member_post_ntk_means = []
-    member_post_ntk_vars  = []
+    if y is None:
+        y = x.detach()
 
-    # Treat ensemble size as replicas
-    if ensemble_enabled:
-        n_members = int(ens.get("n_members", 20))
-    else:
-        n_members = 1
+    if y.ndim != 2:
+        raise ValueError(f"Expected y with shape (K,Nloss), got {tuple(y.shape)}")
 
-    seed_offset = int(ens.get("seed_offset", 1000))
-    save_member_preds = bool(ens.get("save_member_preds", False))
-    subsample_members = ens.get("subsample_members", None)
-    subsample_members = (
-        int(subsample_members) if subsample_members is not None else None
+    if x.shape != y.shape:
+        raise ValueError(f"x and y must have the same shape, got {tuple(x.shape)} and {tuple(y.shape)}")
+
+    channels = x.shape[0]
+    dnorm2 = (
+        (x.reshape(channels, 1, -1) - y.reshape(1, channels, -1))
+        .square()
+        .sum(dim=2)
     )
 
-    base_seed = int(cfg.get("seed", 0))
+    if sigma is None:
+        sigma_t = torch.quantile(dnorm2.detach(), 0.5)
+        sigma_t = sigma_t / (2.0 * math.log(channels + 1.0))
+        sigma_t = sigma_t.clamp_min(1e-12)
+    else:
+        sigma_t = torch.as_tensor(
+            float(sigma),
+            dtype=x.dtype,
+            device=x.device,
+        ).clamp_min(1e-12)
 
-    member_means = []
-    member_vars = []
-    member_losses = []
-    member_replica_ids = []
-    member_l2_ids = []
-    out_last = None
+    return torch.exp(-dnorm2 / (2.0 * sigma_t))
 
-    for replica_l2 in range(n_l2_replicas):
-        for i in trange(n_members, desc=f"Training L2 replica {replica_l2}"):
-            cfg_i = dict(cfg)
-            # Existing NN ensemble/member index
-            cfg_i["replica"] = i
-            # New independent L2 data-replica index
-            cfg_i["replica_l2"] = replica_l2
-            # Unique seed for every combination
-            fit_id = replica_l2 * n_members + i
-            cfg_i["seed"] = base_seed + seed_offset + fit_id
+def _repulsive_weight_norm(model: torch.nn.Module) -> torch.Tensor:
+    """
+    Squared L2 norm of all trainable parameters in the repulsive ensemble model.
 
-            out_i = train_nn_forward(ds, cfg_i)
-            out_last = out_i
+    This is used for the optional Gaussian-prior/weight-decay-like term
 
-            member_means.append(out_i["f_grid_mean"])
-            member_losses.append(out_i["loss_history"])
-            member_replica_ids.append(i)
-            member_l2_ids.append(replica_l2)
-            member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
-            member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
+        ||theta||^2 / (2 N prior_width).
+    """
+    norm = None
 
-            # might be zero, depending on loss type
-            v = out_i.get("f_grid_var", None)
-            member_vars.append(v)
+    for param in model.parameters():
+        if not param.requires_grad:
+            continue
 
-    replicas = np.stack(member_means, axis=0)  # (S, Ngrid)
-    xgrid = out_last["xgrid"]
-    l2_member_replicas = replicas.reshape(
-        n_l2_replicas,
-        n_members,
-        replicas.shape[-1],
+        term = param.square().sum()
+        norm = term if norm is None else norm + term
+
+    if norm is None:
+        first_param = next(model.parameters())
+        norm = torch.zeros((), dtype=first_param.dtype, device=first_param.device)
+
+    return norm
+
+def train_repulsive_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Train a repulsive NN ensemble for the T3 FK-table setup.
+
+    This is different from train_nn_ensemble_forward: all K members are trained
+    simultaneously as channels of one StackedLinear network.
+    """
+    device = torch.device(cfg.get("nn", {}).get("device", "cpu"))
+    dtype = torch.float32
+
+    nncfg = cfg.get("nn", {})
+    ens_cfg = nncfg.get("ensemble", {})
+    rep_cfg = nncfg.get("repulsive", {})
+
+    hidden = nncfg.get("hidden", [64, 64])
+    activation = str(nncfg.get("activation", "tanh"))
+    lr = float(nncfg.get("lr", 1e-3))
+    epochs = int(nncfg.get("epochs", 3000))
+    weight_decay = float(nncfg.get("weight_decay", 0.0))
+    seed = int(cfg.get("seed", 0))
+    dropout = float(nncfg.get("dropout", 0.0))
+    scaling = nncfg.get("scaling", True)
+    init_alpha = float(nncfg.get("init_alpha", 1.0))
+    init_beta = float(nncfg.get("init_beta", 3.0))
+    transforms = cfg.get("transforms", {})
+    out_dim = int(nncfg.get("out_dim", 1))
+    if out_dim != 1:
+        raise NotImplementedError(
+            "The first T3 repulsive implementation is intentionally restricted "
+            "to out_dim=1. Add heteroscedastic propagation only after the scalar "
+            "case is validated."
+        )
+
+    loss_name = str(cfg.get("loss", {}).get("name", "weighted_mse")).lower()
+    jitter = float(cfg.get("kernel", {}).get("jitter", cfg.get("loss", {}).get("jitter", 1e-10)))
+
+    channels = int(
+        rep_cfg.get(
+            "channels",
+            ens_cfg.get("channels", ens_cfg.get("n_members", ens_cfg.get("members", 20))),
+        )
+    )
+    beta = float(rep_cfg.get("beta", 1.0))
+    prior_width = float(rep_cfg.get("prior_width", 1.0))
+    h = rep_cfg.get("h", None)
+    kernel_space = str(rep_cfg.get("kernel_space", "xt3")).lower()
+    if kernel_space not in {"xt3", "model", "f", "function", "loss", "data", "y"}:
+        raise ValueError(
+            "nn.repulsive.kernel_space must be one of "
+            "'xt3'/'model'/'f'/'function' or 'loss'/'data'/'y', "
+            f"got {kernel_space!r}"
+        )
+    init = str(rep_cfg.get("init", "kaiming"))
+
+    patience = int(nncfg.get("patience", 500))
+    min_delta = float(nncfg.get("min_delta", 0.0))
+    lambda_sr = float(cfg.get("loss", {}).get("lambda_sr", 0.0))
+
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    meta = ds.get("meta", {})
+    xt3_true = np.asarray(meta.get("xt3_true", []), float).ravel()
+    xgrid_ext = (
+        meta.get("xgrid_ext").astype(np.float64)
+        if "xgrid_ext" in meta
+        else np.array([], dtype=np.float64)
     )
 
-    # Only keep vars if EVERY member provided them
-    have_all_vars = all(v is not None for v in member_vars)
-    vars_replicas = np.stack(member_vars, axis=0) if have_all_vars else None
+    xgrid = ds["xgrid"].astype(np.float32)
+    W = ds["W"].astype(np.float32)
+    C = ds["C"].astype(np.float32)
+    y = select_training_target(ds, cfg).astype(np.float32)
 
-    if vars_replicas is not None:
-        l2_member_vars = vars_replicas.reshape(n_l2_replicas,n_members,vars_replicas.shape[-1],)
-    else:
-        l2_member_vars = None
+    n_data = W.shape[0]
+    n_grid = xgrid.shape[0]
+    if xt3_true.size != n_grid:
+        raise ValueError(
+            f"xt3_true must be defined on xgrid: got {xt3_true.size} vs Ngrid={n_grid}"
+        )
 
-    have_all_post = all(v is not None for v in member_post_ntk_means) and all(v is not None for v in member_post_ntk_vars)
-    post_ntk_replicas = np.stack(member_post_ntk_means, axis=0) if have_all_post else None
-    post_ntk_vars     = np.stack(member_post_ntk_vars,  axis=0) if have_all_post else None
+    t3_ref_int = float(np.trapz(xt3_true / xgrid, xgrid))
 
-    # If the user requested post-NTK evaluation, make the ensemble summary operate
-    # on the post-NTK GP curves rather than the raw trained NN curves.
-    if str(cfg.get("ntk", {}).get("when", "none")).lower() == "post" and have_all_post:
-        replicas = post_ntk_replicas
-        vars_replicas = post_ntk_vars
+    x_torch = torch.tensor(xgrid, dtype=dtype, device=device).unsqueeze(1)
+    xgrid_1d = x_torch.squeeze(1)
+    W_torch = torch.tensor(W, dtype=dtype, device=device)
+    C_torch = torch.tensor(C, dtype=dtype, device=device)
+    y_torch = torch.tensor(y, dtype=dtype, device=device)
 
-        l2_member_replicas = replicas.reshape(n_l2_replicas,n_members,replicas.shape[-1],)
-        if vars_replicas is not None:
-            l2_member_vars = vars_replicas.reshape(n_l2_replicas,n_members,vars_replicas.shape[-1],)
+    xext_torch = torch.tensor(xgrid_ext, dtype=dtype, device=device).unsqueeze(1)
+    x_pred_torch = xext_torch if xgrid_ext.size > 0 else x_torch
+    x_pred_np = xgrid_ext.astype(np.float64) if xgrid_ext.size > 0 else xgrid.astype(np.float64)
+
+    idx_all = np.arange(n_data)
+    train_idx, val_idx = train_test_split(
+        idx_all,
+        test_size=0.2,
+        random_state=seed,
+    )
+
+    train_idx_t = torch.tensor(train_idx, dtype=torch.long, device=device)
+    val_idx_t = torch.tensor(val_idx, dtype=torch.long, device=device)
+
+    W_tr = W_torch[train_idx_t, :]
+    W_val = W_torch[val_idx_t, :]
+    y_tr = y_torch[train_idx_t]
+    y_val = y_torch[val_idx_t]
+    C_tr = C_torch[train_idx_t][:, train_idx_t]
+    C_val = C_torch[val_idx_t][:, val_idx_t]
+
+    L_tr = _cholesky_C(C_tr, jitter)
+    L_val = _cholesky_C(C_val, jitter)
+
+    model = RepulsiveMLPFModel(
+        hidden=hidden,
+        channels=channels,
+        activation=activation,
+        dropout=dropout,
+        out_dim=out_dim,
+        scaling=scaling,
+        init_alpha=init_alpha,
+        init_beta=init_beta,
+        transforms=transforms,
+        init=init,
+    ).to(device=device, dtype=dtype)
+
+    opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+
+    loss_hist = []
+    val_chi2_hist = []
+    log_every = max(1, epochs // 20)
+
+    best_val_chi2 = float("inf")
+    best_epoch = -1
+    best_state = None
+    epochs_without_improvement = 0
+    stopped_early = False
+    stopped_epoch = epochs - 1
+
+    for ep in trange(epochs, desc="Training repulsive ensemble"):
+        model.train()
+        opt.zero_grad()
+
+        out = model(x_torch)
+        f_members = out["f_grid"]  # (K, Ngrid)
+
+        y_pred_members = f_members @ W_tr.T  # (K, Ntrain)
+        per_point_loss = pointwise_loss_members(
+            y_pred_members,
+            y_tr,
+            loss_name=loss_name,
+            C=C_tr,
+            L=L_tr,
+            jitter=jitter,
+        )
+
+        if loss_name == "chi2":
+            data_loss = per_point_loss.sum(dim=1)
         else:
-            l2_member_vars = None
+            data_loss = per_point_loss.mean(dim=1)
 
-    # OPTIONAL SUBSAMPLING OF MEMBERS
-    if subsample_members is not None and replicas.shape[0] > subsample_members:
-        rng = np.random.default_rng(base_seed + seed_offset)
-        keep = rng.choice(replicas.shape[0], subsample_members, replace=False)
-        replicas = replicas[keep]
-        member_losses = [member_losses[k] for k in keep.tolist()]
-        member_replica_ids = [member_replica_ids[k] for k in keep.tolist()]
-        member_l2_ids = [member_l2_ids[k] for k in keep.tolist()]
+        # if lambda_sr > 0.0:
+        #     I_members = torch.trapz(f_members / xgrid_1d[None, :], xgrid_1d, dim=1)
+        #     sr_loss = lambda_sr * (I_members - t3_ref_int).square()
+        #     data_loss = data_loss + sr_loss
 
-        if save_member_preds:
-            member_means = [member_means[k] for k in keep.tolist()]
-        if vars_replicas is not None:
-            vars_replicas = vars_replicas[keep]
+        if kernel_space in {"xt3", "model", "f", "function"}:
+            kernel_input = f_members
+        else:
+            kernel_input = per_point_loss
         
-        # After arbitrary subsampling, rectangular L2/member structure is invalid
-        l2_member_replicas = None
-        l2_member_vars = None
+        kernel = _repulsive_rbf_kernel(kernel_input, kernel_input.detach(), sigma=h)
+        repulsive_term = (
+            beta
+            / float(n_data)
+            * (kernel.sum(dim=1) / kernel.detach().sum(dim=1).clamp_min(1e-12) - 1.0)
+        )
 
+        loss = torch.sum(data_loss + repulsive_term)
+
+        if prior_width > 0.0:
+            loss = loss + (
+                1.0
+                / (2.0 * float(n_data) * prior_width)
+                * _repulsive_weight_norm(model)
+            )
+
+        loss.backward()
+        opt.step()
+
+        model.eval()
+        with torch.no_grad():
+            out_v = model(x_torch)
+            f_mean_v = out_v["f_grid"].mean(dim=0)
+            y_pred_val = W_val @ f_mean_v
+            r_val = (y_pred_val - y_val).reshape(-1)
+            chi2_val = float(r_val @ _apply_Cinv(L_val, r_val))
+            chi2_val_pt = chi2_val / float(len(val_idx))
+
+        val_chi2_hist.append(float(chi2_val_pt))
+
+        if chi2_val_pt < best_val_chi2 - min_delta:
+            best_val_chi2 = float(chi2_val_pt)
+            best_epoch = ep
+            best_state = copy.deepcopy(model.state_dict())
+            epochs_without_improvement = 0
+        else:
+            epochs_without_improvement += 1
+
+        if patience > 0 and epochs_without_improvement >= patience:
+            stopped_early = True
+            stopped_epoch = ep
+            break
+
+        if (ep + 1) % log_every == 0:
+            loss_hist.append(float(loss.detach().cpu().item()))
+
+    if best_state is not None:
+        model.load_state_dict(best_state)
+
+    model.eval()
+    with torch.no_grad():
+        out_full = model(x_pred_torch)
+        replicas = out_full["f_grid"].detach().cpu().numpy().astype(np.float64)
+
+    res = _summarise_replicas(
+        xgrid=x_pred_np,
+        replicas=replicas,
+        vars_replicas=None,
+        member_losses=[np.array(loss_hist, dtype=np.float64)],
+        save_member_preds=True,
+        member_means=[replicas[k] for k in range(replicas.shape[0])],
+    )
+
+    res.update(
+        {
+            "ensemble_kind": "repulsive",
+            "repulsive": {
+                "channels": int(channels),
+                "beta": float(beta),
+                "prior_width": float(prior_width),
+                "h": None if h is None else float(h),
+                "kernel_space": kernel_space,
+                "init": init,
+            },
+            "f_grid_mean": res["mean_curve"],
+            "loss_history": np.array(loss_hist, dtype=np.float64),
+            "train_idx": train_idx,
+            "val_idx": val_idx,
+            "cv": {
+                "enabled": True,
+                "val_fraction": 0.2,
+                "split_seed": int(seed),
+                "patience": int(patience),
+                "min_delta": float(min_delta),
+                "best_epoch": int(best_epoch),
+                "best_val_chi2_per_point": float(best_val_chi2)
+                if np.isfinite(best_val_chi2)
+                else None,
+                "stopped_early": bool(stopped_early),
+                "stopped_epoch": int(stopped_epoch),
+                "val_chi2_history": np.array(val_chi2_hist, dtype=np.float64),
+            },
+        }
+    )
+
+    return res
+
+
+def _summarise_replicas(
+    *,
+    xgrid,
+    replicas,
+    vars_replicas=None,
+    member_losses=None,
+    save_member_preds=False,
+    member_means=None,
+    post_ntk_replicas=None,
+    post_ntk_vars=None,
+):
     res = {
         "xgrid": xgrid,
-        # Flat ensemble over all trained networks
-        "replicas": replicas,  # (n_l2_replicas * n_members, Ngrid)
-        # Structured ensemble
-        "l2_member_replicas": l2_member_replicas,
-        # (n_l2_replicas, n_members, Ngrid), or None after subsampling
-        "replica_ids": np.asarray(member_replica_ids, dtype=int),
-        "replica_l2_ids": np.asarray(member_l2_ids, dtype=int),
-        "n_members": n_members,
-        "n_l2_replicas": n_l2_replicas,
-        # Variance replicas if available
+        "replicas": replicas,
         "vars_replicas": vars_replicas,
-        "l2_member_vars": l2_member_vars,
-        # Global summaries over all flattened replicas
         "mean_curve": replicas.mean(axis=0),
         "lo68": np.percentile(replicas, 16.0, axis=0),
         "hi68": np.percentile(replicas, 84.0, axis=0),
         "lo95": np.percentile(replicas, 2.5, axis=0),
         "hi95": np.percentile(replicas, 97.5, axis=0),
-        "member_losses": member_losses,
+        "member_losses": member_losses if member_losses is not None else [],
         "post_ntk_replicas": post_ntk_replicas,
         "post_ntk_vars_replicas": post_ntk_vars,
     }
-
-    # L2-separated summaries
-    if l2_member_replicas is not None:
-        res["mean_per_l2_replica"] = l2_member_replicas.mean(axis=1)
-        res["std_per_l2_replica"] = l2_member_replicas.std(axis=1)
-        res["lo68_per_l2_replica"] = np.percentile(l2_member_replicas, 16.0, axis=1)
-        res["hi68_per_l2_replica"] = np.percentile(l2_member_replicas, 84.0, axis=1)
 
     if vars_replicas is not None:
         res["var_mean_curve"] = vars_replicas.mean(axis=0)
@@ -617,5 +881,316 @@ def train_nn_ensemble_forward(
         res["member_means"] = member_means
         if vars_replicas is not None:
             res["member_vars"] = vars_replicas
+
+    return res
+
+
+def train_nn_ensemble_forward(
+    ds: Dict[str, Any], cfg: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    L1/network ensemble wrapper.
+
+    This should be used for ordinary L1 data where ds["y"] has shape (Ndata,).
+    L2 data replicas are handled separately by train_l2_replicas_forward.
+    """
+    y_loaded = np.asarray(ds["y"])
+    if y_loaded.ndim != 1:
+        raise ValueError(
+            "train_nn_ensemble_forward is intended for L1 data only, with "
+            "ds['y'] shape (Ndata,). Use train_l2_replicas_forward for "
+            "L2 data with shape (Ndata, N_l2_replicas)."
+        )
+
+    ens = cfg.get("nn", {}).get("ensemble", {})
+    if not bool(ens.get("enabled", True)):
+        return train_nn_forward(ds, cfg)
+
+    ensemble_kind = str(ens.get("kind", "standard")).lower()
+    if ensemble_kind == "repulsive":
+        print("in train repulsive")
+        return train_repulsive_nn_forward(ds, cfg)
+
+    n_members = int(ens.get("n_members", 20))
+    seed_offset = int(ens.get("seed_offset", 1000))
+    save_member_preds = bool(ens.get("save_member_preds", False))
+    subsample_members = ens.get("subsample_members", None)
+    subsample_members = (
+        int(subsample_members) if subsample_members is not None else None
+    )
+
+    base_seed = int(cfg.get("seed", 0))
+    use_post_ntk = str(cfg.get("ntk", {}).get("when", "none")).lower() == "post"
+
+    member_means = []
+    member_vars = []
+    member_losses = []
+
+    member_post_ntk_means = []
+    member_post_ntk_vars = []
+
+    out_last = None
+
+    for i in trange(n_members, desc="Training ensemble members"):
+        cfg_i = dict(cfg)
+
+        # Make both model init and split different per member.
+        cfg_i["seed"] = base_seed + seed_offset + i
+        cfg_i["replica"] = i
+
+        out_i = train_nn_forward(ds, cfg_i)
+        out_last = out_i
+
+        member_means.append(out_i["f_grid_mean"])
+        member_vars.append(out_i.get("f_grid_var", None))
+        member_losses.append(out_i["loss_history"])
+
+        member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
+        member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
+
+    raw_replicas = np.stack(member_means, axis=0)
+
+    have_all_vars = all(v is not None for v in member_vars)
+    raw_vars = np.stack(member_vars, axis=0) if have_all_vars else None
+
+    have_all_post = (
+        all(v is not None for v in member_post_ntk_means)
+        and all(v is not None for v in member_post_ntk_vars)
+    )
+
+    post_ntk_replicas = (
+        np.stack(member_post_ntk_means, axis=0) if have_all_post else None
+    )
+    post_ntk_vars = (
+        np.stack(member_post_ntk_vars, axis=0) if have_all_post else None
+    )
+
+    # If requested and available, summarize the empirical NTK-GP curves rather
+    # than the raw trained NN curves.
+    if use_post_ntk and have_all_post:
+        replicas = post_ntk_replicas
+        vars_replicas = post_ntk_vars
+    else:
+        replicas = raw_replicas
+        vars_replicas = raw_vars
+
+    if subsample_members is not None and replicas.shape[0] > subsample_members:
+        rng = np.random.default_rng(base_seed + seed_offset)
+        keep = rng.choice(replicas.shape[0], subsample_members, replace=False)
+
+        replicas = replicas[keep]
+        member_losses = [member_losses[k] for k in keep.tolist()]
+
+        if vars_replicas is not None:
+            vars_replicas = vars_replicas[keep]
+
+        if save_member_preds:
+            member_means = [member_means[k] for k in keep.tolist()]
+
+        # Keep diagnostic post-NTK arrays aligned with the public ensemble.
+        if post_ntk_replicas is not None:
+            post_ntk_replicas = post_ntk_replicas[keep]
+        if post_ntk_vars is not None:
+            post_ntk_vars = post_ntk_vars[keep]
+
+    res = _summarise_replicas(
+        xgrid=out_last["xgrid"],
+        replicas=replicas,
+        vars_replicas=vars_replicas,
+        member_losses=member_losses,
+        save_member_preds=save_member_preds,
+        member_means=member_means,
+        post_ntk_replicas=post_ntk_replicas,
+        post_ntk_vars=post_ntk_vars,
+    )
+
+    if use_post_ntk and have_all_post:
+        post_mean = replicas.mean(axis=0)
+
+        if vars_replicas is not None:
+            post_var = vars_replicas.mean(axis=0)
+        else:
+            post_var = np.zeros_like(post_mean)
+
+        post_std = np.sqrt(np.maximum(post_var, 0.0))
+
+        res["post_ntk_xgrid"] = out_last["xgrid"]
+        res["post_ntk_f_mean"] = post_mean
+        res["post_ntk_f_var"] = post_var
+        res["post_ntk_f_std"] = post_std
+        res["post_ntk_f_lo68"] = post_mean - post_std
+        res["post_ntk_f_hi68"] = post_mean + post_std
+        res["post_ntk_f_lo95"] = post_mean - 1.96 * post_std
+        res["post_ntk_f_hi95"] = post_mean + 1.96 * post_std
+
+        if post_ntk_vars is not None:
+            res["post_ntk_f_cov"] = np.diag(post_var)
+
+    return res
+
+
+def train_l2_replicas_forward(
+    ds: Dict[str, Any], cfg: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    L2 data-replica wrapper.
+
+    Requires ds["y"] with shape (Ndata, N_l2_replicas).
+
+    If nn.ensemble.enabled is true, this trains n_members networks for each
+    L2 data replica. If false, this trains one network per L2 data replica.
+    """
+    y_loaded = np.asarray(ds["y"])
+    if y_loaded.ndim != 2:
+        raise ValueError(
+            "train_l2_replicas_forward requires ds['y'] with shape "
+            "(Ndata, N_l2_replicas)."
+        )
+
+    ens = cfg.get("nn", {}).get("ensemble", {})
+    ensemble_enabled = bool(ens.get("enabled", True))
+
+    n_members = int(ens.get("n_members", 20)) if ensemble_enabled else 1
+    seed_offset = int(ens.get("seed_offset", 1000))
+    save_member_preds = bool(ens.get("save_member_preds", False))
+    subsample_members = ens.get("subsample_members", None)
+    subsample_members = (
+        int(subsample_members) if subsample_members is not None else None
+    )
+
+    base_seed = int(cfg.get("seed", 0))
+    n_l2_replicas = y_loaded.shape[1]
+    use_post_ntk = str(cfg.get("ntk", {}).get("when", "none")).lower() == "post"
+
+    member_means = []
+    member_vars = []
+    member_losses = []
+
+    member_replica_ids = []
+    member_l2_ids = []
+
+    member_post_ntk_means = []
+    member_post_ntk_vars = []
+
+    out_last = None
+
+    for replica_l2 in range(n_l2_replicas):
+        for i in trange(n_members, desc=f"Training L2 replica {replica_l2}"):
+            cfg_i = dict(cfg)
+
+            fit_id = replica_l2 * n_members + i
+
+            cfg_i["seed"] = base_seed + seed_offset + fit_id
+            cfg_i["replica"] = i
+            cfg_i["replica_l2"] = replica_l2
+
+            out_i = train_nn_forward(ds, cfg_i)
+            out_last = out_i
+
+            member_means.append(out_i["f_grid_mean"])
+            member_vars.append(out_i.get("f_grid_var", None))
+            member_losses.append(out_i["loss_history"])
+
+            member_replica_ids.append(i)
+            member_l2_ids.append(replica_l2)
+
+            member_post_ntk_means.append(out_i.get("post_ntk_f_mean", None))
+            member_post_ntk_vars.append(out_i.get("post_ntk_f_var", None))
+
+    raw_replicas = np.stack(member_means, axis=0)
+
+    have_all_vars = all(v is not None for v in member_vars)
+    raw_vars = np.stack(member_vars, axis=0) if have_all_vars else None
+
+    have_all_post = (
+        all(v is not None for v in member_post_ntk_means)
+        and all(v is not None for v in member_post_ntk_vars)
+    )
+
+    post_ntk_replicas = (
+        np.stack(member_post_ntk_means, axis=0) if have_all_post else None
+    )
+    post_ntk_vars = (
+        np.stack(member_post_ntk_vars, axis=0) if have_all_post else None
+    )
+
+    if use_post_ntk and have_all_post:
+        replicas = post_ntk_replicas
+        vars_replicas = post_ntk_vars
+    else:
+        replicas = raw_replicas
+        vars_replicas = raw_vars
+
+    # Before arbitrary subsampling, the structure is rectangular:
+    # (N_l2_replicas, N_members, Ngrid).
+    l2_member_replicas = replicas.reshape(
+        n_l2_replicas,
+        n_members,
+        replicas.shape[-1],
+    )
+
+    if vars_replicas is not None:
+        l2_member_vars = vars_replicas.reshape(
+            n_l2_replicas,
+            n_members,
+            vars_replicas.shape[-1],
+        )
+    else:
+        l2_member_vars = None
+
+    if subsample_members is not None and replicas.shape[0] > subsample_members:
+        rng = np.random.default_rng(base_seed + seed_offset)
+        keep = rng.choice(replicas.shape[0], subsample_members, replace=False)
+
+        replicas = replicas[keep]
+        member_losses = [member_losses[k] for k in keep.tolist()]
+        member_replica_ids = [member_replica_ids[k] for k in keep.tolist()]
+        member_l2_ids = [member_l2_ids[k] for k in keep.tolist()]
+
+        if vars_replicas is not None:
+            vars_replicas = vars_replicas[keep]
+
+        if save_member_preds:
+            member_means = [member_means[k] for k in keep.tolist()]
+
+        # Keep diagnostic post-NTK arrays aligned with the public ensemble.
+        if post_ntk_replicas is not None:
+            post_ntk_replicas = post_ntk_replicas[keep]
+        if post_ntk_vars is not None:
+            post_ntk_vars = post_ntk_vars[keep]
+
+        # Arbitrary flat subsampling destroys the rectangular L2/member layout.
+        l2_member_replicas = None
+        l2_member_vars = None
+
+    res = _summarise_replicas(
+        xgrid=out_last["xgrid"],
+        replicas=replicas,
+        vars_replicas=vars_replicas,
+        member_losses=member_losses,
+        save_member_preds=save_member_preds,
+        member_means=member_means,
+        post_ntk_replicas=post_ntk_replicas,
+        post_ntk_vars=post_ntk_vars,
+    )
+
+    res.update({
+        "l2_member_replicas": l2_member_replicas,
+        "l2_member_vars": l2_member_vars,
+        "replica_ids": np.asarray(member_replica_ids, dtype=int),
+        "replica_l2_ids": np.asarray(member_l2_ids, dtype=int),
+        "n_members": int(n_members),
+        "n_l2_replicas": int(n_l2_replicas),
+    })
+
+    if l2_member_replicas is not None:
+        res["mean_per_l2_replica"] = l2_member_replicas.mean(axis=1)
+        res["std_per_l2_replica"] = l2_member_replicas.std(axis=1)
+        res["lo68_per_l2_replica"] = np.percentile(
+            l2_member_replicas, 16.0, axis=1
+        )
+        res["hi68_per_l2_replica"] = np.percentile(
+            l2_member_replicas, 84.0, axis=1
+        )
 
     return res

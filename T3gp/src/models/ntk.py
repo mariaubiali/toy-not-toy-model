@@ -448,18 +448,18 @@ def _prepare_standalone_ntk_inputs(ds: Dict[str, Any], cfg: Dict[str, Any]) -> D
 
     sigma2_sr = None
     sumrule_added = False
-    apply_sumrule = bool(cfg.get("ntk", {}).get("apply_sumrule", False))
-    if apply_sumrule and lambda_sr > 0.0 and (t3_ref_int is not None):
-        w = _trapz_sumrule_weights(xgrid)
-        W = np.concatenate([W, w[None, :]], axis=0)
-        y = np.concatenate([y, np.asarray([t3_ref_int], dtype=np.float64)], axis=0)
-        sigma2_sr = 1.0 / (2.0 * lambda_sr)
-        sumrule_added = True
-        if C is not None:
-            C_aug = np.zeros((C.shape[0] + 1, C.shape[1] + 1), dtype=np.float64)
-            C_aug[:-1, :-1] = C
-            C_aug[-1, -1] = sigma2_sr
-            C = C_aug
+    # apply_sumrule = bool(cfg.get("ntk", {}).get("apply_sumrule", False))
+    # if apply_sumrule and lambda_sr > 0.0 and (t3_ref_int is not None):
+    #     w = _trapz_sumrule_weights(xgrid)
+    #     W = np.concatenate([W, w[None, :]], axis=0)
+    #     y = np.concatenate([y, np.asarray([t3_ref_int], dtype=np.float64)], axis=0)
+    #     sigma2_sr = 1.0 / (2.0 * lambda_sr)
+    #     sumrule_added = True
+    #     if C is not None:
+    #         C_aug = np.zeros((C.shape[0] + 1, C.shape[1] + 1), dtype=np.float64)
+    #         C_aug[:-1, :-1] = C
+    #         C_aug[-1, -1] = sigma2_sr
+    #         C = C_aug
 
     if use_data_cov:
         if C is None:
@@ -467,8 +467,8 @@ def _prepare_standalone_ntk_inputs(ds: Dict[str, Any], cfg: Dict[str, Any]) -> D
         noise = C
     else:
         noise = lam * np.eye(W.shape[0], dtype=np.float64)
-        if sumrule_added and (sigma2_sr is not None):
-            noise[-1, -1] = sigma2_sr
+        # if sumrule_added and (sigma2_sr is not None):
+        #     noise[-1, -1] = sigma2_sr
 
     max_train_points = ntk_cfg.get("max_train_points", None)
     max_train_points = int(max_train_points) if max_train_points is not None else None

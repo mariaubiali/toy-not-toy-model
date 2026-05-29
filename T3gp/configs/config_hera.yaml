@@ -1,9 +1,7 @@
 seed: 123
-output_dir: results/chi2_L1_scan_var/a10_b30
-seed: 123
-
+output_dir: results/hera/nc_ep575_extended
 data:
-  path: data/Dataset/data_208_extended.npz
+  path: data/Dataset/hera_data_nc_ep575_extended.npz
   target: y_pseudo
 
   rescale:
@@ -16,7 +14,7 @@ model:
 nn:
   hidden: [32, 32, 32]
   activation: gelu
-  out_dim: 2
+  out_dim: 1
   dropout: 0.001
   epochs: 5000
   lr: 5.0e-4
@@ -37,13 +35,20 @@ nn:
     save_member_preds: false # if true saves each member curve  
 
 loss:
-  name: chi2              # mse | weighted_mse | chi2_het | chi2 | mse_het
+  name: chi2                 # mse | weighted_mse | chi_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
-  lambda_sr: 0.0          # set 0.0 to disable sum-rule penalty
-  full_cov: false
-  full_cov_jitter_abs: 1e-12
-  full_cov_jitter_rel: 1e-8
+  lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
 
 transforms:
   Logx: {}
+  Softplus: {}
 
+ntk:
+  when: "none"          # "none" | "init" | "post"
+  gp_eval: false
+
+  use_data_cov: true     # if true, uses C_tr as noise; else uses lambda * I
+  lambda: 1e-3           # only used when use_data_cov=false
+  ridge: 1e-6            # always added to stabilize Cholesky
+  max_train_points: 256
+  max_pred_points: 512
