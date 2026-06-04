@@ -382,10 +382,10 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
             else:
                 epochs_without_improvement += 1
 
-            if epochs_without_improvement >= patience:
-                stopped_early = True
-                stopped_epoch = ep
-                break
+            # if epochs_without_improvement >= patience:
+            #     stopped_early = True
+            #     stopped_epoch = ep
+            #     break
 
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
@@ -508,52 +508,115 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
         # print("f_var: ", f_var)
     return res
 
-def _repulsive_rbf_kernel(
+def _repulsive_kernel(
     x: torch.Tensor,
     y: torch.Tensor | None = None,
+    *,
+    kind: str = "rbf",
     sigma=None,
+    xgrid: torch.Tensor | None = None,
+    gibbs_l_min: float = 0.1,
+    gibbs_l_max: float = 10.0,
+    gibbs_x0: float = 0.01,
+    gibbs_power: float = 1.0,
 ) -> torch.Tensor:
     """
-    RBF kernel between ensemble members, using the same two-argument
-    structure as the previous-project implementation.
+    Repulsive kernel between ensemble members.
 
-    x:
-        Tensor with shape (K, Nloss).
-    y:
-        Optional tensor with shape (K, Nloss). If omitted, uses x.detach(),
-        matching kernel(loss, loss.detach()).
+    x, y:
+        Tensors with shape (K, Nfeatures).
+
+    kind:
+        "rbf" or "gibbs".
+
+    For kind="rbf":
+        K_ij = exp(-||x_i-y_j||^2 / (2 sigma))
+
+    For kind="gibbs":
+        K_ij = exp(-0.5 * sum_m (x_im-y_jm)^2 / ell(x_m)^2)
+
+    The Gibbs version is a weighted, non-stationary RBF with an x-dependent
+    length scale ell(x).
     """
     if x.ndim != 2:
-        raise ValueError(f"Expected x with shape (K,Nloss), got {tuple(x.shape)}")
+        raise ValueError(f"Expected x with shape (K,Nfeatures), got {tuple(x.shape)}")
 
     if y is None:
         y = x.detach()
 
     if y.ndim != 2:
-        raise ValueError(f"Expected y with shape (K,Nloss), got {tuple(y.shape)}")
+        raise ValueError(f"Expected y with shape (K,Nfeatures), got {tuple(y.shape)}")
 
     if x.shape != y.shape:
-        raise ValueError(f"x and y must have the same shape, got {tuple(x.shape)} and {tuple(y.shape)}")
+        raise ValueError(
+            f"x and y must have the same shape, got {tuple(x.shape)} and {tuple(y.shape)}"
+        )
 
+    kind = str(kind).lower()
     channels = x.shape[0]
-    dnorm2 = (
-        (x.reshape(channels, 1, -1) - y.reshape(1, channels, -1))
-        .square()
-        .sum(dim=2)
-    )
 
-    if sigma is None:
-        sigma_t = torch.quantile(dnorm2.detach(), 0.5)
-        sigma_t = sigma_t / (2.0 * math.log(channels + 1.0))
-        sigma_t = sigma_t.clamp_min(1e-12)
-    else:
-        sigma_t = torch.as_tensor(
-            float(sigma),
-            dtype=x.dtype,
-            device=x.device,
-        ).clamp_min(1e-12)
+    diff2 = (
+        x.reshape(channels, 1, -1)
+        - y.reshape(1, channels, -1)
+    ).square()
 
-    return torch.exp(-dnorm2 / (2.0 * sigma_t))
+    if kind == "rbf":
+        dnorm2 = diff2.sum(dim=2)
+
+        if sigma is None:
+            sigma_t = torch.quantile(dnorm2.detach(), 0.5)
+            sigma_t = sigma_t / (2.0 * math.log(channels + 1.0))
+            sigma_t = sigma_t.clamp_min(1.0e-12)
+        else:
+            sigma_t = torch.as_tensor(
+                float(sigma),
+                dtype=x.dtype,
+                device=x.device,
+            ).clamp_min(1.0e-12)
+
+        return torch.exp(-dnorm2 / (2.0 * sigma_t))
+
+    if kind == "gibbs":
+        if xgrid is None:
+            raise ValueError("Gibbs kernel requires xgrid when kind='gibbs'.")
+
+        xgrid = xgrid.reshape(-1).to(dtype=x.dtype, device=x.device)
+
+        if xgrid.shape[0] != x.shape[1]:
+            raise ValueError(
+                f"For Gibbs kernel, xgrid length must match feature dimension. "
+                f"Got xgrid={xgrid.shape[0]} and features={x.shape[1]}."
+            )
+
+        # Use log-x coordinate because your grid spans many orders of magnitude.
+        logx = torch.log(xgrid.clamp_min(1.0e-12))
+
+        logx0 = math.log(float(gibbs_x0))
+        logxmin = torch.min(logx)
+        logxmax = torch.max(logx)
+
+        # Smooth coordinate in [0, 1].
+        t = (logx - logxmin) / (logxmax - logxmin).clamp_min(1.0e-12)
+
+        # Optional pivot around gibbs_x0.
+        t0 = (torch.as_tensor(logx0, dtype=x.dtype, device=x.device) - logxmin) / (
+            logxmax - logxmin
+        ).clamp_min(1.0e-12)
+
+        # Length scale profile. This makes ell vary smoothly across x.
+        # power > 1 makes the transition sharper.
+        profile = torch.abs(t - t0).pow(float(gibbs_power))
+        profile = profile / profile.max().clamp_min(1.0e-12)
+
+        ell = float(gibbs_l_max) - (float(gibbs_l_max) - float(gibbs_l_min)) * profile
+
+        ell2 = ell.square().clamp_min(1.0e-12)
+
+        dweighted = (diff2 / ell2.reshape(1, 1, -1)).sum(dim=2)
+
+        return torch.exp(-0.5 * dweighted)
+
+    raise ValueError(f"Unknown repulsive kernel kind: {kind!r}")
 
 def _repulsive_weight_norm(model: torch.nn.Module) -> torch.Tensor:
     """
@@ -604,6 +667,11 @@ def train_repulsive_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[
     init_beta = float(nncfg.get("init_beta", 3.0))
     transforms = cfg.get("transforms", {})
     out_dim = int(nncfg.get("out_dim", 1))
+    kernel_kind = str(rep_cfg.get("kernel", rep_cfg.get("kernel_kind", "rbf"))).lower()
+    gibbs_l_min = float(rep_cfg.get("gibbs_l_min", 0.1))
+    gibbs_l_max = float(rep_cfg.get("gibbs_l_max", 10.0))
+    gibbs_x0 = float(rep_cfg.get("gibbs_x0", 0.01))
+    gibbs_power = float(rep_cfg.get("gibbs_power", 1.0))
     if out_dim != 1:
         raise NotImplementedError(
             "The first T3 repulsive implementation is intentionally restricted "
@@ -748,12 +816,31 @@ def train_repulsive_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[
             kernel_input = f_members
         else:
             kernel_input = per_point_loss
-        
-        kernel = _repulsive_rbf_kernel(kernel_input, kernel_input.detach(), sigma=h)
-        repulsive_term = (
-            beta
-            / float(n_data)
-            * (kernel.sum(dim=1) / kernel.detach().sum(dim=1).clamp_min(1e-12) - 1.0)
+
+        kernel = _repulsive_kernel(
+            kernel_input,
+            kernel_input.detach(),
+            kind=kernel_kind,
+            sigma=h,
+            xgrid=xgrid_1d if kernel_space in {"xt3", "model", "f", "function"} else None,
+            gibbs_l_min=gibbs_l_min,
+            gibbs_l_max=gibbs_l_max,
+            gibbs_x0=gibbs_x0,
+            gibbs_power=gibbs_power,
+        )
+
+        if loss_name == "chi2":
+            repulsive_prefactor = beta
+        else:
+            repulsive_prefactor = beta / float(n_data)
+
+        if ep == 0:
+            print(f"Repulsive prefactor = {repulsive_prefactor:g} for loss={loss_name!r}")
+
+        repulsive_term = repulsive_prefactor * (
+            kernel.sum(dim=1)
+            / kernel.detach().sum(dim=1).clamp_min(1e-12)
+            - 1.0
         )
 
         loss = torch.sum(data_loss + repulsive_term)
@@ -787,10 +874,10 @@ def train_repulsive_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[
         else:
             epochs_without_improvement += 1
 
-        if patience > 0 and epochs_without_improvement >= patience:
-            stopped_early = True
-            stopped_epoch = ep
-            break
+        # if patience > 0 and epochs_without_improvement >= patience:
+        #     stopped_early = True
+        #     stopped_epoch = ep
+        #     break
 
         if (ep + 1) % log_every == 0:
             loss_hist.append(float(loss.detach().cpu().item()))
