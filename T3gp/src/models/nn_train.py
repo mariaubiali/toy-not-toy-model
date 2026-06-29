@@ -167,25 +167,25 @@ def train_nn_forward(ds: Dict[str, Any], cfg: Dict[str, Any]) -> Dict[str, Any]:
     # Comment out this block if alpha and beta should again be learned
     # as ordinary hyperparameters/fit parameters in future runs.
     # ------------------------------------------------------------
-    # if loss_name == "chi2":
-    #     print("Freezing alpha and beta")
+    if loss_name == "chi2":
+        print("Freezing alpha and beta")
 
-    #     # alpha is now stored directly, so negative values are allowed.
-    #     if hasattr(model, "alpha"):
-    #         model.alpha.requires_grad_(False)
+        # alpha is now stored directly, so negative values are allowed.
+        if hasattr(model, "alpha"):
+            model.alpha.requires_grad_(False)
 
-    #     # fallback for old model versions
-    #     if hasattr(model, "logalpha"):
-    #         model.logalpha.requires_grad_(False)
+        # fallback for old model versions
+        if hasattr(model, "logalpha"):
+            model.logalpha.requires_grad_(False)
 
-    #     # beta is still stored logarithmically to keep beta positive.
-    #     if hasattr(model, "logbeta"):
-    #         model.logbeta.requires_grad_(False)
+        # beta is still stored logarithmically to keep beta positive.
+        if hasattr(model, "logbeta"):
+            model.logbeta.requires_grad_(False)
 
-    #     print(
-    #         f"[L2 chi2 scan] fixed alpha={init_alpha:.6f}, "
-    #         f"fixed beta={init_beta:.6f}"
-    #     )
+        print(
+            f"[L2 chi2 scan] fixed alpha={init_alpha:.6f}, "
+            f"fixed beta={init_beta:.6f}"
+        )
 
 
     # ----------------------------
