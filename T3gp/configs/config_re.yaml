@@ -1,5 +1,5 @@
 seed: 123
-output_dir: results/re_full
+output_dir: results/re/chi2_gibbs
 data:
   path: data/Dataset/data_208_extended.npz
   target: y_pseudo
@@ -32,18 +32,22 @@ nn:
     save_member_preds: true
 
   repulsive:
-    beta: 10.0
+    beta: 1.0
     prior_width: 1.0
     h: null
     init: kaiming
     kernel_space: xt3
-    debug: false
+    kernel: gibbs
+
+    gibbs_l_min: 0.0
+    gibbs_l_max: 10
+    gibbs_x0: 0.001
+    gibbs_log_width: 2.0
 
 loss:
   name: chi2             # mse | weighted_mse | chi2_het | chi2 | mse_het
   jitter: 1.0e-10             # added to C before Cholesky
-  lambda_sr: 1000.0          # set 0.0 to disable sum-rule penalty
+  lambda_sr: 0.0          # set 0.0 to disable sum-rule penalty
 
 transforms:
   Logx: {}
-  Softplus: {}

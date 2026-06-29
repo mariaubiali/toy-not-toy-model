@@ -9,7 +9,7 @@ from validphys.fkparser import load_fktable
 # =========================
 # CONFIG (edit here only)
 # =========================
-NPZ_PATH = "Dataset/data_208_L2.npz"
+NPZ_PATH = "Dataset/data_208_iterated.npz"
 THEORYID = 208
 FKSET = "BCDMSP"
 PDFSET = "NNPDF40_nnlo_as_01180"
@@ -21,7 +21,7 @@ XMAX = 1.0
 XJOIN = 1e-1
 
 DO_PLOT = True
-OUT_PATH = "Dataset/data_208_L2_extended.npz"
+OUT_PATH = "Dataset/data_208_iterated_extended.npz"
 ADD_EXTENDED_TO_NPZ = True
 # =========================
 

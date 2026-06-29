@@ -21,7 +21,11 @@ def load_dataset(cfg: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"Invalid scaling_cov={scaling_cov}. Covariance scaling must be > 0.")
     if scaling_cov != 1.0:
         print(f"[INFO] Scaling CY by factor {scaling_cov}")
-    C = np.asarray(d["c_yy"], float) * scaling_cov
+    # Only experimental cov matrix
+    # C = np.asarray(d["c_yy"], float) * scaling_cov
+
+    # use C_t0 for loss function
+    C = np.asarray(d["c_t0_yy"], float)
 
     if target not in d:
         raise KeyError(f"target={target} not in npz keys: {list(d.keys())}")

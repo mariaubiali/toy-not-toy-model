@@ -49,6 +49,7 @@ class MLPFModel(nn.Module):
             self.scaling_mode = str(scaling).lower()
         else:
             self.scaling_mode = None
+            print("In no scaling!")
         # alpha is stored directly so fixed or trained scans can include
         # negative values, e.g. alpha=-0.5. Do not use log(alpha) here.
         self.alpha = nn.Parameter(torch.tensor(float(init_alpha)))
