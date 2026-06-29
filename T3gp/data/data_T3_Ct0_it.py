@@ -7,7 +7,112 @@ from validphys.api import API
 from validphys.pineparser import pineappl_reader
 from validphys.fkparser import load_fktable
 from validphys.loader import Loader
+from validphys import covmats
+from types import SimpleNamespace
 import matplotlib.pyplot as plt
+
+def project_pd_cov_to_difference(cov_full, idx_p_merge, idx_d_merge, n_p):
+    """
+    Project covariance of concatenated [F2_p, F2_d] data to covariance of
+
+        y = F2_p - F2_d
+
+    for the matched proton/deuteron rows.
+    """
+    cov_full = np.asarray(cov_full, dtype=float)
+
+    c_pp = cov_full[:n_p, :n_p]
+    c_dd = cov_full[n_p:, n_p:]
+    c_pd = cov_full[:n_p, n_p:]
+    c_dp = cov_full[n_p:, :n_p]
+
+    c_pp_sub = c_pp[np.ix_(idx_p_merge, idx_p_merge)]
+    c_dd_sub = c_dd[np.ix_(idx_d_merge, idx_d_merge)]
+    c_pd_sub = c_pd[np.ix_(idx_p_merge, idx_d_merge)]
+    c_dp_sub = c_dp[np.ix_(idx_d_merge, idx_p_merge)]
+
+    c_yy = c_pp_sub + c_dd_sub - c_pd_sub - c_dp_sub
+    return 0.5 * (c_yy + c_yy.T)
+
+
+def make_t0_predictions_from_ypseudo(
+    lcd_p,
+    lcd_d,
+    idx_p_merge,
+    idx_d_merge,
+    y_vals,
+    y_pseudo,
+):
+    """
+    Build validphys-compatible T0 predictions for the original proton and
+    deuteron datasets, using the reduced pseudo-data as the T0 reference for
+
+        y = F2_p - F2_d.
+
+    The symmetric prescription shifts both F2_p and F2_d by half of the
+    realised pseudo-data fluctuation.
+    """
+    t0_pred_p = lcd_p.commondata_table["data"].to_numpy(dtype=float).copy()
+    t0_pred_d = lcd_d.commondata_table["data"].to_numpy(dtype=float).copy()
+
+    delta_y = y_pseudo - y_vals
+
+    t0_pred_p[idx_p_merge] += 0.5 * delta_y
+    t0_pred_d[idx_d_merge] -= 0.5 * delta_y
+
+    assert np.allclose(
+        t0_pred_p[idx_p_merge] - t0_pred_d[idx_d_merge],
+        y_pseudo,
+    )
+
+    return [t0_pred_p, t0_pred_d]
+
+
+def build_c_t0_yy_from_validphys(
+    lcd_p,
+    lcd_d,
+    idx_p_merge,
+    idx_d_merge,
+    n_p,
+    y_vals,
+    y_pseudo,
+):
+    """
+    Colibri-style validphys T0 covariance construction, projected to the
+    reduced T3 observable y = F2_p - F2_d.
+    """
+    dataset_inputs_t0_predictions = make_t0_predictions_from_ypseudo(
+        lcd_p=lcd_p,
+        lcd_d=lcd_d,
+        idx_p_merge=idx_p_merge,
+        idx_d_merge=idx_d_merge,
+        y_vals=y_vals,
+        y_pseudo=y_pseudo,
+    )
+
+    # Low-level validphys expects DatasetInput-like objects with .weight
+    # Colibri passes data.dsinputs. Here we only need unit weights.
+    dsinp_p = SimpleNamespace(weight=1.0)
+    dsinp_d = SimpleNamespace(weight=1.0)
+
+    cov_t0_full = covmats.dataset_inputs_t0_covmat_from_systematics(
+        [lcd_p, lcd_d],
+        data_input=[dsinp_p, dsinp_d],
+        use_weights_in_covmat=False,
+        norm_threshold=None,
+        dataset_inputs_t0_predictions=dataset_inputs_t0_predictions,
+    )
+
+    cov_t0_full = np.asarray(cov_t0_full, dtype=float)
+
+    c_t0_yy = project_pd_cov_to_difference(
+        cov_full=cov_t0_full,
+        idx_p_merge=idx_p_merge,
+        idx_d_merge=idx_d_merge,
+        n_p=n_p,
+    )
+
+    return c_t0_yy, cov_t0_full, dataset_inputs_t0_predictions
 
 loader = Loader()
 
@@ -15,15 +120,15 @@ parser = argparse.ArgumentParser(
     description="Run BCDMS analysis with a fixed theory ID"
 )
 
-parser.add_argument(
-    "--theoryid",
-    type=int,
-    default=208,
-    choices=[200, 208, 40001000],
-    help="Theory ID (allowed: 208 or 40001000)",
-)
+# parser.add_argument(
+#     "--theoryid",
+#     type=int,
+#     default=208,
+#     choices=[200, 208, 40001000],
+#     help="Theory ID (allowed: 208 or 40001000)",
+# )
 
-args = parser.parse_args()
+# args = parser.parse_args()
 theoryid = 208
 
 t3_index = 2  # flavor index in FK table
@@ -88,9 +193,9 @@ cov_full = API.dataset_inputs_covmat_from_systematics(**params_cov)
 
 BCDMS_BEAM_ENERGIES = np.array([100, 120, 200, 280])
 
-
 def snap_beam_energy(e_raw):
     """Map computed beam energies to nominal BCDMS values within 5%."""
+    print("in snap beam energy")
     result = np.empty_like(e_raw)
     for i, e in enumerate(e_raw):
         rel_diff = np.abs(BCDMS_BEAM_ENERGIES - e) / BCDMS_BEAM_ENERGIES
@@ -159,6 +264,12 @@ q2_vals = merged_df["q2"].to_numpy()
 y_vals = merged_df["y_val"].to_numpy()
 x_data = merged_df["x"].to_numpy()
 
+# print(x_data)
+# print(q2_vals)
+# print(merged_df["F2_d"].to_numpy())
+
+# print(np.unique(q2_vals))
+
 kinematics = np.column_stack((merged_df["x"].to_numpy(), merged_df["q2"].to_numpy()))
 
 # Calculate FK tables in here
@@ -175,27 +286,18 @@ W = wp_t3[entry_p_rel] - wd_t3[entry_d_rel]  # shape (n_data, n_grid)
 xgrid = fk_p.xgrid.copy()  # shape (n_grid,)
 print(np.min(xgrid), np.max(xgrid), len(xgrid))
 
-# exit()
-
 
 idx_p_merge = merged_df["idx_p"].to_numpy()  # length = N (number of matched points)
 idx_d_merge = merged_df["idx_d"].to_numpy()  # length = N (same N)
 
 # cov_full is (Np + Nd) x (Np + Nd)
 n_p = len(df_p)
-# Extract the proton-proton, deuteron-deuteron, and proton-deuteron sub-blocks:
-c_pp = cov_full[:n_p, :n_p]  # shape = (Np, Np)
-c_dd = cov_full[n_p:, n_p:]  # shape = (Nd, Nd)
-c_pd = cov_full[:n_p, n_p:]  # shape = (Np, Nd)
-
-c_pp_sub = c_pp[np.ix_(idx_p_merge, idx_p_merge)]  # (N, N)
-c_dd_sub = c_dd[np.ix_(idx_d_merge, idx_d_merge)]  # (N, N)
-c_pd_sub = c_pd[np.ix_(idx_p_merge, idx_d_merge)]  # (N, N)
-
-c_yy = c_pp_sub + c_dd_sub - 2 * c_pd_sub
-
-# For symmetry reasons
-c_yy = 0.5 * (c_yy + c_yy.T)
+c_yy = project_pd_cov_to_difference(
+    cov_full=cov_full,
+    idx_p_merge=idx_p_merge,
+    idx_d_merge=idx_d_merge,
+    n_p=n_p,
+)
 
 
 # Add jitter until positive-definite
@@ -216,7 +318,7 @@ pdf0 = pdfset.mkPDF(0)
 Q0 = fk_p.Q0
 xt3_true = np.zeros_like(xgrid)
 
-# T_3 = (u - ubar) - (d - dbar)
+# T_3 = (u + ubar) - (d + dbar)
 for i, x in enumerate(xgrid):
     u = pdf0.xfxQ(2, x, Q0)
     ub = pdf0.xfxQ(-2, x, Q0)
@@ -239,59 +341,69 @@ y_t3_theory = W @ (t3)  # shape (N,)
 print("y theory shape: ", y_theory.shape)
 # y_test, load different FK table to change basis to F3
 
-# ------------------------------------------------------------
-# L1 data: independent pseudo-data samples around y_theory
-# ------------------------------------------------------------
+# L1 data
+rng = np.random.default_rng(seed=451)  # previously used seed
+# rng = np.random.default_rng(seed=357) # best seed
+noise = rng.multivariate_normal(mean=np.zeros(len(y_theory)), cov=c_yy)
 
-l1_seeds = np.arange(0, 1000)
-n_l1_replicas = len(l1_seeds)
+y_pseudo = y_theory + noise
 
-y_l1_samples = []
+chi2_fit = np.load("../results/nn/chi2_normal/nn_summary.npz")
 
-for seed in l1_seeds:
-    rng_l1 = np.random.default_rng(seed)
+mean = np.asarray(chi2_fit["mean_curve"], float)
+print("mean shape: ",mean.shape)
+y_fit = W @ mean
 
-    noise_l1 = rng_l1.multivariate_normal(
-        mean=np.zeros(len(y_theory)),
-        cov=c_yy,
+# generate C_T0 matrix
+c_t0_yy, cov_t0_full, t0_predictions = build_c_t0_yy_from_validphys(
+    lcd_p=lcd_p,
+    lcd_d=lcd_d,
+    idx_p_merge=idx_p_merge,
+    idx_d_merge=idx_d_merge,
+    n_p=n_p,
+    y_vals=y_vals,
+    y_pseudo=y_fit,
+)
+
+t0_pred_p, t0_pred_d = t0_predictions
+
+print("c_t0_yy shape; ", c_t0_yy.shape)
+
+# L2 data (MC replicas around L1 data)
+n_l2_replicas = 100
+rng_l2 = np.random.default_rng(seed=452)
+
+# use same cov as for L1, experimental unc matrix in this case
+noise_l2 = rng_l2.multivariate_normal(
+    mean=np.zeros(len(y_pseudo)),
+    cov=c_yy,
+    size=n_l2_replicas,
     )
 
-    y_l1_samples.append(y_theory + noise_l1)
+y_l2 = y_pseudo + noise_l2
 
-y_l1_samples = np.asarray(y_l1_samples)
-# shape: (n_l1_replicas, n_data)
-
-y_l1_mean = np.mean(y_l1_samples, axis=0)
-y_l1_std = np.std(y_l1_samples, axis=0, ddof=1)
-
-print("y_l1_samples shape:", y_l1_samples.shape)
+print("y_l2 shape: ", y_l2.shape)
 
 
-# ------------------------------------------------------------
-# Save data
-# ------------------------------------------------------------
-
+# Saving data
 theoryid = str(theoryid)
 
 np.savez(
-    f"Dataset/data_{theoryid}_l1_samples.npz",
-
-    # core quantities
+    f"Dataset/data_{theoryid}_iterated.npz",
     q2_vals=q2_vals,
     y_vals=y_vals,
-    x_data=x_data,
+    y_pseudo=y_pseudo,
     W=W,
     xgrid=xgrid,
     y_theory=y_theory,
     xt3_true=xt3_true,
     c_yy=c_yy,
+    c_t0_yy=c_t0_yy,
+    cov_t0_full=cov_t0_full,
+    t0_pred_p=t0_pred_p,
+    t0_pred_d=t0_pred_d,
     kinematics=kinematics,
-
-    # L1 ensemble
-    l1_seeds=l1_seeds,
-    y_l1_samples=y_l1_samples,
-    y_l1_mean=y_l1_mean,
-    y_l1_std=y_l1_std,
+    y_l2=y_l2,
+    x_data=x_data,
 )
-
-print(f"Saved as Dataset/data_{theoryid}_l1_samples.npz")
+# print(f"Saved as Dataset/data_{theoryid}.npz")
