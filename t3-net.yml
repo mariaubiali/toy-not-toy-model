@@ -1,0 +1,17 @@
+name: gp-nuts
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - arviz
+  - pymc
+  - ipykernel
+  - scikit-learn
+  - seaborn
+  - ipywidgets
+  - pyyaml
+  - numpy[version='<2']
+  - pytorch
+  - tqdm
+  - black
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/gp-nuts

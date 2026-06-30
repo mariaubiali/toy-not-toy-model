@@ -1,0 +1,25 @@
+name: nnpdf
+channels:
+  - defaults
+dependencies:
+  - pip
+  - seaborn
+  - tensorflow=2.18
+  - numpy
+  - numba
+  - pandas
+  - python=3.11
+  - llvmlite=0.42.0
+  - scikit-learn
+  - nnpdf=4.0
+  - matplotlib
+  - pyarrow
+  - scipy
+  - ipykernel
+  - pineappl
+  - tqdm
+  - jupyterlab
+  - lhapdf=6.5
+  - eko
+  - fiatlux
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/nnpdf

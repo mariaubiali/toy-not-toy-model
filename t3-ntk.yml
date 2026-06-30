@@ -1,0 +1,26 @@
+name: ntk
+channels:
+  - defaults
+dependencies:
+  - pyyaml
+  - requests
+  - tqdm
+  - aiohttp
+  - rich
+  - jupyter_core
+  - matplotlib=3.10
+  - psutil
+  - uvloop
+  - scikit-learn=1.7
+  - numpy=1.26
+  - python=3.10
+  - jupyter_client
+  - scipy=1.11
+  - ipython
+  - pandas=2.3
+  - aiodns
+  - seaborn=0.13
+  - pyzmq
+  - pip
+  - ipykernel
+prefix: /opt/homebrew/Caskroom/miniconda/base/envs/ntk
