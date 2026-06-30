@@ -16,7 +16,7 @@ A repository for uncertainty quantification using different models on the T3 dat
 ### 1. Create Pyhton environment
 
 Since PyMC and LHAPDF require different dependencies, two environments have to be created, one for the data generation and the other one for the GP sampling and NN/NTK evaluation.
-The requirements for LHAPDF can be found in `t3-lhapdf.yaml`, the ones for pyMC in `t3-net.yaml` for the NN and GP approach and for the NTK runs in `t3-ntk.yaml`.
+The requirements for LHAPDF can be found in `t3-lhapdf.yml`, the ones for pyMC in `t3-net.yml` for the NN and GP approach and for the NTK runs in `t3-ntk.yml`.
 
 ```bash
 # LHAPDF env
